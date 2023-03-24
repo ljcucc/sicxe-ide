@@ -12,21 +12,29 @@
 </head>
 
 <body>
-  <div class="app" >
+  <div class="app">
 
     <div class="side-layout" v-bind:class="{dark: isDarkMode}">
 
       <div class="editor" v-bind:class="{open: isEditorOpen}">
         <textarea placeholder="// Start type assembly here!"></textarea>
       </div>
-      <div style="position:relative;height: 100%; max-height: 100svh;width: 100%;overflow: hidden auto;">
+      <div style="position:relative;height: 100%; max-height: 100svh;width: 100%;overflow: hidden auto;mix-blend-mode: difference;">
         <canvas width="600" height="600"></canvas>
         <div class="emulator">
           <div class="topbar">
             <button class="icon-btn menu-btn" title="open editor" v-on:click="toggleEditor">
               <i class="material-icons">menu</i>
+              </button>
+              <div style="flex:1;"><strong>SIC/XE (IDE)</strong></div>
+              <button class="icon-btn play" title="fast run switch" v-on:click="toggleFastRun">
+                <i v-if="isFastRun" class="material-icons"> fast_forward</i>
+                <i v-else class="material-icons">skip_next</i>
+              </button>
+              <button class="icon-btn" title="muted" v-on:click="toggleMute">
+                <i v-if="isMuted" class="material-icons">volume_off</i>
+              <i v-else class="material-icons">volume_up</i>
             </button>
-            <div style="flex:1;"><strong>SIC/XE (IDE)</strong></div>
             <button class="icon-btn" title="dark mode on/off" v-on:click="toggleDarkMode">
               <i v-if="isDarkMode" class="material-icons">dark_mode</i>
               <i v-else class="material-icons">light_mode</i>
@@ -39,15 +47,21 @@
               <h1 style="margin-bottom: 0rem;">Emulator</h1>
               <div style="flex:1;"></div>
 
-              <button class="icon-btn play" title="open editor" v-on:click="togglePBar">
-                <i class="material-icons">skip_next</i>
+              <button class="icon-btn play" v-on:click="reset">
+                <i class="material-icons">restart_alt</i>
               </button>
-              <button class="icon-btn play" title="open editor">
-                <i class="material-icons">play_circle_outline</i>
+
+              <button class="icon-btn play" v-on:click="step">
+                <i class="material-icons">airline_stops</i>
               </button>
+              <button class="icon-btn play" v-on:click="start">
+                <i class="material-icons" v-if="isSeqStart">pause</i>
+                <i class="material-icons" v-else>play_arrow</i>
+              </button>
+
             </div>
 
-            <div class="cycle-ani" v-bind:class="{'clock-on': isProgressBar}">
+            <div class="cycle-ani" v-bind:class="{'clock-on': isProgressBar, 'fast-run': isFastRun}">
               <div class="title"></div>
               <div class="disp"></div>
             </div>
@@ -62,33 +76,56 @@
                 </h4>
 
                 <div class="registers fields">
-                  <span class="label">PC</span><input type="text" name="" id="" v-model="reg.pc">
-                  <span class="label">&nbsp;A</span><input type="text" name="" id="" v-model="reg.a">
+                  <span class="label">PC</span><input type="text" pattern="[a-fA-F\d]+" v-model="reg_pc">
+                  <span class="label">&nbsp;A</span><input type="text" pattern="[a-fA-F\d]+" v-model="reg_a">
 
-                  <span class="label">&nbsp;X</span><input type="text" name="" id="" v-model="reg.x">
-                  <span class="label">&nbsp;L</span><input type="text" name="" id="" v-model="reg.l">
+                  <span class="label">&nbsp;X</span><input type="text" pattern="[a-fA-F\d]+" v-model="reg_x">
+                  <span class="label">&nbsp;L</span><input type="text" pattern="[a-fA-F\d]+" v-model="reg_l">
 
-                  <span class="label">&nbsp;B</span><input type="text" name="" id="" v-model="reg.b">
-                  <span class="label">&nbsp;S</span><input type="text" name="" id="" v-model="reg.s">
+                  <span class="label">&nbsp;B</span><input type="text" pattern="[a-fA-F\d]+" v-model="reg_b">
+                  <span class="label">&nbsp;S</span><input type="text" pattern="[a-fA-F\d]+" v-model="reg_s">
 
-                  <span class="label">&nbsp;T</span><input type="text" name="" id="" v-model="reg.t">
-                  <span class="label">&nbsp;F</span><input type="text" name="" id="" v-model="reg.f">
+                  <span class="label">&nbsp;T</span><input type="text" pattern="[a-fA-F\d]+" v-model="reg_t">
+                  <span class="label">&nbsp;F</span><input type="text" pattern="[a-fA-F\d]+" v-model="reg_f">
+
+                  <span class="label">SW</span><input style="grid-column: 1fr / 4fr;" type="text" name="" id=""
+                    v-model="reg_f">
                 </div>
               </div>
 
-              <div>
-                <h4>Log</h4>
+              <div style="width:500px;">
+                <h4>Control Unit</h4>
 
-                <!-- <div class="row-layout">
-          <span class="label">Address Space </span>
-          <input type="text" name="" id=""> ~
-          <input type="text" name="" id=""> <button>Search</button>
-        </div>
-        </div> -->
+                <div class="cu fields">
+                  <span class="label">TA</span><input type="text" readonly>
+                  <span class="label">Fmt</span><input type="text" readonly v-model="fmt_disp">
+                  
+                  <span style="grid-column: 1/5;">instruction decoded:</span>
+                  <input type="text" readonly v-bind:value="(fetched_instr &  0xFF).toString(16).toUpperCase()">
+                  <input type="text" readonly v-bind:value="((fetched_instr & 0xFF00) >> 8).toString(16).toUpperCase()">
+                  <input type="text" readonly v-bind:value="((fetched_instr & 0xFF0000) >> 16).toString(16).toUpperCase()">
+                  <input type="text" readonly v-bind:value="((fetched_instr & 0xFF000000) >> 24).toString(16).toUpperCase()">
+                </div>
 
               </div>
 
+              <div style="width:500px;">
+                <h4>Memory editor</h4>
+
+                <div class="cu fields">
+                  <span>Segment</span><input placeholder="seg_base" type="number" v-model="seg_base" min="0">
+                  <span>~</span><span>{{seg_base+1}}</span>
+
+                  <input v-for="i in 16" v-bind:placeholder="(i-1).toString(16).toUpperCase()" type="text" v-on:input="memEditPoke($event, i)" v-model="mem_map[i-1]">
+
+                </div>
+              </div>
+
             </div>
+          </div>
+
+          <div style="padding: 32px;">
+          <p>(c) ljcucc // Recommend to use Chrome for the best userexperience.</p>
           </div>
         </div>
       </div>

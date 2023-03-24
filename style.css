@@ -23,10 +23,14 @@ body{
 .app{
   height: 100svh;
   background-color: #fffcf2;
+  --bg:#fffcf2;
+  --bg-l:#fffcf2;
 }
 
 .side-layout.dark{
-  background-color: #000;
+  background-color: var(--bg);
+  --bg:#000;
+  --bg-d:#000;
 }
 
 canvas{
@@ -40,7 +44,7 @@ canvas{
   width: 100%;
 }
 
-h1,h2,h3,h4,a,span, input{
+h1,h2,h3,h4,a,span, input,p{
   color:white;
   mix-blend-mode: difference;
 }
@@ -72,6 +76,7 @@ input[type=text],input[type=number]{
   font-family: inherit;
   outline: none;
   caret-shape:block;
+  border-radius: 0px;
 }
 
 input:focus{
@@ -93,7 +98,7 @@ button:hover{
   color: white;
 }
 
-.hex,input[type=text]{
+.hex,input[type=text],input[type=number]{
   width: 5rem;
 }
 
@@ -114,7 +119,12 @@ button:hover{
   grid-template-columns: 1fr 2fr 1fr 2fr;
 }
 
-.registers{
+.fields *{
+  mix-blend-mode: difference;
+  color: white;
+}
+
+.registers,.cu{
   width: 300px;
 }
 
@@ -136,6 +146,9 @@ button:hover{
   overflow: hidden;
 
   mix-blend-mode: difference;
+
+  transition: box-shadow 0.35s;
+  -webkit-transition: box-shadow 0.35s;
 }
 
 .cycle-ani>.disp{
@@ -145,6 +158,32 @@ button:hover{
 
   transition: width 0.35s;
 }
+
+.dark .cycle-ani.clock-on{
+  box-shadow: 0px 0px 50px 10px rgb(255,255,255,0.35);
+}
+
+.dark .cycle-ani.clock-on.fast-run{
+  box-shadow: 0px 0px 50px 10px rgb(255,255,255,0.35);
+  transition: box-shadow 0.35s;
+  -webkit-transition: box-shadow 0.35s;
+  -moz-transition: box-shadow 0.35s;
+
+  animation-delay: 0.35s;
+  animation: 10s ease-in-out 0s infinite alternate fast-run;
+
+  -webkit-animation: 10s ease-in-out 0s infinite alternate fast-run;
+  -webkit-animation-delay: 0.35s;
+
+  -moz-animation: 10s ease-in-out 0s infinite alternate fast-run;
+  -moz-animation-delay: 0.35s;
+}
+
+@keyframes fast-run { from {
+  box-shadow: 0px 0px 50px 10px rgb(255,255,255,0.35);
+} to {
+  box-shadow: 0px 0px 120px 40px rgb(255,255,255,0.5);
+}  }
 
 .cycle-ani.clock-on{
   align-items: start;
@@ -171,6 +210,10 @@ button:hover{
   opacity: 0.75;
 }
 
+.dark .topbar{
+  background-color: var(--bg-d);
+}
+
 .topbar{
   padding: 0pt 4pt;
   height: 60px;
@@ -183,13 +226,17 @@ button:hover{
 
   align-items: center;
 
-  mix-blend-mode: difference;
-  background-color: inherit;
+  background-color: black;
+  mix-blend-mode: normal;
 
   position: sticky;
   top:0;
   left:0;
   right:0;
+
+  backdrop-filter: blur(5px);
+  /* -webkit-backdrop-filter: blur(5px); */
+  -moz-backdrop-filter: blur(5px);
 }
 
 .topbar *{

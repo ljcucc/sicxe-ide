@@ -1,15 +1,154 @@
 import { createApp } from "/src/lib/vue.esm-browser.js";
+import { SICEmulator } from "./sic.js";
+import { SICTest } from "./sic_test.js";
+
+var emu = new SICTest();
+var seqRunner;
+var audios = {
+  tap: new Audio('/assets/navigation_hover-tap.ogg'),
+  running: [new Audio('/assets/running_1.ogg'), new Audio('/assets/running_2.ogg')],
+  fast_run: new Audio('/assets/fast_run.ogg')
+};
+
+audios.fast_run.addEventListener("loadeddata", () => {
+  console.log("done!");
+});
+audios.fast_run.addEventListener("error", e => {
+  console.error(e);
+});
+
+
+function playSounds(continuous) {
+  if(app.isMuted) return;
+  if (continuous) {
+    setTimeout(e => {
+      let a = audios.running[Math.trunc(Math.random() * 1000 % 2)];
+      a.currentTime = 0;
+      a.play();
+    }, 0);
+    return;
+  }
+
+  audios.tap.currentTime = 0;
+  setTimeout(e => audios.tap.play(), 0);
+
+
+}
 
 const emulatorUI = createApp({
-  methods:{
-    togglePBar(){
+  mounted(){
+    this.memEditPeek();
+  },
+  methods: {
+    togglePBar() {
       this.isProgressBar = !this.isProgressBar;
     },
-    toggleEditor(){
+    toggleEditor() {
       this.isEditorOpen = !this.isEditorOpen;
     },
-    toggleDarkMode(){
+    toggleDarkMode() {
       this.isDarkMode = !this.isDarkMode;
+    },
+    toggleMute(){
+      if(this.isSeqStart) return;
+      this.isMuted = !this.isMuted;
+    },
+    toggleFastRun() {
+      if(this.isSeqStart) return;
+      this.isFastRun = !this.isFastRun;
+    },
+
+    async start(){
+      // const val = !seqRunner? (seqRunner = emu.evalSequence()()): seqRunner;
+      this.isSeqStart = !this.isSeqStart;
+
+      setTimeout(async () => {
+        if (this.isFastRun) {
+          if (this.isSeqStart) {
+            if (app.isMuted) return;
+            audios.fast_run.play();
+            for (let i = 0; i < 1; i += 0.05) {
+              audios.fast_run.volume = i;
+              await new Promise(e => setTimeout(e, 10));
+            }
+            audios.fast_run.volume = 1;
+            audios.fast_run.loop = true;
+          } else {
+            for (let i = 1; i > 0; i -= 0.05) {
+              audios.fast_run.volume = i;
+              await new Promise(e => setTimeout(e, 10));
+            }
+            audios.fast_run.pause();
+            // audios.fast_run.currentTime = 0;
+          }
+        }
+
+      }, 0);
+
+      for (; this.isSeqStart;) {
+        emu.eval()
+        this.isProgressBar = true;
+        this.update();
+        if (!this.isFastRun) {
+          playSounds(true);
+          await new Promise(e => setTimeout(e, 500));
+          this.isProgressBar = false;
+          await new Promise(e => setTimeout(e, 500));
+        }
+        else await new Promise(e => setTimeout(e, 10));
+      }
+      this.isProgressBar = false;
+    },
+    async step() {
+      emu.eval();
+      this.isProgressBar = true;
+      playSounds(false);
+      this.update();
+      await new Promise(e => setTimeout(e, 500));
+      this.isProgressBar = false;
+
+      await new Promise(e => setTimeout(e, 500));
+    },
+    reset(){
+      emu.pc = 0;
+      emu.fetchedInstr = 0;
+      emu.instrType = 0;
+      this.update();
+    },
+    update(){
+      this.reg_pc = emu.pc.toString(16).toUpperCase();
+      this.fmt_disp = emu.instrType;
+      this.fetched_instr = emu.fetchedInstr;
+      this.memEditPeek(this.seg_base)
+      // console.log(emu.instrType)
+    },
+    memEditPoke(value, index){
+      console.log(value, index)
+      const base = this.seg_base;
+      for(let i = 0; i < 16;i++){
+        emu.mem[base*16 + i] = parseInt(this.mem_map[index-1], 16);
+      }
+    },
+    memEditPeek(nval){
+      const base = nval || 0;
+      for(let i = 0; i < 16;i++){
+        this.mem_map[i] = (emu.mem[base*16 + i]||0).toString(16).toUpperCase();
+      }
+    }
+  },
+  watch: {
+    reg_pc(nval, old){
+      if(this.isSeqStart) return;
+
+      emu.pc = parseInt(nval, 16);
+    },
+    reg_a(nval, old){
+      if(this.isSeqStart) return;
+
+      emu.reg = parseInt(nval, 16);
+    },
+    seg_base(nval, old){
+      this.memEditPeek(nval);
     }
   },
   data() {
@@ -17,20 +156,29 @@ const emulatorUI = createApp({
       isProgressBar: false,
       isEditorOpen: false,
       isDarkMode: false,
-      reg: {
-        pc: 0,
-        a: 0,
-        x: 0,
-        l: 0,
-        b: 0,
-        s: 0,
-        t: 0,
-        f: "0.0",
-      }
+      isSeqStart: false,
+      isMuted: true,
+      isFastRun: false,
+
+      reg_pc: 0,
+      reg_a: 0,
+      reg_x: 0,
+      reg_l: 0,
+      reg_b: 0,
+      reg_s: 0,
+      reg_t: 0,
+      reg_f: "0.0",
+
+      seg_base: 0x0,
+      mem_map: new Array(16),
+
+      fmt_disp: "",
+      fetched_instr: 0x00,
+
     };
   }
 })
-emulatorUI.mount(".app");
+var app = emulatorUI.mount(".app");
 
 function initCanvas() {
   const canvas = document.querySelector('canvas');
