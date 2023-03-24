@@ -20,13 +20,13 @@
         <textarea placeholder="// Start type assembly here!"></textarea>
       </div>
       <div style="position:relative;height: 100%; max-height: 100svh;width: 100%;overflow: hidden auto;">
-        <canvas></canvas>
+        <canvas width="600" height="600"></canvas>
         <div class="emulator">
           <div class="topbar">
             <button class="icon-btn menu-btn" title="open editor" v-on:click="toggleEditor">
               <i class="material-icons">menu</i>
             </button>
-            <div style="flex:1;"><strong>SIC/XE (dev)</strong></div>
+            <div style="flex:1;"><strong>SIC/XE (IDE)</strong></div>
             <button class="icon-btn" title="dark mode on/off" v-on:click="toggleDarkMode">
               <i v-if="isDarkMode" class="material-icons">dark_mode</i>
               <i v-else class="material-icons">light_mode</i>
