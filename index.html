@@ -12,63 +12,90 @@
 </head>
 
 <body>
-  <div class="topbar">
-    <button class="icon-btn" title="open editor">
-      <i class="material-icons">menu</i>
-    </button>
-      <div style="flex:1;"><strong>SIC/XE (dev)</strong></div>
-  </div>
-  <div class="emulator">
-    <div style="display: flex; flex-direction: row; align-items: flex-end;padding-bottom: 1rem;">
-      <h1 style="margin-bottom: 0rem;">Emulator</h1>
-      <div style="flex:1;"></div>
-  
-      <button class="icon-btn play" title="open editor">
-        <i class="material-icons">skip_next</i>
-      </button>
-      <button class="icon-btn play" title="open editor">
-        <i class="material-icons">play_circle_outline</i>
-      </button>
-    </div>
+  <div class="app" >
 
-  <div class="cycle-ani">
-    <div class="title">// idle</div>
-    <div class="disp"></div>
-  </div>
+    <div class="side-layout" v-bind:class="{dark: isDarkMode}">
 
-    <div class="auto-layout">
-
-      <div style="width:500px;">
-        <h4><a target="_blank" href="https://en.wikipedia.org/wiki/Simplified_Instructional_Computer#SIC_Architecture">Registers</a></h4>
-
-        <div class="registers fields">
-          <span class="label">PC</span><input type="text" name="" id="">
-          <span class="label">A</span><input type="text" name="" id="">
-
-          <span class="label">X</span><input type="text" name="" id="">
-          <span class="label">L</span><input type="text" name="" id="">
-
-          <span class="label">B</span><input type="text" name="" id="">
-          <span class="label">S</span><input type="text" name="" id="">
-
-          <span class="label">T</span><input type="text" name="" id="">
-          <span class="label">F</span><input type="text" name="" id="">
-        </div>
+      <div class="editor" v-bind:class="{open: isEditorOpen}">
+        <textarea placeholder="// Start type assembly here!"></textarea>
       </div>
+      <div style="position:relative;height: 100%; max-height: 100svh;width: 100%;overflow: hidden auto;">
+        <canvas></canvas>
+        <div class="emulator">
+          <div class="topbar">
+            <button class="icon-btn menu-btn" title="open editor" v-on:click="toggleEditor">
+              <i class="material-icons">menu</i>
+            </button>
+            <div style="flex:1;"><strong>SIC/XE (dev)</strong></div>
+            <button class="icon-btn" title="dark mode on/off" v-on:click="toggleDarkMode">
+              <i v-if="isDarkMode" class="material-icons">dark_mode</i>
+              <i v-else class="material-icons">light_mode</i>
+            </button>
+          </div>
 
-      <div>
-        <h4>Log</h4>
+          <div style="padding: 5vmin;">
 
-        <!-- <div class="row-layout">
+            <div style="display: flex; flex-direction: row; align-items: flex-end;padding-bottom: 1rem;">
+              <h1 style="margin-bottom: 0rem;">Emulator</h1>
+              <div style="flex:1;"></div>
+
+              <button class="icon-btn play" title="open editor" v-on:click="togglePBar">
+                <i class="material-icons">skip_next</i>
+              </button>
+              <button class="icon-btn play" title="open editor">
+                <i class="material-icons">play_circle_outline</i>
+              </button>
+            </div>
+
+            <div class="cycle-ani" v-bind:class="{'clock-on': isProgressBar}">
+              <div class="title"></div>
+              <div class="disp"></div>
+            </div>
+
+            <div style="margin-top: 32pt;"></div>
+
+            <div class="auto-layout">
+
+              <div style="width:500px;">
+                <h4><a target="_blank"
+                    href="https://en.wikipedia.org/wiki/Simplified_Instructional_Computer#SIC_Architecture">Registers</a>
+                </h4>
+
+                <div class="registers fields">
+                  <span class="label">PC</span><input type="text" name="" id="" v-model="reg.pc">
+                  <span class="label">&nbsp;A</span><input type="text" name="" id="" v-model="reg.a">
+
+                  <span class="label">&nbsp;X</span><input type="text" name="" id="" v-model="reg.x">
+                  <span class="label">&nbsp;L</span><input type="text" name="" id="" v-model="reg.l">
+
+                  <span class="label">&nbsp;B</span><input type="text" name="" id="" v-model="reg.b">
+                  <span class="label">&nbsp;S</span><input type="text" name="" id="" v-model="reg.s">
+
+                  <span class="label">&nbsp;T</span><input type="text" name="" id="" v-model="reg.t">
+                  <span class="label">&nbsp;F</span><input type="text" name="" id="" v-model="reg.f">
+                </div>
+              </div>
+
+              <div>
+                <h4>Log</h4>
+
+                <!-- <div class="row-layout">
           <span class="label">Address Space </span>
           <input type="text" name="" id=""> ~
           <input type="text" name="" id=""> <button>Search</button>
         </div>
         </div> -->
 
-    </div>
+              </div>
 
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
   </div>
+
 </body>
 <script type="module" src="/src/index.js"></script>
 
