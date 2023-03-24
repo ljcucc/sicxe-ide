@@ -31,7 +31,7 @@ h4{font-size: 16pt;}
 
 input[type=text],input[type=text]{
   padding: 8px;
-  border: 1pt solid black;
+  border: 1.2pt solid black;
   font-size: inherit;
   font-family: inherit;
   outline: none;
@@ -61,7 +61,7 @@ button:hover{
 }
 
 .label::after{
-  content: ": ";
+  content: " ← ";
 }
 
 .fields{
@@ -76,27 +76,28 @@ button:hover{
 
 .cycle-ani{
   width: 100%;
-  height: 60px;
+  height: 20px;
 
-  /* border: 1.2pt solid black; */
+  border: 1.2pt solid white;
 
   display: flex;
   flex-direction: column;
   align-items: end;
 
-  position: fixed;
-  top:0;
   z-index: 900;
 
   background: inherit;
+  position:relative;
 
-  /* mix-blend-mode: difference; */
+  overflow: hidden;
+
+  mix-blend-mode: difference;
 }
 
 .cycle-ani>.disp{
   height: 100%;
   width: 0px;
-  background-color: black;
+  background-color: white;
 
   transition: width 0.35s;
 }
@@ -113,11 +114,17 @@ button:hover{
   position:absolute;
   top: 0;
   left:0;
-  padding: 3pt;
-  padding-left: 8pt;
+  /* padding: 3pt; */
+  padding-left: 4pt;
+  height: 100%;
+
+  font-size: 9pt;
+  font-weight: 900;
 
   mix-blend-mode: difference;
+  background: inherit;
   color: white;
+  opacity: 0.75;
 }
 
 .topbar{
@@ -132,8 +139,8 @@ button:hover{
 
   align-items: center;
 
-  mix-blend-mode: difference;
-  background-color: black;
+  /* mix-blend-mode: difference; */
+  background-color: inherit;
 
   position: sticky;
   top:0;
@@ -176,7 +183,7 @@ button:hover{
 }
 
 .emulator{
-  padding: 32pt;
+  padding: 5vmin;
 }
 
 .auto-layout{
@@ -194,4 +201,21 @@ i.material-icons{
   flex-flow: row wrap;
   gap: 8pt;
   align-items: center;
+}
+
+a{
+  filter: contrast(120%) grayscale(100%);
+}
+
+a:hover{
+  background: black;
+  color: white;
+  filter: invert(000%) contrast(120%) grayscale(100%);
+  text-decoration: underline !important;
+  cursor: pointer;
+}
+
+a:after{
+  content: "↗ ";
+  /* text-decoration: underline; */
 }
