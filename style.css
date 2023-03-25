@@ -69,7 +69,7 @@ input[type=text],input[type=number]{
   max-height: 1.2rem;
   /* border: 1.2pt solid black; */
   border:none;
-  border-bottom: 2pt solid white;
+  border-bottom: 1.2pt solid white;
   background: black;
   color: white;
   font-size: inherit;
@@ -78,6 +78,9 @@ input[type=text],input[type=number]{
   caret-shape:block;
   border-radius: 0px;
 }
+
+/* input::before{content:"[";}
+input::after{content:"]";} */
 
 input:focus{
   filter: invert(100%);
@@ -107,6 +110,7 @@ button:hover{
   flex-direction: row;
   gap: 6pt;
   text-align: right;
+  margin-left: auto;
 }
 
 .label::after{
@@ -115,17 +119,16 @@ button:hover{
 
 .fields{
   display: grid;
-  gap: 16pt;
-  grid-template-columns: 1fr 2fr 1fr 2fr;
+  gap: 8pt;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+
+  max-width: 400px;
+  box-sizing: border-box;
 }
 
 .fields *{
   mix-blend-mode: difference;
   color: white;
-}
-
-.registers,.cu{
-  width: 300px;
 }
 
 .cycle-ani{
@@ -284,7 +287,16 @@ button:hover{
 .auto-layout{
   display: flex;
   flex-flow: row wrap;
-  gap: 32pt;
+  gap: 10vmin;
+}
+
+.auto-layout>.section{
+  max-width: auto;
+  /* max-width: 400px; */
+  min-width: 400px;
+  /* gap: auto; */
+  flex: 1;
+  box-sizing: border-box;
 }
 
 i.material-icons{

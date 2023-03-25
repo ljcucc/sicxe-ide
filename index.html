@@ -14,7 +14,7 @@
 <body>
   <div class="app">
 
-    <div class="side-layout" v-bind:class="{dark: isDarkMode}">
+    <div class="side-layout" v-bind:class="{dark: isDarkMode || (isFastRun && isSeqStart)}">
 
       <div class="editor" v-bind:class="{open: isEditorOpen}">
         <textarea placeholder="// Start type assembly here!"></textarea>
@@ -44,7 +44,7 @@
           <div style="padding: 5vmin;">
 
             <div style="display: flex; flex-direction: row; align-items: flex-end;padding-bottom: 1rem;">
-              <h1 style="margin-bottom: 0rem;">Emulator</h1>
+              <h1 style="margin-bottom: 0rem;">{{title}}</h1>
               <div style="flex:1;"></div>
 
               <button class="icon-btn play" v-on:click="reset">
@@ -70,46 +70,50 @@
 
             <div class="auto-layout">
 
-              <div style="width:500px;">
+              <div class="section">
                 <h4><a target="_blank"
                     href="https://en.wikipedia.org/wiki/Simplified_Instructional_Computer#SIC_Architecture">Registers</a>
                 </h4>
 
                 <div class="registers fields">
                   <span class="label">PC</span><input type="text" pattern="[a-fA-F\d]+" v-model="reg_pc">
-                  <span class="label">&nbsp;A</span><input type="text" pattern="[a-fA-F\d]+" v-model="reg_a">
+                  <span class="label">A</span><input type="text" pattern="[a-fA-F\d]+" v-model="reg_a">
 
-                  <span class="label">&nbsp;X</span><input type="text" pattern="[a-fA-F\d]+" v-model="reg_x">
-                  <span class="label">&nbsp;L</span><input type="text" pattern="[a-fA-F\d]+" v-model="reg_l">
+                  <span class="label">X</span><input type="text" pattern="[a-fA-F\d]+" v-model="reg_x">
+                  <span class="label">L</span><input type="text" pattern="[a-fA-F\d]+" v-model="reg_l">
 
-                  <span class="label">&nbsp;B</span><input type="text" pattern="[a-fA-F\d]+" v-model="reg_b">
-                  <span class="label">&nbsp;S</span><input type="text" pattern="[a-fA-F\d]+" v-model="reg_s">
+                  <span class="label">B</span><input type="text" pattern="[a-fA-F\d]+" v-model="reg_b">
+                  <span class="label">S</span><input type="text" pattern="[a-fA-F\d]+" v-model="reg_s">
 
-                  <span class="label">&nbsp;T</span><input type="text" pattern="[a-fA-F\d]+" v-model="reg_t">
-                  <span class="label">&nbsp;F</span><input type="text" pattern="[a-fA-F\d]+" v-model="reg_f">
+                  <span class="label">T</span><input type="text" pattern="[a-fA-F\d]+" v-model="reg_t">
+                  <span class="label">F</span><input type="text" pattern="[a-fA-F\d]+" v-model="reg_f">
 
-                  <span class="label">SW</span><input style="grid-column: 1fr / 4fr;" type="text" name="" id=""
-                    v-model="reg_f">
+                  <span class="label">SW</span><input style="grid-column: 2/5;width: 100%;" type="text">
                 </div>
               </div>
 
-              <div style="width:500px;">
+              <div class="section">
                 <h4>Control Unit</h4>
 
                 <div class="cu fields">
-                  <span class="label">TA</span><input type="text" readonly>
-                  <span class="label">Fmt</span><input type="text" readonly v-model="fmt_disp">
                   
-                  <span style="grid-column: 1/5;">instruction decoded:</span>
+                  <span style="grid-column: 1/5;">instruction fetched:</span>
                   <input type="text" readonly v-bind:value="(fetched_instr &  0xFF).toString(16).toUpperCase()">
                   <input type="text" readonly v-bind:value="((fetched_instr & 0xFF00) >> 8).toString(16).toUpperCase()">
                   <input type="text" readonly v-bind:value="((fetched_instr & 0xFF0000) >> 16).toString(16).toUpperCase()">
                   <input type="text" readonly v-bind:value="((fetched_instr & 0xFF000000) >> 24).toString(16).toUpperCase()">
+
+                  <input type="text" readonly v-bind:value="cur_opc">
+                  <input type="text" readonly>
+                  <input style="grid-column: 3/5; width: 100%;" type="text" readonly>
+
+                  <span class="label">TA</span><input type="text" readonly>
+                  <span class="label">Format</span><input type="text" readonly v-model="fmt_disp">
                 </div>
 
               </div>
-
-              <div style="width:500px;">
+              
+              <div class="section">
                 <h4>Memory editor</h4>
 
                 <div class="cu fields">

@@ -57,11 +57,14 @@ const emulatorUI = createApp({
       if(this.isSeqStart) return;
       this.isFastRun = !this.isFastRun;
     },
-
-    async start(){
-      // const val = !seqRunner? (seqRunner = emu.evalSequence()()): seqRunner;
-      this.isSeqStart = !this.isSeqStart;
-
+    async progressBarAnimation(stepContinuous){
+      this.isProgressBar = true;
+      playSounds(stepContinuous);
+      await new Promise(e => setTimeout(e, 500));
+      this.isProgressBar = false;
+      await new Promise(e => setTimeout(e, 500));
+    },
+    toggleFastRunMusic(){
       setTimeout(async () => {
         if (this.isFastRun) {
           if (this.isSeqStart) {
@@ -84,16 +87,20 @@ const emulatorUI = createApp({
         }
 
       }, 0);
+    },
+
+    async start(){
+      // const val = !seqRunner? (seqRunner = emu.evalSequence()()): seqRunner;
+      this.isSeqStart = !this.isSeqStart;
+
+      this.toggleFastRunMusic();
 
       for (; this.isSeqStart;) {
         emu.eval()
         this.isProgressBar = true;
         this.update();
         if (!this.isFastRun) {
-          playSounds(true);
-          await new Promise(e => setTimeout(e, 500));
-          this.isProgressBar = false;
-          await new Promise(e => setTimeout(e, 500));
+          await this.progressBarAnimation(true);
         }
         else await new Promise(e => setTimeout(e, 10));
       }
@@ -101,32 +108,36 @@ const emulatorUI = createApp({
     },
     async step() {
       emu.eval();
-      this.isProgressBar = true;
-      playSounds(false);
       this.update();
-      await new Promise(e => setTimeout(e, 500));
-      this.isProgressBar = false;
 
-      await new Promise(e => setTimeout(e, 500));
+      await this.progressBarAnimation(false);
     },
     reset(){
       emu.pc = 0;
       emu.fetchedInstr = 0;
       emu.instrType = 0;
+
       this.update();
+
+      this.title = "[Emulator]"
     },
     update(){
       this.reg_pc = emu.pc.toString(16).toUpperCase();
       this.fmt_disp = emu.instrType;
       this.fetched_instr = emu.fetchedInstr;
-      this.memEditPeek(this.seg_base)
-      // console.log(emu.instrType)
+      this.memEditPeek(this.seg_base);
+
+      var opc = emu.fetchedInstr & 0xFC;
+      this.cur_opc = emu.getOpcName(opc);
+      this.title = `[0x${emu.pc.toString(16).toUpperCase()}] ${this.cur_opc}`;
     },
     memEditPoke(value, index){
-      console.log(value, index)
       const base = this.seg_base;
+      
+
+      console.log(this.mem_map[base+index-1], index,base)
       for(let i = 0; i < 16;i++){
-        emu.mem[base*16 + i] = parseInt(this.mem_map[index-1], 16);
+        emu.mem[base*16 + i] = parseInt(this.mem_map[base+i], 16);
       }
     },
     memEditPeek(nval){
@@ -174,7 +185,8 @@ const emulatorUI = createApp({
 
       fmt_disp: "",
       fetched_instr: 0x00,
-
+      title: "[Emulator]",
+      cur_opc: "",
     };
   }
 })

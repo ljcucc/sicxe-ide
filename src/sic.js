@@ -1,3 +1,56 @@
+const opcs = [
+  "LDA",
+  "LDX",
+  "LDL",
+  "STA",
+  "STX",
+  "STL",
+  "ADD",
+  "SUB",
+  "MUL",
+  "DIV",
+  "COMP",
+  "TIX",
+  "JEQ",
+  "JGT",
+  "JLT",
+  "J",
+
+  "AND",
+  "OR",
+  "JSUB",
+  "RSUB",
+  "LDCH",
+  "STCH",
+  "ADDF",
+  "SUBF",
+  "MULF",
+  "DIVF",
+  "LDB",
+  "LDS",
+  "LDF",
+  "LDT",
+  "STB",
+  "STS",
+
+  "STF",
+  "STT",
+  "COMPF",
+  "N/A",
+  "ADDR",
+  "SUB",
+  "MULR",
+  "DIVR",
+  "COMPR",
+  "SHIFTL",
+  "SHIFTR",
+  "RMO",
+  "SVC",
+  "CLEAR",
+  "TIXR",
+  "N/A",
+]
+
 export class SICEmulator{
   constructor(mem, reg, pc){
     this.mem = new Uint8Array(0x10000);
@@ -6,6 +59,10 @@ export class SICEmulator{
     this.pc = 0;
     this.instrType = "";
     this.fetchedInstr = 0x00;
+  }
+
+  getOpcName(opc){
+    return opcs[opc >> 2] || "N/A";
   }
 
   eval(){
@@ -18,7 +75,12 @@ export class SICEmulator{
       this.fetchedInstr |= (this.mem[this.pc++]) << (8*i);
     }
 
+    this.calcTA(this.fetchedInstr);
+
     // console.log(this.fetchedInstr.toString(16));
+  }
+
+  calcTA(instr){
   }
 
   fetchInstrLen(opc){
