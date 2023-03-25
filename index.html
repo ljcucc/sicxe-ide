@@ -17,7 +17,14 @@
     <div class="side-layout" v-bind:class="{dark: isDarkMode || (isFastRun && isSeqStart)}">
 
       <div class="editor" v-bind:class="{open: isEditorOpen}">
-        <textarea placeholder="// Start type assembly here!"></textarea>
+        <div class="toolbar">
+          <div style="margin-left: 16px; flex:1;min-width: 120px;width:100%;"><strong>[] Assembly</strong></div>
+          <button class="text"  v-on:click="">^</button>
+          <button class="text"  v-on:click="assemblyRun">run</button>
+          <button class="text">reset</button>
+          <div style="height: 30px;width:1px;margin: 0px 10px; background: rgba(0,0,0,.35);"></div>
+        </div>
+        <textarea ref="editorTextbox" placeholder="// Start type assembly here!" v-on:keydown="onEditorType"></textarea>
       </div>
       <div style="position:relative;height: 100%; max-height: 100svh;width: 100%;overflow: hidden auto;mix-blend-mode: difference;">
         <canvas width="600" height="600"></canvas>
@@ -54,6 +61,7 @@
               <button class="icon-btn play" v-on:click="step">
                 <i class="material-icons">airline_stops</i>
               </button>
+
               <button class="icon-btn play" v-on:click="start">
                 <i class="material-icons" v-if="isSeqStart">pause</i>
                 <i class="material-icons" v-else>play_arrow</i>
@@ -70,12 +78,13 @@
 
             <div class="auto-layout">
 
+              <!-- Registers section -->
               <div class="section">
                 <h4><a target="_blank"
                     href="https://en.wikipedia.org/wiki/Simplified_Instructional_Computer#SIC_Architecture">Registers</a>
                 </h4>
 
-                <div class="registers fields">
+                <div class="registers fields" style="grid-template-columns: 50px 100px 50px 100px;"> 
                   <span class="label">PC</span><input type="text" pattern="[a-fA-F\d]+" v-model="reg_pc">
                   <span class="label">A</span><input type="text" pattern="[a-fA-F\d]+" v-model="reg_a">
 
@@ -88,23 +97,29 @@
                   <span class="label">T</span><input type="text" pattern="[a-fA-F\d]+" v-model="reg_t">
                   <span class="label">F</span><input type="text" pattern="[a-fA-F\d]+" v-model="reg_f">
 
-                  <span class="label">SW</span><input style="grid-column: 2/5;width: 100%;" type="text">
+                  <span class="label">SW</span><input style="grid-column: 2/5;width: calc(100% - 50px);" type="text">
                 </div>
               </div>
 
+              <!-- Control Unit section -->
               <div class="section">
                 <h4>Control Unit</h4>
 
                 <div class="cu fields">
                   
-                  <span style="grid-column: 1/5;">instruction fetched:</span>
-                  <input type="text" readonly v-bind:value="(fetched_instr &  0xFF).toString(16).toUpperCase()">
-                  <input type="text" readonly v-bind:value="((fetched_instr & 0xFF00) >> 8).toString(16).toUpperCase()">
-                  <input type="text" readonly v-bind:value="((fetched_instr & 0xFF0000) >> 16).toString(16).toUpperCase()">
-                  <input type="text" readonly v-bind:value="((fetched_instr & 0xFF000000) >> 24).toString(16).toUpperCase()">
+                  <span style="grid-column: 1/5;">instruction register:</span>
+                  <input type="text" readonly v-bind:value="(fetched_instr &  0xFF).toString(16).padStart(2,'0').toUpperCase()">
+                  <input type="text" readonly v-bind:value="((fetched_instr & 0xFF00) >> 8).toString(16).padStart(2,'0').toUpperCase()">
+                  <input type="text" readonly v-bind:value="((fetched_instr & 0xFF0000) >> 16).toString(16).padStart(2,'0').toUpperCase()">
+                  <input type="text" readonly v-bind:value="((fetched_instr & 0xFF000000) >> 24).toString(16).padStart(2,'0').toUpperCase()">
+
+                  <input type="text" readonly v-bind:value="(fetched_instr &  0xFF).toString(2).padStart(8,'0').toUpperCase()">
+                  <input type="text" readonly v-bind:value="((fetched_instr >> 8) & 0xFF).toString(2).padStart(8,'0').toUpperCase()">
+                  <input type="text" readonly v-bind:value="((fetched_instr >> 16) & 0xFF).toString(2).padStart(8,'0').toUpperCase()">
+                  <input type="text" readonly v-bind:value="((fetched_instr >> 24) & 0xFF ).toString(2).padStart(8,'0').toUpperCase()">
 
                   <input type="text" readonly v-bind:value="cur_opc">
-                  <input type="text" readonly>
+                  <input type="text" readonly v-bind:value="instr_flag">
                   <input style="grid-column: 3/5; width: 100%;" type="text" readonly>
 
                   <span class="label">TA</span><input type="text" readonly>
@@ -113,23 +128,53 @@
 
               </div>
               
+              <!-- Memory Editor section -->
               <div class="section">
                 <h4>Memory editor</h4>
 
                 <div class="cu fields">
                   <span>Segment</span><input placeholder="seg_base" type="number" v-model="seg_base" min="0">
                   <span>~</span><span>{{seg_base+1}}</span>
+                  <span style="grid-column: 1/5;height: 10px;">&nbsp;</span>
 
                   <input v-for="i in 16" v-bind:placeholder="(i-1).toString(16).toUpperCase()" type="text" v-on:input="memEditPoke($event, i)" v-model="mem_map[i-1]">
 
                 </div>
               </div>
 
+              <!-- About Section -->
+              <div class="section">
+                <h4>About</h4>
+
+                <div>
+                  1. Get started
+                </div>
+
+                <p>
+                  You can go though <a target="_blank" href="https://wiki.ljcu.cc/site/sicxe-ide">https://wiki.ljcu.cc/site/sicxe-ide</a> for more info, and <a target="_blank" href="https://github.com/ljcucc/sicxe-ide">https://github.com/ljcucc/sicxe-ide</a> for source code.
+                </p>
+                
+                <br><br>
+
+                <div>
+                2. What is SIC? 
+                </div>
+
+                <p>
+                  The Simplified Instructional Computer (SIC) is a virtual machine introduced in the book "System Software" by Leland Beck.
+                  The role of SIC is similar to that of a global language, helping learners build a bridge between their studies and real-world development.
+                  <!-- Although SIC has several bugs, it is still used as teaching material in textbooks and serves as the basis for exam questions. -->
+                </p>
+
+                <p>
+                  So, I built this platform to enable students to learn SIC in an intuitive and enjoyable way.
+                </p>
+              </div>
             </div>
           </div>
 
           <div style="padding: 32px;">
-          <p>(c) ljcucc // Recommend to use Chrome for the best userexperience.</p>
+          <p>(c) ljcucc // Recommend to use Chrome for the best user experience.</p>
           </div>
         </div>
       </div>
@@ -138,6 +183,6 @@
   </div>
 
 </body>
-<script type="module" src="/src/index.js"></script>
+<script type="module" src="./src/index.js"></script>
 
 </html>

@@ -1,14 +1,48 @@
-import { createApp } from "/src/lib/vue.esm-browser.js";
+import { createApp } from "./lib/vue.esm-browser.js";
 import { SICEmulator } from "./sic.js";
 import { SICTest } from "./sic_test.js";
 
 var emu = new SICTest();
-var seqRunner;
 var audios = {
-  tap: new Audio('/assets/navigation_hover-tap.ogg'),
-  running: [new Audio('/assets/running_1.ogg'), new Audio('/assets/running_2.ogg')],
-  fast_run: new Audio('/assets/fast_run.ogg')
+  // tap: new Audio('/assets/navigation_hover-tap.ogg'),
+  // running: [new Audio('/assets/running_1.ogg'), new Audio('/assets/running_2.ogg')],
+  fast_run: new Audio('./assets/fast_run2.ogg'),
+  // fast_temp: new Audio('/assets/_fast_temp__long.wav'),
+  temps: [
+    new Audio('./assets/temp_1.ogg'),
+    new Audio('./assets/temp_2.ogg'), 
+    new Audio('./assets/temp_3.ogg'), 
+  ],
+  enter_darkmode: new Audio('./assets/enter_darkmode.ogg'),
 };
+
+var temp_cycle = 0;
+var enbale_darkmode_boom = 0;
+
+function trackFadein(audio, vol) {
+  vol = vol || 1;
+  setTimeout(async () => {
+    audio.play();
+    for (let i = 0; i < vol; i += 0.05) {
+      audio.volume = i;
+      await new Promise(e => setTimeout(e, 10));
+    }
+    audio.volume = vol;
+    audio.loop = true;
+  }, 0);
+}
+
+function trackFadeout(audio, vol) {
+  vol = vol || 1;
+  setTimeout(async () => {
+    for (let i = vol; i > 0; i -= 0.05) {
+      audio.volume = i;
+      await new Promise(e => setTimeout(e, 10));
+    }
+    audio.pause();
+  }, 0);
+
+}
 
 audios.fast_run.addEventListener("loadeddata", () => {
   console.log("done!");
@@ -22,15 +56,19 @@ function playSounds(continuous) {
   if(app.isMuted) return;
   if (continuous) {
     setTimeout(e => {
-      let a = audios.running[Math.trunc(Math.random() * 1000 % 2)];
+      let a = audios.temps[(temp_cycle++) % 3];
       a.currentTime = 0;
       a.play();
     }, 0);
     return;
   }
 
-  audios.tap.currentTime = 0;
-  setTimeout(e => audios.tap.play(), 0);
+  // setTimeout(e => audios.tap.play(), 0);
+  setTimeout(e => {
+      let a = audios.temps[(temp_cycle++) % 3];
+      a.currentTime = 0;
+      a.play();
+    }, 0);
 
 
 }
@@ -40,6 +78,7 @@ const emulatorUI = createApp({
     this.memEditPeek();
   },
   methods: {
+    //togglers
     togglePBar() {
       this.isProgressBar = !this.isProgressBar;
     },
@@ -57,6 +96,27 @@ const emulatorUI = createApp({
       if(this.isSeqStart) return;
       this.isFastRun = !this.isFastRun;
     },
+
+    // assembly
+    onEditorType(e){
+      console.log(e);
+      if(e.key == "Tab"){
+        e.preventDefault();
+
+        var start = this.$refs.editorTextbox.selectionStart;
+        var end = this.$refs.editorTextbox.selectionEnd;
+
+        // set textarea value to: text before caret + tab + text after caret
+        this.$refs.editorTextbox.value = this.$refs.editorTextbox.value.substring(0, start) +
+          "\t" + this.$refs.editorTextbox.value.substring(end);
+
+        // put caret at right position again
+        this.$refs.editorTextbox.selectionStart =
+        this.$refs.editorTextbox.selectionEnd = start + 1;
+      }
+    },
+
+    // musics process
     async progressBarAnimation(stepContinuous){
       this.isProgressBar = true;
       playSounds(stepContinuous);
@@ -66,29 +126,24 @@ const emulatorUI = createApp({
     },
     toggleFastRunMusic(){
       setTimeout(async () => {
-        if (this.isFastRun) {
-          if (this.isSeqStart) {
-            if (app.isMuted) return;
-            audios.fast_run.play();
-            for (let i = 0; i < 1; i += 0.05) {
-              audios.fast_run.volume = i;
-              await new Promise(e => setTimeout(e, 10));
-            }
-            audios.fast_run.volume = 1;
-            audios.fast_run.loop = true;
-          } else {
-            for (let i = 1; i > 0; i -= 0.05) {
-              audios.fast_run.volume = i;
-              await new Promise(e => setTimeout(e, 10));
-            }
-            audios.fast_run.pause();
-            // audios.fast_run.currentTime = 0;
-          }
-        }
+        if (!this.isFastRun || app.isMuted) return;
 
+        if (this.isSeqStart) {
+          if((enbale_darkmode_boom++)%10 == 0){
+            audios.enter_darkmode.currentTime = 0;
+            audios.enter_darkmode.play();
+          }
+          trackFadein(audios.fast_run);
+          // trackFadein(audios.fast_temp);
+          // loopUntilStop(audios.fast_temp);
+        } else {
+          trackFadeout(audios.fast_run);
+          audios.enter_darkmode.pause();
+        }
       }, 0);
     },
 
+    // emulator core
     async start(){
       // const val = !seqRunner? (seqRunner = emu.evalSequence()()): seqRunner;
       this.isSeqStart = !this.isSeqStart;
@@ -96,7 +151,7 @@ const emulatorUI = createApp({
       this.toggleFastRunMusic();
 
       for (; this.isSeqStart;) {
-        emu.eval()
+        emu.Eval()
         this.isProgressBar = true;
         this.update();
         if (!this.isFastRun) {
@@ -107,7 +162,7 @@ const emulatorUI = createApp({
       this.isProgressBar = false;
     },
     async step() {
-      emu.eval();
+      emu.Eval();
       this.update();
 
       await this.progressBarAnimation(false);
@@ -129,8 +184,23 @@ const emulatorUI = createApp({
 
       var opc = emu.fetchedInstr & 0xFC;
       this.cur_opc = emu.getOpcName(opc);
-      this.title = `[0x${emu.pc.toString(16).toUpperCase()}] ${this.cur_opc}`;
+      this.title = `[0x${emu.pc.toString(16).toUpperCase()}] ${emu.instrType == 'f4'?'+':''}${this.cur_opc}`;
+      this.instr_flag = `${
+        emu.instrFlag.n?'n':'_'
+      }${
+        emu.instrFlag.i?'i':'_'
+      }${
+        emu.instrFlag.x?'x':'_'
+      }${
+        emu.instrFlag.b?'b':'_'
+      }${
+        emu.instrFlag.p?'p':'_'
+      }${
+        emu.instrFlag.e?'e':'_'
+      }`;
     },
+
+    // memory editor
     memEditPoke(value, index){
       const base = this.seg_base;
       
@@ -187,6 +257,7 @@ const emulatorUI = createApp({
       fetched_instr: 0x00,
       title: "[Emulator]",
       cur_opc: "",
+      instr_flag: ""
     };
   }
 })

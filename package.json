@@ -1,0 +1,22 @@
+{
+  "name": "scixe-vm",
+  "version": "1.0.0",
+  "description": "A SIC/XE IDE and emulator",
+  "main": "main.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ljcucc/sicxe-ide.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/ljcucc/sicxe-ide/issues"
+  },
+  "homepage": "https://github.com/ljcucc/sicxe-ide#readme",
+  "devDependencies": {
+    "electron": "^23.2.0"
+  },
+  "scripts": {
+    "start": "electron ."
+  }
+}

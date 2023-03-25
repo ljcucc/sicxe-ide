@@ -1,54 +1,8 @@
 const opcs = [
-  "LDA",
-  "LDX",
-  "LDL",
-  "STA",
-  "STX",
-  "STL",
-  "ADD",
-  "SUB",
-  "MUL",
-  "DIV",
-  "COMP",
-  "TIX",
-  "JEQ",
-  "JGT",
-  "JLT",
-  "J",
-
-  "AND",
-  "OR",
-  "JSUB",
-  "RSUB",
-  "LDCH",
-  "STCH",
-  "ADDF",
-  "SUBF",
-  "MULF",
-  "DIVF",
-  "LDB",
-  "LDS",
-  "LDF",
-  "LDT",
-  "STB",
-  "STS",
-
-  "STF",
-  "STT",
-  "COMPF",
-  "N/A",
-  "ADDR",
-  "SUB",
-  "MULR",
-  "DIVR",
-  "COMPR",
-  "SHIFTL",
-  "SHIFTR",
-  "RMO",
-  "SVC",
-  "CLEAR",
-  "TIXR",
-  "N/A",
+  "LDA", "LDX", "LDL", "STA", "STX", "STL", "ADD", "SUB", "MUL", "DIV", "COMP", "TIX", "JEQ", "JGT", "JLT", "J",
+  "AND", "OR", "RSUB", "JSUB", "LDCH", "STCH", "ADDF", "SUBF", "MULF", "DIVF", "LDB", "LDS", "LDF", "LDT", "STB", "STS",
+  "STF", "STT", "COMPF", "N/A", "ADDR", "SUB", "MULR", "DIVR", "COMPR", "SHIFTL", "SHIFTR", "RMO", "SVC", "CLEAR", "TIXR", "N/A",
+  "FLOAT", "FIX", "NORM", "N/A", "LPS", "STI", "RD", "WD", "TD", "N/A", "STSW", "SSK", "SIO", "HIO", "TIO", "N/A",
 ]
 
 export class SICEmulator{
@@ -59,36 +13,55 @@ export class SICEmulator{
     this.pc = 0;
     this.instrType = "";
     this.fetchedInstr = 0x00;
+    this.instrFlag = {
+      n: false,
+      i: false
+    };
   }
 
   getOpcName(opc){
     return opcs[opc >> 2] || "N/A";
   }
 
-  eval(){
-    let instr_t;
+  Eval(){
     this.fetchedInstr = 0x0;
-    (instr_t = this.fetchInstrLen(this.mem[this.pc]));
-    this.instrType = `f${instr_t}`;
 
+    // format check
+    let { instr_t, ni } = this.fetchInstrLen(this.mem[this.pc]),
+        xbpe = this.peekInstrFlag(this.mem[this.pc+1]);
+    instr_t = instr_t > 2 || ni ^ 0 ?  /* if f3,f4 and ni != 0 */
+      this.peekInstrFormat(this.mem[this.pc+1]):
+      instr_t;
+    this.instrType = `f${instr_t}`;
+    this.instrFlag = {
+      n: ni & 0b10,
+      i: ni & 0b01,
+      x: xbpe & 0b1000, 
+      b: xbpe & 0b0100, 
+      p: xbpe & 0b0010, 
+      x: xbpe & 0b0001, 
+    };
+
+    // fetch full instruction
     for(let i = 0; i < instr_t; i++){
       this.fetchedInstr |= (this.mem[this.pc++]) << (8*i);
     }
 
-    this.calcTA(this.fetchedInstr);
+    // decode and fetch operand
+    this.calcTA(this.fetchedInstr, this.instrFlag);
 
     // console.log(this.fetchedInstr.toString(16));
   }
 
-  calcTA(instr){
+  calcTA(instr, flags){
+  }
+
+  getValueFromTA(){
   }
 
   fetchInstrLen(opc){
     var type = (opc & 0xFC ) >> 4;
-    var ni = opc & 0x3;
-
-    // this.fetchedInstr = opc;
-    // useful text: var __mm = 0x3, mm__ = 0xC;
+    var instr_t, ni = opc & 0x3;
 
     /**
      * 0xC: 1100b
@@ -98,17 +71,27 @@ export class SICEmulator{
      * 0xFC: 1111 1100b
      */
 
-    if(!(type ^ 0xB | type ^0xF)){
-      // console.log("format 1");
-      return 1;
+    if (!(type ^ 0xB | type ^ 0xF))
+      instr_t = 1;
+    else if (!(type & 0xC ^ 0x8) && type & 0x3)
+      instr_t = 2;
+    else
+      instr_t = 3;
+
+    return {
+      instr_t,
+      ni
     }
 
-    if(!(type & 0xC ^ 0x8) && type & 0x3){
-      // console.log("format 2");
-      return 2;
-    }
+  }
 
+  peekInstrFormat(opc2){
+    if(opc2 & 0x10) return 4
     return 3;
+  }
+
+  peekInstrFlag(opc2){
+    return (opc2 & 0b11110000) >> 4;
   }
 
   evalSequence(){
