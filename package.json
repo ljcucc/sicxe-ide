@@ -14,9 +14,11 @@
   },
   "homepage": "https://github.com/ljcucc/sicxe-ide#readme",
   "devDependencies": {
-    "electron": "^23.2.0"
+    "electron": "^23.2.0",
+    "http-server": "^14.1.1"
   },
   "scripts": {
-    "start": "electron ."
+    "start": "electron .",
+    "serve": "http-server ./ -c-1"
   }
 }
