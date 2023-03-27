@@ -108,21 +108,21 @@
                 <div class="cu fields">
                   
                   <span style="grid-column: 1/5;">instruction register:</span>
-                  <input type="text" readonly v-bind:value="(fetched_instr &  0xFF).toString(16).padStart(2,'0').toUpperCase()">
-                  <input type="text" readonly v-bind:value="((fetched_instr & 0xFF00) >> 8).toString(16).padStart(2,'0').toUpperCase()">
-                  <input type="text" readonly v-bind:value="((fetched_instr & 0xFF0000) >> 16).toString(16).padStart(2,'0').toUpperCase()">
-                  <input type="text" readonly v-bind:value="((fetched_instr & 0xFF000000) >> 24).toString(16).padStart(2,'0').toUpperCase()">
+                  <input type="text" readonly v-bind:value="((fetched_instr &  0xFF)>>>0).toString(16).padStart(2,'0').toUpperCase()">
+                  <input type="text" readonly v-bind:value="((fetched_instr & 0xFF00) >>> 8).toString(16).padStart(2,'0').toUpperCase()">
+                  <input type="text" readonly v-bind:value="((fetched_instr & 0xFF0000) >>> 16).toString(16).padStart(2,'0').toUpperCase()">
+                  <input type="text" readonly v-bind:value="((fetched_instr & 0xFF000000) >>> 24).toString(16).padStart(2,'0').toUpperCase()">
 
                   <input type="text" readonly v-bind:value="(fetched_instr &  0xFF).toString(2).padStart(8,'0').toUpperCase()">
-                  <input type="text" readonly v-bind:value="((fetched_instr >> 8) & 0xFF).toString(2).padStart(8,'0').toUpperCase()">
-                  <input type="text" readonly v-bind:value="((fetched_instr >> 16) & 0xFF).toString(2).padStart(8,'0').toUpperCase()">
-                  <input type="text" readonly v-bind:value="((fetched_instr >> 24) & 0xFF ).toString(2).padStart(8,'0').toUpperCase()">
+                  <input type="text" readonly v-bind:value="((fetched_instr >>> 8) & 0xFF).toString(2).padStart(8,'0').toUpperCase()">
+                  <input type="text" readonly v-bind:value="((fetched_instr >>> 16) & 0xFF).toString(2).padStart(8,'0').toUpperCase()">
+                  <input type="text" readonly v-bind:value="((fetched_instr >>> 24) & 0xFF ).toString(2).padStart(8,'0').toUpperCase()">
 
                   <input type="text" readonly v-bind:value="cur_opc">
                   <input type="text" readonly v-bind:value="instr_flag">
                   <input style="grid-column: 3/5; width: 100%;" type="text" readonly>
 
-                  <span class="label">TA</span><input type="text" readonly>
+                  <span class="label">Operand</span><input type="text" readonly v-model="operand">
                   <span class="label">Format</span><input type="text" readonly v-model="fmt_disp">
                 </div>
 
@@ -130,7 +130,7 @@
               
               <!-- Memory Editor section -->
               <div class="section">
-                <h4>Memory editor</h4>
+                <h4>Memory unit</h4>
 
                 <div class="cu fields">
                   <span>Segment</span><input placeholder="seg_base" type="number" v-model="seg_base" min="0">
@@ -167,7 +167,7 @@
                 </p>
 
                 <p>
-                  So, I built this platform to enable students to learn SIC in an intuitive and enjoyable way.
+                  I built this platform, so students to learn and feel computer in by audio and viusal
                 </p>
               </div>
             </div>

@@ -13,9 +13,9 @@ export class SICTest extends SICEmulator{
       0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
     ].concat(arr);
     console.log(arr);
-    this.mem = new Uint8Array(arr);
-    for(var i = 0; i < this.mem.length; i++){
-      this.mem[i] = this.mem[i] || 0;
+    this.model.mem = new Uint8Array(arr);
+    for(var i = 0; i < arr.length; i++){
+      this.model.mem[i] = arr[i] || 0;
     } 
   }
 }

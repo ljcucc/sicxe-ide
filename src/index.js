@@ -1,5 +1,5 @@
 import { createApp } from "./lib/vue.esm-browser.js";
-import { SICEmulator } from "./sic.js";
+import { SICEmulator, getOpcName } from "./sic.js";
 import { SICTest } from "./sic_test.js";
 
 var emu = new SICTest();
@@ -115,6 +115,7 @@ const emulatorUI = createApp({
         this.$refs.editorTextbox.selectionEnd = start + 1;
       }
     },
+    assemblyRun(){},
 
     // musics process
     async progressBarAnimation(stepContinuous){
@@ -154,10 +155,10 @@ const emulatorUI = createApp({
         emu.Eval()
         this.isProgressBar = true;
         this.update();
-        if (!this.isFastRun) {
+        if (!this.isFastRun) 
           await this.progressBarAnimation(true);
-        }
-        else await new Promise(e => setTimeout(e, 10));
+        else 
+          await new Promise(e => setTimeout(e, 10));
       }
       this.isProgressBar = false;
     },
@@ -168,8 +169,8 @@ const emulatorUI = createApp({
       await this.progressBarAnimation(false);
     },
     reset(){
-      emu.pc = 0;
-      emu.fetchedInstr = 0;
+      emu.model.pc = 0;
+      emu.fetchedInstrStr = 0;
       emu.instrType = 0;
 
       this.update();
@@ -177,14 +178,14 @@ const emulatorUI = createApp({
       this.title = "[Emulator]"
     },
     update(){
-      this.reg_pc = emu.pc.toString(16).toUpperCase();
+      this.reg_pc = emu.model.pc.toString(16).toUpperCase();
       this.fmt_disp = emu.instrType;
-      this.fetched_instr = emu.fetchedInstr;
+      this.fetched_instr = emu.fetchedInstrStr;
       this.memEditPeek(this.seg_base);
 
-      var opc = emu.fetchedInstr & 0xFC;
-      this.cur_opc = emu.getOpcName(opc);
-      this.title = `[0x${emu.pc.toString(16).toUpperCase()}] ${emu.instrType == 'f4'?'+':''}${this.cur_opc}`;
+      var opc = emu.fetchedInstrStr & 0xFC;
+      this.cur_opc = getOpcName(opc);
+      this.title = `[0x${emu.model.pc.toString(16).toUpperCase()}] ${emu.instrType == 'f4'?'+':''}${this.cur_opc}`;
       this.instr_flag = `${
         emu.instrFlag.n?'n':'_'
       }${
@@ -198,6 +199,8 @@ const emulatorUI = createApp({
       }${
         emu.instrFlag.e?'e':'_'
       }`;
+
+      this.operand = emu.operand.toString(16).toUpperCase().padStart(8,'0');
     },
 
     // memory editor
@@ -207,13 +210,13 @@ const emulatorUI = createApp({
 
       console.log(this.mem_map[base+index-1], index,base)
       for(let i = 0; i < 16;i++){
-        emu.mem[base*16 + i] = parseInt(this.mem_map[base+i], 16);
+        emu.model.mem[base*16 + i] = parseInt(this.mem_map[base+i], 16);
       }
     },
     memEditPeek(nval){
       const base = nval || 0;
       for(let i = 0; i < 16;i++){
-        this.mem_map[i] = (emu.mem[base*16 + i]||0).toString(16).toUpperCase();
+        this.mem_map[i] = (emu.model.mem[base*16 + i]||0).toString(16).toUpperCase();
       }
     }
   },
@@ -253,11 +256,13 @@ const emulatorUI = createApp({
       seg_base: 0x0,
       mem_map: new Array(16),
 
+      operand: "",
+
       fmt_disp: "",
       fetched_instr: 0x00,
       title: "[Emulator]",
       cur_opc: "",
-      instr_flag: ""
+      instr_flag: "",
     };
   }
 })
