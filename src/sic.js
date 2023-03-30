@@ -151,7 +151,7 @@ class InstrOpFetch{
       this.operand = this.fetchOperand(
         fetchedInstr,
         instrFlag,
-        this.model
+        this.model.reg
       );
     }else if(instr_t == 2){
       this.operand = fetchedInstr & 0x00FF;
@@ -185,7 +185,7 @@ class InstrOpFetch{
         TA += sicxeOperand;
       }
 
-      if (flags.p) TA += regs.pc;
+      if (flags.p) TA += regs.pc - 0x800;
       else if (flags.b) TA += regs.b;
     } while (false);
 
@@ -196,7 +196,7 @@ class InstrOpFetch{
       TA = this.model.peekInt(TA);
     } // immediate addressing and simple addressing are fetch from or store to in execution
 
-    return TA;
+    return (TA>>>0);
   }
 
   peekMem(ta){
@@ -244,12 +244,33 @@ class InstrExec{
     if(FP) this.model.pokeFloat48(TA, value);
     else this.model.pokeInt(TA, value);
   }
+  
+  calcCondiCode(operand){
+    const a = this.model.reg.a, b = this.peekTA(operand);
+    if (a>b) return 1;
+    else if (a==b) return 2;
+    return 3;
+  }
 
   exec(){
     let opcode = this.ID.opcode;
     let operand = this.IOF.operand;
     console.log(operand.toString(16));
     const m32 = value=>value & 0xFFFFFF;
+    
+    const compare = ()=>{
+      let ans = this.calcCondiCode(operand);
+      this.pokeSWBit(6, ans & 1); 
+      this.pokeSWBit(7, ans & 2);
+    }
+    
+    const getCompare = ()=>{
+      let ans = 0; 
+      ans |= this.peekSWBit(6); 
+      ans |= (this.peekSWBit(7)<<1);
+      return ans;
+    };
+    
     switch(opcode){
       case 0x00: /* LDA */ this.model.reg.a=this.peekTA(operand); break;
       case 0x04: /* LDX */ this.model.reg.x=this.peekTA(operand); break;
@@ -263,12 +284,12 @@ class InstrExec{
 
       case 0x20: /* MUL */ this.model.reg.a *= this.peekTA(operand); break;
       case 0x24: /* DIV */ this.model.reg.a /= this.peekTA(operand); break;
-      case 0x28: /* COMP */ break;
-      case 0x2C: /* TIX */ this.model.reg.x ++; break;
+      case 0x28: /* COMP */ compare(); break;
+      case 0x2C: /* TIX */ this.model.reg.x ++; compare(); break;
 
-      case 0x30: /* JEQ */ break;
-      case 0x34: /* JGT */ break;
-      case 0x38: /* JLT */ break;
+      case 0x30: /* JEQ */ if(getCompare()==2) this.model.pc=this.peekTA(operand);break;
+      case 0x34: /* JGT */ if(getCompare()==1) this.model.pc=this.peekTA(operand); break;
+      case 0x38: /* JLT */ if(getCompare()==3) this.model.pc=this.peekTA(operand); break;
       case 0x3C: /* J*/ this.model.pc = this.peekTA(operand); break;
 
       case 0x40: /* AND */ this.model.reg.a = (this.model.reg.a>>>0) & (this.peekTA(operand)); break;
@@ -277,7 +298,7 @@ class InstrExec{
       case 0x4C: /* RSUB */ this.model.pc = this.model.reg.l; break;
 
       case 0x50: /* LDCH */ this.model.a = this.model.mem[this.peekTA(operand)]; break;
-      case 0x54: /* STCH */ this.model.mem[this.peekTA(operand)]=this.model.reg.a; break;
+      case 0x54: /* STCH */ this.model.mem[this.peekTA(operand)] = this.model.reg.a; break;
       case 0x58: /* ADDF */ this.model.a += this.peekTA(operand, true); break;
       case 0x5C: /* SUBF */ this.model.a -= this.peekTA(operand, true); break;
 
@@ -293,7 +314,7 @@ class InstrExec{
 
       case 0x80: /* STF */this.pokeTA(operand, this.model.reg.f, true); break;
       case 0x84: /* STT */this.pokeTA(operand, this.model.reg.t); break;
-      case 0x88: /* COMPF */ this.pokeSWBit(); break;
+      case 0x88: /* COMPF */ break;
       case 0x8C: /* N/A */ break;
 
       case 0x90: /* ADDR */ break;
@@ -332,6 +353,33 @@ class InstrExec{
       case 0xFC: /* N/A */ break;
 
     }
+  }
+}
+
+// https://stackoverflow.com/questions/9383593/extracting-the-exponent-and-mantissa-of-a-javascript-number
+class Float48{
+  // s;
+  // exponent;
+  // fraction;
+  buffer;
+
+  constructor(f64){
+    this.buffer = new Uint8Array(6);
+    if(this.value) this.value = f64;
+  }
+
+  get value(){
+    var f64buf = new Uint8Array(8);
+    for(let i in this.buffer)
+      f64buf[i] = this.buffer[i];
+    return new DataView(f64buf.buffer).getFloat64(0);
+  }
+
+  set value(f64){
+    var f64buf = new Uint8Array(8);
+    new DataView(f64buf.buffer).setFloat64(0,f64);
+    for(let i in this.buffer)
+      this.buffer[i] = f64buf[i];
   }
 }
 
@@ -378,20 +426,15 @@ class ComputerModel{
 
   // Fake 48, actually 32
   peekFloat48(addr){
-    let arr = new Uint8Array([
-      this.mem[addr],
-      this.mem[addr+1],
-      this.mem[addr+2],
-      this.mem[addr+3],
-      this.mem[addr+4], // actually these bit
-      this.mem[addr+5], // are not used in 32 bits floating point.
-      0, 0              // modern computer only support 32, 64 FP, and 48 is only for pascal.
-    ]);
-    
-    return new DataView(arr.buffer).getFloat32();
+    let arr = new Uint8Array(6);
+
+    for(let i in arr) arr[i] = this.mem[addr+i];
+    let f48 = new Float48();
+    f48.buffer = arr;
+    return f48.value;
   }
 
-  operandToFloat48(val){
+  peekTAFloat48(val){
     var value = new Uint8Array(4);
     let arr;
     if(val < 0x01000000){ // f-3
@@ -420,8 +463,6 @@ class ComputerModel{
     if(val) number |= 1<<num;
     else number &= ~(1<<num);
   }
-  
-  setCondiCode(eql, g)
 
   // peekLong(addr){
   //   return (

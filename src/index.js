@@ -239,12 +239,16 @@ const emulatorUI = createApp({
         if(isNaN(this.mem_map[i]) && !isHex(this.mem_map[i])){
           let item = this.mem_map[i]; 
           let result = 0;
-          if(item[item.length-1] == '#')
-            result ++;
-          if(item[item.length-1] == '@')
-            result += 2;
-          if(result != 0) item = item.slice(0,-1);
-          result += getBytecodeOpc(item.toUpperCase().trim());
+          if(item.indexOf('#') > -1){
+            result |= 1;
+            item = item.replace('#','');
+          }
+          if(item.indexOf('@') > -1){
+            result |= 2;
+            item = item.replace('@','');
+          } 
+
+          result |= getBytecodeOpc(item.toUpperCase().trim());
           if(result == 255) continue;
 
           this.mem_map[i] = result.toString(16).toUpperCase();
