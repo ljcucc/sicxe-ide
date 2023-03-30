@@ -1,5 +1,5 @@
 import { createApp } from "./lib/vue.esm-browser.js";
-import { SICEmulator, getOpcName } from "./sic.js";
+import { SICEmulator, getOpcName, getBytecodeOpc } from "./sic.js";
 import { SICTest } from "./sic_test.js";
 
 var emu = new SICTest();
@@ -15,6 +15,14 @@ var audios = {
   ],
   enter_darkmode: new Audio('./assets/enter_darkmode.ogg'),
 };
+
+// functions
+
+function isHex(val){
+  return (val.match( /[0-9A-Fa-f]{6}/g));
+}
+
+// audio
 
 var temp_cycle = 0;
 var enbale_darkmode_boom = 0;
@@ -51,7 +59,6 @@ audios.fast_run.addEventListener("error", e => {
   console.error(e);
 });
 
-
 function playSounds(continuous) {
   if(app.isMuted) return;
   if (continuous) {
@@ -72,6 +79,8 @@ function playSounds(continuous) {
 
 
 }
+
+// Vue app
 
 const emulatorUI = createApp({
   mounted(){
@@ -152,18 +161,30 @@ const emulatorUI = createApp({
       this.toggleFastRunMusic();
 
       for (; this.isSeqStart;) {
-        emu.Eval()
+        try {
+          emu.Eval();
+        } catch (e) {
+          this.err_msg = e.toString();
+          this.isSeqStart = false;
+          console.error(e);
+          break;
+        }
         this.isProgressBar = true;
         this.update();
-        if (!this.isFastRun) 
+        if (!this.isFastRun)
           await this.progressBarAnimation(true);
-        else 
+        else
           await new Promise(e => setTimeout(e, 10));
       }
       this.isProgressBar = false;
     },
     async step() {
-      emu.Eval();
+      try {
+        emu.Eval();
+      } catch (e) {
+        this.err_msg = e.toString();
+        console.error(e);
+      }
       this.update();
 
       await this.progressBarAnimation(false);
@@ -201,16 +222,44 @@ const emulatorUI = createApp({
       }`;
 
       this.operand = emu.operand.toString(16).toUpperCase().padStart(8,'0');
+
+      this.reg_a = emu.model.reg.a.toString(16).toUpperCase().padStart(6, '0');
+      this.reg_x = emu.model.reg.x.toString(16).toUpperCase().padStart(6, '0');
+      this.reg_l = emu.model.reg.l.toString(16).toUpperCase().padStart(6, '0');
+      this.reg_b = emu.model.reg.b.toString(16).toUpperCase().padStart(6, '0');
+      this.reg_s = emu.model.reg.s.toString(16).toUpperCase().padStart(6, '0');
+      this.reg_t = emu.model.reg.t.toString(16).toUpperCase().padStart(6, '0');
+      this.reg_f = emu.model.reg.f.toString()
+      console.log(emu.model);
     },
 
     // memory editor
+    memAutoOpc(){
+      for(let i = 0; i < 16; i++){
+        if(isNaN(this.mem_map[i]) && !isHex(this.mem_map[i])){
+          let item = this.mem_map[i]; 
+          let result = 0;
+          if(item[item.length-1] == '#')
+            result ++;
+          if(item[item.length-1] == '@')
+            result += 2;
+          if(result != 0) item = item.slice(0,-1);
+          result += getBytecodeOpc(item.toUpperCase().trim());
+          if(result == 255) continue;
+
+          this.mem_map[i] = result.toString(16).toUpperCase();
+          
+          const base = this.seg_base;
+          emu.model.mem[base*16 + i] = parseInt(this.mem_map[i], 16);
+        }
+      }
+    },
     memEditPoke(value, index){
       const base = this.seg_base;
-      
 
       console.log(this.mem_map[base+index-1], index,base)
       for(let i = 0; i < 16;i++){
-        emu.model.mem[base*16 + i] = parseInt(this.mem_map[base+i], 16);
+        emu.model.mem[base*16 + i] = parseInt(this.mem_map[i], 16);
       }
     },
     memEditPeek(nval){
@@ -222,14 +271,21 @@ const emulatorUI = createApp({
   },
   watch: {
     reg_pc(nval, old){
-      if(this.isSeqStart) return;
+      if (this.isSeqStart) {
+        return;
+      }
 
-      emu.pc = parseInt(nval, 16);
+      emu.model.pc = parseInt(nval, 16);
     },
     reg_a(nval, old){
       if(this.isSeqStart) return;
 
-      emu.reg = parseInt(nval, 16);
+      emu.model.reg.a = parseInt(nval, 16);
+    },
+    reg_f(nval, old){
+      if(this.isSeqStart) return;
+
+      emu.model.reg.a = parseFloat(nval, 16);
     },
     seg_base(nval, old){
       this.memEditPeek(nval);
@@ -268,11 +324,11 @@ const emulatorUI = createApp({
 })
 var app = emulatorUI.mount(".app");
 
-function initCanvas() {
-  const canvas = document.querySelector('canvas');
-  const ctx = canvas.getContext('2d');
-  ctx.fillStyle = 'black';
-  // ctx.fillRect(0, 0,canvas.width, canvas.height);
+// function initCanvas() {
+//   const canvas = document.querySelector('canvas');
+//   const ctx = canvas.getContext('2d');
+//   ctx.fillStyle = 'black';
+//   // ctx.fillRect(0, 0,canvas.width, canvas.height);
 
-  console.log("done")
-}
+//   console.log("done")
+// }

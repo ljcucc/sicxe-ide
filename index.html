@@ -13,6 +13,7 @@
 
 <body>
   <div class="app">
+    <div v-if="err_msg" class="err-msg" v-on:click="()=>err_msg = ''" style="display: none;" v-bind:style="{display: err_msg? 'default': 'none'}">{{err_msg}}</div>
 
     <div class="side-layout" v-bind:class="{dark: isDarkMode || (isFastRun && isSeqStart)}">
 
@@ -137,7 +138,7 @@
                   <span>~</span><span>{{seg_base+1}}</span>
                   <span style="grid-column: 1/5;height: 10px;">&nbsp;</span>
 
-                  <input v-for="i in 16" v-bind:placeholder="(i-1).toString(16).toUpperCase()" type="text" v-on:input="memEditPoke($event, i)" v-model="mem_map[i-1]">
+                  <input v-for="i in 16" v-bind:placeholder="(i-1).toString(16).toUpperCase()" type="text" v-on:input="memEditPoke($event, i)" v-on:change="memAutoOpc" v-model="mem_map[i-1]">
 
                 </div>
               </div>
@@ -160,14 +161,14 @@
                 2. What is SIC? 
                 </div>
 
-                <p>
+                <p style="text-align: justify;">
                   The Simplified Instructional Computer (SIC) is a virtual machine introduced in the book "System Software" by Leland Beck.
                   The role of SIC is similar to that of a global language, helping learners build a bridge between their studies and real-world development.
                   <!-- Although SIC has several bugs, it is still used as teaching material in textbooks and serves as the basis for exam questions. -->
                 </p>
 
                 <p>
-                  I built this platform, so students to learn and feel computer in by audio and viusal
+                  I built this platform, so students can learn and feel computer in by audio and viusal
                 </p>
               </div>
             </div>

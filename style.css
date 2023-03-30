@@ -406,3 +406,18 @@ button.text:hover{
 }
 button.text::before{ content: "("; }
 button.text::after{ content: ")"; }
+
+.err-msg{
+  position:fixed;
+  font-size: 60pt;
+  background-color: rgb(243, 52, 52);
+  color: white;
+  padding: 10vmin;
+  z-index: 1000000;
+  top:0;
+  left:0;
+  right:0;
+  bottom:0;
+
+  overflow:auto;
+}
