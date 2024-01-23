@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:sicxe/control_bar.dart';
+import 'package:sicxe/inspectors/memory_inspector.dart';
 import 'package:sicxe/vm/vm.dart';
 import 'package:sicxe/inspectors/vm_inspector.dart';
 
@@ -69,7 +70,7 @@ class _MyHomePageState extends State<MyHomePage> {
     }
 
     return DefaultTabController(
-      length: 2,
+      length: 3,
       initialIndex: 0,
       child: Scaffold(
         appBar: AppBar(
@@ -79,14 +80,21 @@ class _MyHomePageState extends State<MyHomePage> {
               text: "Overview",
             ),
             Tab(
-              text: "Assembler",
+              text: "Log",
+            ),
+            Tab(
+              text: "Memory",
             ),
           ]),
         ),
         body: TabBarView(
           children: [
             VMInspector(vm: vm),
-            Text("Assembler"),
+            Text("Log"),
+            SafeArea(
+              minimum: const EdgeInsets.all(8.0),
+              child: MemoryInspector(mem: vm.mem),
+            ),
           ],
         ),
         floatingActionButtonLocation: fabLocation,
