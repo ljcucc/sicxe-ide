@@ -1,11 +1,10 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:sicxe/inspectors/instruction_inspector.dart';
-import 'package:sicxe/inspectors/memory_inspector.dart';
-import 'package:sicxe/inspectors/registers_inspector_list.dart';
-
-import '../vm/vm.dart';
+import 'package:sicxe/playground_page/inspectors/instruction_inspector.dart';
+import 'package:sicxe/playground_page/inspectors/memory_inspector.dart';
+import 'package:sicxe/playground_page/inspectors/registers_inspector_list.dart';
+import 'package:sicxe/vm/vm.dart';
 
 class VMInspector extends StatelessWidget {
   final SICXE vm;

@@ -46,7 +46,7 @@ class _MemoryInspectorState extends State<MemoryInspector> {
                   itemBuilder: (context, index) {
                     return Text(
                       "${(index * 8).toRadixString(16).padLeft(5, "0").toUpperCase()}  ${widget.mem.getRange(index * 8, index * 8 + 8).map((e) => e.toRadixString(16).padLeft(2, '0')).join(" ")}",
-                      style: GoogleFonts.robotoMono(),
+                      style: GoogleFonts.spaceMono(),
                     );
                   },
                 ),
