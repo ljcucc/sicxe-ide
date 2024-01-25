@@ -30,7 +30,7 @@ class _MemoryInspectorState extends State<MemoryInspector> {
       expanded: true,
       title: Text("Memory overview"),
       child: Card(
-        elevation: 8,
+        elevation: 0,
         shadowColor: Colors.transparent,
         child: ListView.builder(
           padding: EdgeInsets.all(16),

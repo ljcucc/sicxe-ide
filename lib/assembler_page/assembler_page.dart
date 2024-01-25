@@ -6,7 +6,6 @@ import 'package:flutter_highlight/themes/monokai-sublime.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:sicxe/assembler_page/assembler.dart';
-import 'package:sicxe/assembler_page/assembler_blockly_tab.dart';
 import 'package:sicxe/assembler_page/assembler_editor_tab.dart';
 import 'package:sicxe/assembler_page/assembler_object_program_tab.dart';
 import 'package:sicxe/overview_card.dart';
@@ -90,24 +89,26 @@ OUTPUT BYTE   X'06'
        END    FIRST
 """;
     // Instantiate the CodeController
-    final surfaceTint = Theme.of(context).colorScheme.surfaceTint;
-    _codeController = CodeController(
-      text: source,
-      stringMap: {
-        'WORD': TextStyle(color: Colors.cyan.harmonizeWith(surfaceTint)),
-        'BYTE': TextStyle(color: Colors.cyan.harmonizeWith(surfaceTint)),
-        'RESW': TextStyle(color: Colors.green.harmonizeWith(surfaceTint)),
-        'RESB': TextStyle(color: Colors.green.harmonizeWith(surfaceTint)),
-      },
-    );
+    final primary = Theme.of(context).colorScheme.primary;
+    final tertiary = Theme.of(context).colorScheme.tertiary;
+    _codeController = CodeController(text: source, stringMap: {
+      'WORD': TextStyle(color: primary),
+      'BYTE': TextStyle(color: primary),
+      'RESW': TextStyle(color: primary),
+      'RESB': TextStyle(color: primary),
+      'START': TextStyle(color: primary),
+      'END': TextStyle(color: primary),
+    }, patternMap: {
+      r"\..*": TextStyle(color: tertiary),
+    });
     super.didChangeDependencies();
   }
 
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      initialIndex: 1,
-      length: 3,
+      initialIndex: 0,
+      length: 2,
       child: Builder(builder: (context) {
         return Scaffold(
           appBar: AppBar(
@@ -118,13 +119,12 @@ OUTPUT BYTE   X'06'
                 setState(() {});
               },
               tabs: [
-                Tab(text: "Blockly"),
                 Tab(text: "Assembler Language"),
                 Tab(text: "Object Program"),
               ],
             ),
           ),
-          floatingActionButton: DefaultTabController.of(context).index == 1
+          floatingActionButton: DefaultTabController.of(context).index == 0
               ? FloatingActionButton.extended(
                   onPressed: () {
                     _assembler =
@@ -140,7 +140,6 @@ OUTPUT BYTE   X'06'
           floatingActionButtonLocation: FloatingActionButtonLocation.startFloat,
           body: TabBarView(
             children: [
-              AssemblerBlocklyTab(),
               AssemblerEditorTab(
                 assembler: _assembler,
                 codeController: _codeController,
