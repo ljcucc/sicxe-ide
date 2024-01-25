@@ -1,6 +1,8 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:sicxe/description_dialog.dart';
+import 'package:sicxe/document_page/documents.dart';
 import 'package:sicxe/overview_card.dart';
 import 'package:sicxe/vm/vm.dart';
 
@@ -29,6 +31,15 @@ class _MemoryInspectorState extends State<MemoryInspector> {
     return OverviewCard(
       expanded: true,
       title: Text("Memory overview"),
+      description: FutureBuilder(
+        future: getDocument("memory.md"),
+        builder: (context, snapshot) {
+          return DescriptionDialog(
+            title: "記憶體",
+            markdown: snapshot.data ?? "",
+          );
+        },
+      ),
       child: Card(
         elevation: 0,
         shadowColor: Colors.transparent,

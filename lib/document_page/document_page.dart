@@ -10,13 +10,7 @@ class DocumentPage extends StatelessWidget {
       appBar: AppBar(
         title: Text("Documents"),
       ),
-      body: ListView(children: [
-        for (final title in documents.keys)
-          ListTile(
-            title: Text(title),
-            onTap: () {},
-          ),
-      ]),
+      body: Container(),
     );
   }
 }

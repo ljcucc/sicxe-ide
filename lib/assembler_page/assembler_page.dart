@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:sicxe/assembler_page/assembler.dart';
 import 'package:sicxe/assembler_page/assembler_editor_tab.dart';
+import 'package:sicxe/assembler_page/assembler_examples.dart';
 import 'package:sicxe/assembler_page/assembler_object_program_tab.dart';
 import 'package:sicxe/overview_card.dart';
 
@@ -36,62 +37,10 @@ class _AssemblerPageState extends State<AssemblerPage> {
   void didChangeDependencies() {
     print("didChangeDependencies");
 
-    final source = """COPY   START  1000
-FIRST  STL    RETADR
-CLOOP  JSUB   RDREC
-       LDA    LENGTH
-       COMP   ZERO
-       JEQ    ENDFIL
-       JSUB   WRREC
-       J      CLOOP
-ENDFIL LDA    EOF
-       STA    BUFFER
-       LDA    THREE
-       STA    LENGTH
-       JSUB   WRREC
-       LDL    RETADR
-       RSUB
-EOF    BYTE   C'EOF'
-THREE  WORD   3
-ZERO   WORD   0
-RETADR RESW   1
-LENGTH RESW   1
-BUFFER RESB   4096
-.
-.      SUBROUTINE TO READ RECORD INTO BUFFER
-.
-RDREC  LDX    ZERO
-       LDA    ZERO
-RLOOP  TD     INPUT
-       JEQ    RLOOP
-       RD     INPUT
-       COMP   ZERO
-       JEQ    EXIT
-       STCH   BUFFER,X
-       TIX    MAXLEN
-       JLT    RLOOP
-EXIT   STX    LENGTH
-       RSUB
-INPUT  BYTE   X'F1'
-MAXLEN WORD   4096
-.
-.      SUBROUTINE TO WRITE RECORD FROM BUFFER
-.
-WRREC  LDX    ZERO
-WLOOP  TD     OUTPUT
-       JEQ    WLOOP
-       LDCH   BUFFER,X
-       WD     OUTPUT
-       TIX    LENGTH
-       JLT    WLOOP
-       RSUB
-OUTPUT BYTE   X'06'
-       END    FIRST
-""";
     // Instantiate the CodeController
     final primary = Theme.of(context).colorScheme.primary;
     final tertiary = Theme.of(context).colorScheme.tertiary;
-    _codeController = CodeController(text: source, stringMap: {
+    _codeController = CodeController(text: assemblerExampleCode, stringMap: {
       'WORD': TextStyle(color: primary),
       'BYTE': TextStyle(color: primary),
       'RESW': TextStyle(color: primary),
@@ -99,7 +48,7 @@ OUTPUT BYTE   X'06'
       'START': TextStyle(color: primary),
       'END': TextStyle(color: primary),
     }, patternMap: {
-      r"\..*": TextStyle(color: tertiary),
+      r"\..*": TextStyle(color: tertiary.withOpacity(.5)),
     });
     super.didChangeDependencies();
   }
@@ -119,8 +68,14 @@ OUTPUT BYTE   X'06'
                 setState(() {});
               },
               tabs: [
-                Tab(text: "Assembler Language"),
-                Tab(text: "Object Program"),
+                Tab(
+                  icon: Icon(Icons.auto_fix_high),
+                  text: "Assembler Language",
+                ),
+                Tab(
+                  icon: Icon(Icons.view_in_ar_outlined),
+                  text: "Object Program",
+                ),
               ],
             ),
           ),
@@ -132,6 +87,18 @@ OUTPUT BYTE   X'06'
                     _assembler?.pass1();
                     _assembler?.pass2();
                     setState(() {});
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        behavior: SnackBarBehavior.floating,
+                        content: Text(
+                            "Code is compiled, view the object code in its tab."),
+                        action: SnackBarAction(
+                          label: "View",
+                          onPressed: () =>
+                              DefaultTabController.of(context).animateTo(1),
+                        ),
+                      ),
+                    );
                   },
                   label: Text("Compile"),
                   icon: Icon(Icons.memory_rounded),

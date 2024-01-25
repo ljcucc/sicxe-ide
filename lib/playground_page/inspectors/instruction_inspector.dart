@@ -2,6 +2,8 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:sicxe/binary_bar.dart';
+import 'package:sicxe/description_dialog.dart';
+import 'package:sicxe/document_page/documents.dart';
 import 'package:sicxe/overview_card.dart';
 import 'package:sicxe/value_block.dart';
 import 'package:sicxe/vm/vm.dart';
@@ -31,6 +33,15 @@ class InstructionInspector extends StatelessWidget {
 
     return OverviewCard(
       title: Text("Instruction"),
+      description: FutureBuilder(
+        future: getDocument("instructions.md"),
+        builder: (context, snapshot) {
+          return DescriptionDialog(
+            title: "指令",
+            markdown: snapshot.data ?? "",
+          );
+        },
+      ),
       child: Container(
         width: double.infinity,
         child: Wrap(

@@ -2,6 +2,8 @@ import 'package:code_text_field/code_text_field.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:sicxe/assembler_page/assembler.dart';
+import 'package:sicxe/description_dialog.dart';
+import 'package:sicxe/document_page/documents.dart';
 import 'package:sicxe/overview_card.dart';
 
 class AssemblerEditorTab extends StatelessWidget {
@@ -55,6 +57,15 @@ class AssemblerEditorTab extends StatelessWidget {
             child: OverviewCard(
               expanded: true,
               title: Text("SYMTAB"),
+              description: FutureBuilder(
+                future: getDocument("object_program.md"),
+                builder: (context, snapshot) {
+                  return DescriptionDialog(
+                    title: "SYMTAB",
+                    markdown: snapshot.data ?? "",
+                  );
+                },
+              ),
               child: Card(
                 shadowColor: Colors.transparent,
                 elevation: 0,

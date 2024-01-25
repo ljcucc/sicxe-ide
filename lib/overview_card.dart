@@ -3,6 +3,7 @@ import 'package:sicxe/document_page/documents.dart';
 
 class OverviewCard extends StatelessWidget {
   final Widget title;
+  final Widget? description;
   final Widget? child;
 
   final bool expanded;
@@ -12,6 +13,7 @@ class OverviewCard extends StatelessWidget {
     required this.title,
     this.child,
     this.expanded = false,
+    this.description,
   });
 
   @override
@@ -38,16 +40,10 @@ class OverviewCard extends StatelessWidget {
                     context: context,
                     builder: (context) {
                       return Dialog(
-                        backgroundColor: Theme.of(context).colorScheme.surface,
                         child: Container(
                           padding: const EdgeInsets.all(24.0),
                           constraints: BoxConstraints(maxWidth: 700),
-                          child: ListTile(
-                            title: title,
-                            subtitle: Text(
-                                documents[title.toString().split('"')[1]] ??
-                                    ""),
-                          ),
+                          child: description,
                         ),
                       );
                     },

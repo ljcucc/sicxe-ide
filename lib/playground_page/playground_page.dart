@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:sicxe/control_bar.dart';
 import 'package:sicxe/playground_page/inspectors/memory_inspector.dart';
 import 'package:sicxe/playground_page/inspectors/vm_inspector.dart';
+import 'package:sicxe/playground_page/io_tab.dart';
 import 'package:sicxe/vm/vm.dart';
 import 'package:sicxe/playground_page/logs_tab.dart';
 
@@ -33,16 +34,31 @@ class _PlaygroundPageState extends State<PlaygroundPage> {
     }
 
     return DefaultTabController(
-      length: 3,
+      length: 4,
       initialIndex: 0,
       child: Scaffold(
         appBar: AppBar(
-          title: Text("SICXE VM"),
-          bottom: TabBar(tabs: [
-            Tab(text: "Overview"),
-            Tab(text: "Memory"),
-            Tab(text: "Log"),
-          ]),
+          title: Text("Playground"),
+          bottom: TabBar(
+            tabs: [
+              Tab(
+                icon: Icon(Icons.menu_book_rounded),
+                text: "Overview",
+              ),
+              Tab(
+                icon: Icon(Icons.memory_rounded),
+                text: "Memory",
+              ),
+              Tab(
+                icon: Icon(Icons.view_list_outlined),
+                text: "Log",
+              ),
+              Tab(
+                icon: Icon(Icons.developer_board_rounded),
+                text: "I/O",
+              ),
+            ],
+          ),
         ),
         body: TabBarView(
           children: [
@@ -52,6 +68,7 @@ class _PlaygroundPageState extends State<PlaygroundPage> {
               child: MemoryInspector(mem: vm.mem),
             ),
             LogsTab(),
+            IOTab(),
           ],
         ),
         floatingActionButtonLocation: fabLocation,

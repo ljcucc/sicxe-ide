@@ -252,7 +252,7 @@ class HeaderRecord extends ObjectProgramRecord {
           SuggestableText(
             message: "Program name",
             text: programName,
-            color: Colors.green[300],
+            color: Colors.green[800],
           ),
           SuggestableText(
             message: "Staring address of object program.",
@@ -262,7 +262,7 @@ class HeaderRecord extends ObjectProgramRecord {
           SuggestableText(
             message: "Length of object program in bytes.",
             text: length,
-            color: Colors.green[300],
+            color: Colors.green[800],
           ),
         ],
       );
@@ -371,9 +371,9 @@ class SuggestableText extends StatelessWidget {
         child: Text(
           text.toUpperCase(),
           style: GoogleFonts.spaceMono().copyWith(
-            color: color?.harmonizeWith(
-              Theme.of(context).colorScheme.primary,
-            ),
+            color: color != null
+                ? Theme.of(context).colorScheme.primary.harmonizeWith(color!)
+                : null,
           ),
         ),
       ),
