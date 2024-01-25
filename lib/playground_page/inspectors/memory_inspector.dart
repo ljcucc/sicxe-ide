@@ -2,7 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:sicxe/description_dialog.dart';
-import 'package:sicxe/document_page/documents.dart';
+import 'package:sicxe/documents.dart';
 import 'package:sicxe/overview_card.dart';
 import 'package:sicxe/vm/vm.dart';
 

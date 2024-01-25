@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:sicxe/document_page/documents.dart';
+import 'package:sicxe/documents.dart';
 
 class OverviewCard extends StatelessWidget {
   final Widget title;

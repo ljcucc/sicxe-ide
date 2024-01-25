@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class DescriptionDialog extends StatelessWidget {
   final String title;
@@ -21,7 +22,11 @@ class DescriptionDialog extends StatelessWidget {
         SizedBox(height: 32),
         Expanded(
           child: Markdown(
+            selectable: true,
             data: markdown,
+            onTapLink: (text, href, title) async {
+              launchUrl(Uri.tryParse(href!)!);
+            },
             styleSheet: MarkdownStyleSheet(
               code: GoogleFonts.robotoMono(),
               h3Padding: EdgeInsets.only(top: 48, bottom: 16),

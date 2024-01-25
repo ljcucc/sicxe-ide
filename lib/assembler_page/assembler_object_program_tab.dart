@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:sicxe/assembler_page/assembler.dart';
 import 'package:sicxe/assembler_page/object_code_visualize_provider.dart';
 import 'package:sicxe/description_dialog.dart';
-import 'package:sicxe/document_page/documents.dart';
+import 'package:sicxe/documents.dart';
 import 'package:sicxe/overview_card.dart';
 
 class AssemblerObjectProgramTab extends StatefulWidget {

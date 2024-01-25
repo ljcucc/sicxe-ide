@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:sicxe/assembler_page/assembler_page.dart';
 import 'package:sicxe/control_bar.dart';
-import 'package:sicxe/document_page/document_page.dart';
+import 'package:sicxe/home_page/home_page.dart';
 import 'package:sicxe/playground_page/inspectors/memory_inspector.dart';
 import 'package:sicxe/vm/vm.dart';
 import 'package:sicxe/playground_page/inspectors/vm_inspector.dart';
@@ -85,12 +85,12 @@ class _MyHomePageState extends State<MyHomePage> {
         MediaQuery.of(context).orientation == Orientation.portrait ||
             MediaQuery.of(context).size.height < 500;
     final dispScreen = [
+      HomePage(),
       Provider<SICXE>(
         create: (_) => vm,
         child: PlaygroundPage(),
       ),
       AssemblerPage(),
-      DocumentPage(),
     ][_index];
 
     return Scaffold(
@@ -108,16 +108,16 @@ class _MyHomePageState extends State<MyHomePage> {
               },
               destinations: const [
                 NavigationRailDestination(
+                  icon: Icon(Icons.home),
+                  label: Text("Home"),
+                ),
+                NavigationRailDestination(
                   icon: Icon(Icons.memory_rounded),
-                  label: Text("Playground"),
+                  label: Text("Emulator"),
                 ),
                 NavigationRailDestination(
                   icon: Icon(Icons.auto_awesome_rounded),
                   label: Text("Assembler"),
-                ),
-                NavigationRailDestination(
-                  icon: Icon(Icons.help_outline_rounded),
-                  label: Text("Help"),
                 ),
               ],
               selectedIndex: _index,
@@ -135,16 +135,16 @@ class _MyHomePageState extends State<MyHomePage> {
               },
               destinations: const [
                 NavigationDestination(
+                  icon: Icon(Icons.home),
+                  label: "Home",
+                ),
+                NavigationDestination(
                   icon: Icon(Icons.memory_rounded),
-                  label: "Playground",
+                  label: "Emulator",
                 ),
                 NavigationDestination(
                   icon: Icon(Icons.auto_awesome_rounded),
                   label: "Assembler",
-                ),
-                NavigationDestination(
-                  icon: Icon(Icons.help_outline_rounded),
-                  label: "Help",
                 ),
               ],
             )

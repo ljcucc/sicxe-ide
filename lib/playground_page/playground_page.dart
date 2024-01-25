@@ -38,7 +38,7 @@ class _PlaygroundPageState extends State<PlaygroundPage> {
       initialIndex: 0,
       child: Scaffold(
         appBar: AppBar(
-          title: Text("Playground"),
+          title: Text("Emulator"),
           bottom: TabBar(
             tabs: [
               Tab(

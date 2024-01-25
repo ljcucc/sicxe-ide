@@ -40,6 +40,7 @@ dependencies:
   provider: ^6.1.1
   code_text_field: ^1.1.0
   flutter_markdown: ^0.6.18+3
+  url_launcher: ^6.2.4
 
 dev_dependencies:
   flutter_test:
