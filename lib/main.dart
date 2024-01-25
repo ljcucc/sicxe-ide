@@ -2,7 +2,9 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:sicxe/assembler_page/assembler_page.dart';
 import 'package:sicxe/control_bar.dart';
+import 'package:sicxe/document_page/document_page.dart';
 import 'package:sicxe/playground_page/inspectors/memory_inspector.dart';
 import 'package:sicxe/vm/vm.dart';
 import 'package:sicxe/playground_page/inspectors/vm_inspector.dart';
@@ -28,7 +30,7 @@ class MyApp extends StatelessWidget {
               : lightDynamic;
 
       final defaultColorScheme = ColorScheme.fromSeed(
-        seedColor: Color.fromARGB(0, 68, 255, 0),
+        seedColor: Color.fromARGB(255, 0, 255, 255),
         brightness: MediaQuery.of(context).platformBrightness,
       );
 
@@ -66,13 +68,16 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    final compactLayout = MediaQuery.of(context).size.width < 800;
+    final compactLayout =
+        MediaQuery.of(context).orientation == Orientation.portrait ||
+            MediaQuery.of(context).size.height < 500;
     final dispScreen = [
       Provider<SICXE>(
         create: (_) => vm,
         child: PlaygroundPage(),
       ),
-      Text("Assembler"),
+      AssemblerPage(),
+      DocumentPage(),
     ][_index];
 
     return Scaffold(
@@ -82,6 +87,7 @@ class _MyHomePageState extends State<MyHomePage> {
           if (!compactLayout)
             NavigationRail(
               labelType: NavigationRailLabelType.all,
+              groupAlignment: 0,
               onDestinationSelected: (value) {
                 setState(() {
                   _index = value;
@@ -95,6 +101,10 @@ class _MyHomePageState extends State<MyHomePage> {
                 NavigationRailDestination(
                   icon: Icon(Icons.auto_awesome_rounded),
                   label: Text("Assembler"),
+                ),
+                NavigationRailDestination(
+                  icon: Icon(Icons.help_outline_rounded),
+                  label: Text("Help"),
                 ),
               ],
               selectedIndex: _index,
@@ -118,6 +128,10 @@ class _MyHomePageState extends State<MyHomePage> {
                 NavigationDestination(
                   icon: Icon(Icons.auto_awesome_rounded),
                   label: "Assembler",
+                ),
+                NavigationDestination(
+                  icon: Icon(Icons.help_outline_rounded),
+                  label: "Help",
                 ),
               ],
             )
