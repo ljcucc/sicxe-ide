@@ -17,16 +17,22 @@ class VMInspector extends StatelessWidget {
     return ConstrainedBox(
       constraints: BoxConstraints(minHeight: double.infinity),
       child: SafeArea(
-        minimum: const EdgeInsets.all(16.0),
+        minimum: EdgeInsets.symmetric(horizontal: 16),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             if (size.width > 1000) ...[
-              SizedBox(width: 400, child: MemoryInspector(mem: vm.mem)),
-              const SizedBox(width: 8),
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(vertical: 16).copyWith(right: 8),
+                width: 400,
+                height: double.infinity,
+                child: MemoryInspector(mem: vm.mem),
+              ),
             ],
             Expanded(
               child: SingleChildScrollView(
+                padding: const EdgeInsets.symmetric(vertical: 16),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [

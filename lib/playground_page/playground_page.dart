@@ -28,7 +28,7 @@ class _PlaygroundPageState extends State<PlaygroundPage> {
     var fabLocation = FloatingActionButtonLocation.endFloat;
 
     final size = MediaQuery.of(context).size;
-    if (size.width < size.height) {
+    if (size.width < size.height && size.height < 900) {
       fabLocation = FloatingActionButtonLocation.centerFloat;
     }
 
@@ -39,25 +39,19 @@ class _PlaygroundPageState extends State<PlaygroundPage> {
         appBar: AppBar(
           title: Text("SICXE VM"),
           bottom: TabBar(tabs: [
-            Tab(
-              text: "Overview",
-            ),
-            Tab(
-              text: "Log",
-            ),
-            Tab(
-              text: "Memory",
-            ),
+            Tab(text: "Overview"),
+            Tab(text: "Memory"),
+            Tab(text: "Log"),
           ]),
         ),
         body: TabBarView(
           children: [
             VMInspector(vm: vm),
-            LogsTab(),
             SafeArea(
               minimum: const EdgeInsets.all(8.0),
               child: MemoryInspector(mem: vm.mem),
             ),
+            LogsTab(),
           ],
         ),
         floatingActionButtonLocation: fabLocation,

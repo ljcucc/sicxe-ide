@@ -22,6 +22,7 @@ class SICXE {
   FloatingPointData regF = FloatingPointData();
   // Inspecting only
   Instruction? curInstruction;
+  TargetAddress? ta;
 
   Future<void> eval() async {
     // 1. Fetch instruction (pc++)
@@ -30,7 +31,7 @@ class SICXE {
     // 2. Decode instruction
     if (instruction.format == InstructionFormat.Format3 ||
         instruction.format == InstructionFormat.Format4) {
-      TargetAddress ta = TargetAddress(instruction);
+      ta = TargetAddress(instruction);
     }
 
     curInstruction = instruction;
@@ -56,6 +57,9 @@ class TargetAddress {
 
     int fstByte = bytes[0];
     int sndByte = bytes[1];
+
+    print(
+        "${fstByte.toRadixString(2).padLeft(8, '0')}-${sndByte.toRadixString(2).padLeft(8, '0')}");
 
     n = fstByte & 0x02 > 0;
     i = fstByte & 0x01 > 0;
