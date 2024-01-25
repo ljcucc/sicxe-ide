@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:sicxe/assembler_page/assembler_page.dart';
@@ -23,16 +24,28 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
+    final defaultColorScheme = ColorScheme.fromSeed(
+      seedColor: Color.fromARGB(255, 0, 255, 255),
+      brightness: MediaQuery.of(context).platformBrightness,
+    );
+
+    if (kIsWeb) {
+      return MaterialApp(
+        title: 'SICXE VM',
+        theme: ThemeData(
+          colorScheme: defaultColorScheme,
+          useMaterial3: true,
+        ),
+        home: const MyHomePage(title: 'SICXE VM'),
+        debugShowCheckedModeBanner: false,
+      );
+    }
+
     return DynamicColorBuilder(builder: (lightDynamic, darkDynamic) {
       final deviceColorScheme =
           MediaQuery.of(context).platformBrightness == Brightness.dark
               ? darkDynamic
               : lightDynamic;
-
-      final defaultColorScheme = ColorScheme.fromSeed(
-        seedColor: Color.fromARGB(255, 0, 255, 255),
-        brightness: MediaQuery.of(context).platformBrightness,
-      );
 
       return MaterialApp(
         title: 'SICXE VM',
