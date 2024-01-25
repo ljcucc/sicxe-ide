@@ -31,7 +31,7 @@ class BinaryBarView extends StatelessWidget {
   }
 
   _byteWidget(context, int value) {
-    value = 0x0F & value;
+    value = 0xFF & value;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
@@ -44,7 +44,7 @@ class BinaryBarView extends StatelessWidget {
         Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            for (int i = 0; i < 4; i++) ...[
+            for (int i = 7; i >= 0; i--) ...[
               _binaryBall(context, 0x01 << i & value),
               const SizedBox(width: 2),
             ],
