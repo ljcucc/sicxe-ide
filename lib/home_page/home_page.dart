@@ -7,18 +7,15 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: SafeArea(
-        minimum: const EdgeInsets.all(48.0),
-        child: FutureBuilder(
-          future: getDocument("README.md"),
-          builder: (context, snapshot) {
-            return DescriptionDialog(
-              title: "Playground",
-              markdown: snapshot.data ?? "",
-            );
-          },
-        ),
+    return SafeArea(
+      minimum: const EdgeInsets.all(16.0),
+      child: FutureBuilder(
+        future: getDocument("README.md"),
+        builder: (context, snapshot) {
+          return DescriptionDialog(
+            markdown: snapshot.data ?? "",
+          );
+        },
       ),
     );
   }

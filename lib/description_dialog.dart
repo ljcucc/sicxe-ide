@@ -4,28 +4,30 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class DescriptionDialog extends StatelessWidget {
-  final String title;
+  final String? title;
   final String markdown;
 
-  const DescriptionDialog(
-      {super.key, required this.title, required this.markdown});
+  const DescriptionDialog({super.key, this.title, required this.markdown});
 
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
     return Column(
       children: [
-        Text(
-          title,
-          style: textTheme.headlineLarge,
-        ),
-        SizedBox(height: 32),
+        if (title != null) ...[
+          Text(
+            title!,
+            style: textTheme.headlineLarge,
+          ),
+          const SizedBox(height: 32),
+        ],
         Expanded(
           child: Markdown(
             selectable: true,
             data: markdown,
             onTapLink: (text, href, title) async {
-              launchUrl(Uri.tryParse(href!)!);
+              Uri url = Uri.tryParse(href!)!;
+              launchUrl(url);
             },
             styleSheet: MarkdownStyleSheet(
               code: GoogleFonts.robotoMono(),
