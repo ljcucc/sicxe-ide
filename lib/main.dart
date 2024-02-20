@@ -4,7 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:sicxe/assembler_page/assembler_page.dart';
-import 'package:sicxe/control_bar.dart';
+import 'package:sicxe/playground_page/control_bar.dart';
 import 'package:sicxe/home_page/home_page.dart';
 import 'package:sicxe/playground_page/inspectors/memory_inspector.dart';
 import 'package:sicxe/vm/vm.dart';
