@@ -1,11 +1,11 @@
 import 'package:dynamic_color/dynamic_color.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:sicxe/binary_bar.dart';
-import 'package:sicxe/overview_card.dart';
-import 'package:sicxe/value_block.dart';
-import 'package:sicxe/vm/integer.dart';
-import 'package:sicxe/vm/vm.dart';
+import 'package:sicxe/widgets/binary_bar.dart';
+import 'package:sicxe/widgets/overview_card.dart';
+import 'package:sicxe/widgets/value_block.dart';
+import 'package:sicxe/utils/vm/integer.dart';
+import 'package:sicxe/utils/vm/vm.dart';
 
 class RegistersInspectorList extends StatelessWidget {
   final SICXE vm;

@@ -1,9 +1,9 @@
 import 'dart:math';
 import 'dart:typed_data';
 
-import 'package:sicxe/vm/floating_point.dart';
-import 'package:sicxe/vm/integer.dart';
-import 'package:sicxe/vm/op_code.dart';
+import 'package:sicxe/utils/vm/floating_point.dart';
+import 'package:sicxe/utils/vm/integer.dart';
+import 'package:sicxe/utils/vm/op_code.dart';
 
 typedef Memory = Uint8List;
 

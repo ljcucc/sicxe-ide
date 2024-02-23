@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:sicxe/overview_card.dart';
+import 'package:sicxe/widgets/overview_card.dart';
 
 class LogsTab extends StatefulWidget {
   const LogsTab({super.key});

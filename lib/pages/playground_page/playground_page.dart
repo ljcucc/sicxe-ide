@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:sicxe/playground_page/control_bar.dart';
-import 'package:sicxe/playground_page/inspectors/memory_inspector.dart';
-import 'package:sicxe/playground_page/inspectors/vm_inspector.dart';
-import 'package:sicxe/playground_page/io_tab.dart';
-import 'package:sicxe/vm/vm.dart';
-import 'package:sicxe/playground_page/logs_tab.dart';
+import 'package:sicxe/widgets/document_display/document_display_model.dart';
+import 'package:sicxe/pages/playground_page/control_bar.dart';
+import 'package:sicxe/pages/playground_page/inspectors/memory_inspector.dart';
+import 'package:sicxe/pages/playground_page/inspectors/vm_inspector.dart';
+import 'package:sicxe/pages/playground_page/io_tab.dart';
+import 'package:sicxe/utils/vm/vm.dart';
+import 'package:sicxe/pages/playground_page/logs_tab.dart';
 
 class PlaygroundPage extends StatefulWidget {
   const PlaygroundPage({super.key});
@@ -38,23 +39,22 @@ class _PlaygroundPageState extends State<PlaygroundPage> {
       initialIndex: 0,
       child: Scaffold(
         appBar: AppBar(
-          title: Text("Emulator"),
-          bottom: TabBar(
+          title: TabBar(
             tabs: [
               Tab(
-                icon: Icon(Icons.menu_book_rounded),
+                // icon: Icon(Icons.menu_book_rounded),
                 text: "Overview",
               ),
               Tab(
-                icon: Icon(Icons.memory_rounded),
+                // icon: Icon(Icons.memory_rounded),
                 text: "Memory",
               ),
               Tab(
-                icon: Icon(Icons.view_list_outlined),
+                // icon: Icon(Icons.view_list_outlined),
                 text: "Log",
               ),
               Tab(
-                icon: Icon(Icons.developer_board_rounded),
+                // icon: Icon(Icons.developer_board_rounded),
                 text: "I/O",
               ),
             ],

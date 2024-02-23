@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:sicxe/documents.dart';
 
 class OverviewCard extends StatelessWidget {
   final Widget title;
-  final Widget? description;
   final Widget? child;
+  final VoidCallback? onInfoOpen;
 
   final bool expanded;
 
@@ -13,7 +12,7 @@ class OverviewCard extends StatelessWidget {
     required this.title,
     this.child,
     this.expanded = false,
-    this.description,
+    this.onInfoOpen,
   });
 
   @override
@@ -35,21 +34,8 @@ class OverviewCard extends StatelessWidget {
               title: title,
               contentPadding: EdgeInsets.only(left: 16),
               trailing: IconButton(
-                onPressed: () {
-                  showDialog(
-                    context: context,
-                    builder: (context) {
-                      return Dialog(
-                        child: Container(
-                          padding: const EdgeInsets.all(24.0),
-                          constraints: BoxConstraints(maxWidth: 700),
-                          child: description,
-                        ),
-                      );
-                    },
-                  );
-                },
-                icon: Icon(Icons.info_outline_rounded),
+                onPressed: onInfoOpen,
+                icon: Icon(Icons.help_outline_rounded),
               ),
             ),
             if (!expanded) SizedBox(height: 8),

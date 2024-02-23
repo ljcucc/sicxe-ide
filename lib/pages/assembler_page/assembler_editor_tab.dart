@@ -1,10 +1,10 @@
 import 'package:code_text_field/code_text_field.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:sicxe/assembler_page/assembler.dart';
-import 'package:sicxe/description_dialog.dart';
-import 'package:sicxe/documents.dart';
-import 'package:sicxe/overview_card.dart';
+import 'package:provider/provider.dart';
+import 'package:sicxe/pages/assembler_page/assembler.dart';
+import 'package:sicxe/widgets/document_display/document_display_model.dart';
+import 'package:sicxe/widgets/overview_card.dart';
 
 class AssemblerEditorTab extends StatelessWidget {
   final CodeController? codeController;
@@ -57,15 +57,9 @@ class AssemblerEditorTab extends StatelessWidget {
             child: OverviewCard(
               expanded: true,
               title: Text("SYMTAB"),
-              description: FutureBuilder(
-                future: getDocument("object_program.md"),
-                builder: (context, snapshot) {
-                  return DescriptionDialog(
-                    title: "SYMTAB",
-                    markdown: snapshot.data ?? "",
-                  );
-                },
-              ),
+              onInfoOpen: () =>
+                  Provider.of<DocumentDisplayModel>(context, listen: false)
+                      .changeMarkdown("object_program.md"),
               child: Card(
                 shadowColor: Colors.transparent,
                 elevation: 0,

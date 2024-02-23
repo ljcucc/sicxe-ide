@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
-import 'package:sicxe/assembler_page/assembler.dart';
-import 'package:sicxe/assembler_page/object_code_visualize_provider.dart';
-import 'package:sicxe/description_dialog.dart';
-import 'package:sicxe/documents.dart';
-import 'package:sicxe/overview_card.dart';
+import 'package:sicxe/pages/assembler_page/assembler.dart';
+import 'package:sicxe/pages/assembler_page/object_code_visualize_provider.dart';
+import 'package:sicxe/widgets/document_display/document_display_model.dart';
+import 'package:sicxe/widgets/overview_card.dart';
 
 class AssemblerObjectProgramTab extends StatefulWidget {
   final LlbAssembler? assembler;
@@ -26,15 +25,9 @@ class _AssemblerObjectProgramTabState extends State<AssemblerObjectProgramTab> {
       minimum: EdgeInsets.all(16),
       child: OverviewCard(
         title: const Text("Object program"),
-        description: FutureBuilder(
-          future: getDocument("object_program.md"),
-          builder: (context, snapshot) {
-            return DescriptionDialog(
-              title: "Object program 和 Records",
-              markdown: snapshot.data ?? "",
-            );
-          },
-        ),
+        onInfoOpen: () =>
+            Provider.of<DocumentDisplayModel>(context, listen: false)
+                .changeMarkdown("object_program.md"),
         expanded: true,
         child: ChangeNotifierProvider<ObjectCodeIsVisualized>(
           create: (_) => visualized,

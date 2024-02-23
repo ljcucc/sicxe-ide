@@ -5,11 +5,11 @@ import 'package:highlight/languages/dart.dart';
 import 'package:flutter_highlight/themes/monokai-sublime.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:sicxe/assembler_page/assembler.dart';
-import 'package:sicxe/assembler_page/assembler_editor_tab.dart';
-import 'package:sicxe/assembler_page/assembler_examples.dart';
-import 'package:sicxe/assembler_page/assembler_object_program_tab.dart';
-import 'package:sicxe/overview_card.dart';
+import 'package:sicxe/pages/assembler_page/assembler.dart';
+import 'package:sicxe/pages/assembler_page/assembler_editor_tab.dart';
+import 'package:sicxe/pages/assembler_page/assembler_examples.dart';
+import 'package:sicxe/pages/assembler_page/assembler_object_program_tab.dart';
+import 'package:sicxe/widgets/overview_card.dart';
 
 class AssemblerPage extends StatefulWidget {
   const AssemblerPage({super.key});
@@ -69,11 +69,11 @@ class _AssemblerPageState extends State<AssemblerPage> {
               },
               tabs: [
                 Tab(
-                  icon: Icon(Icons.auto_fix_high),
+                  // icon: Icon(Icons.auto_fix_high),
                   text: "Assembler Language",
                 ),
                 Tab(
-                  icon: Icon(Icons.view_in_ar_outlined),
+                  // icon: Icon(Icons.view_in_ar_outlined),
                   text: "Object Program",
                 ),
               ],

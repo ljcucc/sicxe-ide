@@ -1,12 +1,12 @@
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
-import 'package:sicxe/binary_bar.dart';
-import 'package:sicxe/description_dialog.dart';
-import 'package:sicxe/documents.dart';
-import 'package:sicxe/overview_card.dart';
-import 'package:sicxe/value_block.dart';
-import 'package:sicxe/vm/vm.dart';
+import 'package:provider/provider.dart';
+import 'package:sicxe/widgets/binary_bar.dart';
+import 'package:sicxe/widgets/document_display/document_display_model.dart';
+import 'package:sicxe/widgets/overview_card.dart';
+import 'package:sicxe/widgets/value_block.dart';
+import 'package:sicxe/utils/vm/vm.dart';
 
 class InstructionInspector extends StatelessWidget {
   final SICXE vm;
@@ -33,15 +33,9 @@ class InstructionInspector extends StatelessWidget {
 
     return OverviewCard(
       title: Text("Instruction"),
-      description: FutureBuilder(
-        future: getDocument("instructions.md"),
-        builder: (context, snapshot) {
-          return DescriptionDialog(
-            title: "指令",
-            markdown: snapshot.data ?? "",
-          );
-        },
-      ),
+      onInfoOpen: () =>
+          Provider.of<DocumentDisplayModel>(context, listen: false)
+              .changeMarkdown("instructions.md"),
       child: Container(
         width: double.infinity,
         child: Wrap(

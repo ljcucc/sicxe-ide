@@ -1,6 +1,6 @@
 import 'dart:typed_data';
 
-import 'package:sicxe/vm/vm.dart';
+import 'package:sicxe/utils/vm/vm.dart';
 
 enum OpCodes {
   ADD,
