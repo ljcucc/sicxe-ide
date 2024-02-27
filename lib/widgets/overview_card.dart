@@ -21,30 +21,37 @@ class OverviewCard extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 8).copyWith(top: 8),
       child: child,
     );
-    return Card(
-      shadowColor: Colors.transparent,
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16.0),
       child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8)
-            .copyWith(top: 0, right: 8),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            ListTile(
-              title: title,
-              contentPadding: EdgeInsets.only(left: 16),
-              trailing: IconButton(
-                onPressed: onInfoOpen,
-                icon: Icon(Icons.help_outline_rounded),
+        decoration: BoxDecoration(
+          border:
+              Border.all(color: Theme.of(context).colorScheme.outlineVariant),
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8)
+              .copyWith(top: 0, right: 8),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              ListTile(
+                title: title,
+                contentPadding: EdgeInsets.only(left: 16),
+                trailing: IconButton(
+                  onPressed: onInfoOpen,
+                  icon: Icon(Icons.help_outline_rounded),
+                ),
               ),
-            ),
-            if (!expanded) SizedBox(height: 8),
-            if (expanded)
-              Expanded(
-                child: body,
-              ),
-            if (!expanded) body
-          ],
+              if (!expanded) SizedBox(height: 8),
+              if (expanded)
+                Expanded(
+                  child: body,
+                ),
+              if (!expanded) body
+            ],
+          ),
         ),
       ),
     );

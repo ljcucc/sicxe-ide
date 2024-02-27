@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:sicxe/widgets/document_display/document_display_model.dart';
+import 'package:sicxe/pages/playground_page/sicxe_vm_provider.dart';
+import 'package:sicxe/widgets/document_display/document_display_provider.dart';
 import 'package:sicxe/pages/playground_page/control_bar.dart';
 import 'package:sicxe/pages/playground_page/inspectors/memory_inspector.dart';
 import 'package:sicxe/pages/playground_page/inspectors/vm_inspector.dart';
@@ -16,71 +17,74 @@ class PlaygroundPage extends StatefulWidget {
 }
 
 class _PlaygroundPageState extends State<PlaygroundPage> {
-  late SICXE vm;
-
   @override
   void initState() {
     super.initState();
-
-    vm = context.read<SICXE>();
   }
 
   @override
   Widget build(BuildContext context) {
-    var fabLocation = FloatingActionButtonLocation.endFloat;
+    // var fabLocation = FloatingActionButtonLocation.endFloat;
 
-    final size = MediaQuery.of(context).size;
-    if (size.width < size.height && size.height < 900) {
-      fabLocation = FloatingActionButtonLocation.centerFloat;
-    }
+    return Consumer<DocumentDisplayProvider>(builder: (context, ddp, _) {
+      return Consumer<SicxeVmProvider>(builder: (context, svp, _) {
+        final vm = svp.vm;
+        // fabLocation = FloatingActionButtonLocation.endFloat;
+        // if (constraints.maxWidth < 700) {
+        //   fabLocation = FloatingActionButtonLocation.centerFloat;
+        // }
 
-    return DefaultTabController(
-      length: 4,
-      initialIndex: 0,
-      child: Scaffold(
-        appBar: AppBar(
-          title: TabBar(
-            tabs: [
-              Tab(
-                // icon: Icon(Icons.menu_book_rounded),
-                text: "Overview",
+        return DefaultTabController(
+          length: 4,
+          initialIndex: 0,
+          child: Scaffold(
+            backgroundColor: Colors.transparent,
+            appBar: AppBar(
+              // toolbarHeight: 100,
+              title: TabBar(
+                tabs: [
+                  Tab(
+                    // icon: Icon(Icons.menu_book_rounded),
+                    text: "Registers",
+                  ),
+                  Tab(
+                    // icon: Icon(Icons.memory_rounded),
+                    text: "Memory",
+                  ),
+                  Tab(
+                    // icon: Icon(Icons.view_list_outlined),
+                    text: "Log",
+                  ),
+                  Tab(
+                    // icon: Icon(Icons.developer_board_rounded),
+                    text: "I/O",
+                  ),
+                ],
               ),
-              Tab(
-                // icon: Icon(Icons.memory_rounded),
-                text: "Memory",
-              ),
-              Tab(
-                // icon: Icon(Icons.view_list_outlined),
-                text: "Log",
-              ),
-              Tab(
-                // icon: Icon(Icons.developer_board_rounded),
-                text: "I/O",
-              ),
-            ],
-          ),
-        ),
-        body: TabBarView(
-          children: [
-            VMInspector(vm: vm),
-            SafeArea(
-              minimum: const EdgeInsets.all(8.0),
-              child: MemoryInspector(mem: vm.mem),
             ),
-            LogsTab(),
-            IOTab(),
-          ],
-        ),
-        floatingActionButtonLocation: fabLocation,
-        floatingActionButton: ControlBarView(
-          onStepThru: () async {
-            await vm.eval();
-            setState(() {});
-          },
-          onPlay: () async {},
-          onSpeedup: () async {},
-        ),
-      ),
-    );
+            body: TabBarView(
+              children: [
+                VMInspector(vm: vm),
+                SafeArea(
+                  minimum: const EdgeInsets.all(8.0),
+                  child: MemoryInspector(mem: vm.mem),
+                ),
+                LogsTab(),
+                IOTab(),
+              ],
+            ),
+            // floatingActionButtonLocation: fabLocation,
+            // floatingActionButton: ControlBarView(
+            //   onStepThru: () async {
+            //     await vm.eval();
+            //     setState(() {});
+            //   },
+            //   onPlay: () async {},
+            //   onSpeedup: () async {},
+            // ),
+          ),
+        );
+      });
+    });
   }
 }

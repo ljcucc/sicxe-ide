@@ -28,4 +28,10 @@ class IntegerData {
   int get() {
     return _value;
   }
+
+  IntegerData clone() {
+    final copy = IntegerData();
+    copy.set(_value);
+    return copy;
+  }
 }

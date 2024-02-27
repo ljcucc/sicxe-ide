@@ -3,7 +3,7 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:sicxe/widgets/binary_bar.dart';
-import 'package:sicxe/widgets/document_display/document_display_model.dart';
+import 'package:sicxe/widgets/document_display/document_display_provider.dart';
 import 'package:sicxe/widgets/overview_card.dart';
 import 'package:sicxe/widgets/value_block.dart';
 import 'package:sicxe/utils/vm/vm.dart';
@@ -34,7 +34,7 @@ class InstructionInspector extends StatelessWidget {
     return OverviewCard(
       title: Text("Instruction"),
       onInfoOpen: () =>
-          Provider.of<DocumentDisplayModel>(context, listen: false)
+          Provider.of<DocumentDisplayProvider>(context, listen: false)
               .changeMarkdown("instructions.md"),
       child: Container(
         width: double.infinity,

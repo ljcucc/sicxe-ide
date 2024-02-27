@@ -2,7 +2,7 @@ import 'package:dynamic_color/dynamic_color.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
-import 'package:sicxe/pages/assembler_page/object_code_visualize_provider.dart';
+import 'package:sicxe/pages/assembler_page/tabs/assembler_object_program_tab/object_code_visualize_provider.dart';
 import 'package:sicxe/utils/vm/op_code.dart';
 
 typedef AssembleFunction = String Function(int operand);
@@ -82,6 +82,24 @@ class LlbAssembler {
     }
   }
 
+  // this function will split a line of string into cols without breaking string paren.
+  List<String> _split2cols(String line) {
+    final superSpaceReplacement = "SUPER_SPACE_REPLACEMENT";
+    final processedString = line.split("'").indexed.map((e) {
+      final (index, item) = e;
+      if (index % 2 == 1) {
+        return item.replaceAll(" ", superSpaceReplacement);
+      }
+      return item;
+    }).join("'");
+
+    return processedString
+        .split(" ")
+        .where((element) => element.isNotEmpty)
+        .map((e) => e.replaceAll(superSpaceReplacement, " "))
+        .toList();
+  }
+
   pass2() {
     records = [];
     List<String> lines = text.split("\n");
@@ -89,8 +107,7 @@ class LlbAssembler {
       if (line.isEmpty) continue;
       if (line[0] == ".") continue; // is comment line
 
-      List<String> cols =
-          line.split(" ").where((element) => element.isNotEmpty).toList();
+      List<String> cols = _split2cols(line);
 
       // fetch label from cols
       String colLabel = "";
@@ -162,6 +179,7 @@ class LlbAssembler {
               int.tryParse(colOperand.split("'")[1], radix: 16) ?? 0;
           objectCode = operandValue.toRadixString(16).padLeft(2, '0');
         } else if (colOperand[0] == 'C') {
+          print("colOperand");
           objectCode = colOperand
               .split("'")[1]
               .characters
@@ -206,6 +224,14 @@ class LlbAssembler {
         }
       }
     }
+
+    if ((records.last as TextRecord).length == 0) {
+      records.removeLast();
+    }
+
+    final er = EndRecord();
+    er.bootAddress = startingLoc.toRadixString(16).padLeft(6, '0');
+    records.add(er);
   }
 
   _appendToRecord(String objectCode) {
@@ -226,7 +252,6 @@ class LlbAssembler {
 
 abstract class ObjectProgramRecord {
   String getRecord();
-  Widget getInteractiveDisp();
 }
 
 class HeaderRecord extends ObjectProgramRecord {
@@ -237,36 +262,6 @@ class HeaderRecord extends ObjectProgramRecord {
   @override
   String getRecord() {
     return "H$programName$startingAddress$length\n";
-  }
-
-  @override
-  Widget getInteractiveDisp() {
-    return Builder(builder: (context) {
-      return Row(
-        children: [
-          SuggestableText(
-            message: "Header char, for HeaderRecord is [T]",
-            text: "H",
-            color: Colors.green[800],
-          ),
-          SuggestableText(
-            message: "Program name",
-            text: programName,
-            color: Colors.green[800],
-          ),
-          SuggestableText(
-            message: "Staring address of object program.",
-            text: startingAddress,
-            color: Colors.green[800],
-          ),
-          SuggestableText(
-            message: "Length of object program in bytes.",
-            text: length,
-            color: Colors.green[800],
-          ),
-        ],
-      );
-    });
   }
 }
 
@@ -298,24 +293,6 @@ class TextRecord extends ObjectProgramRecord {
     var objectCodeString = blocks.join();
     return "T$startingAddress$lengthString$objectCodeString\n".toUpperCase();
   }
-
-  @override
-  Widget getInteractiveDisp() {
-    return Row(
-      children: [
-        SuggestableText(
-            message: "Heading char, for TextRecord is [T]", text: "T"),
-        SuggestableText(
-            message: "Starting address for object code in this record.",
-            text: startingAddress),
-        SuggestableText(
-            message: "Length of object code in this record in bytes",
-            text: lengthString),
-        for (final block in blocks)
-          SuggestableText(message: "Object code: $block", text: block),
-      ],
-    );
-  }
 }
 
 class EndRecord extends ObjectProgramRecord {
@@ -324,66 +301,5 @@ class EndRecord extends ObjectProgramRecord {
   @override
   String getRecord() {
     return "E$bootAddress\n";
-  }
-
-  @override
-  Widget getInteractiveDisp() {
-    return Text(getRecord());
-  }
-}
-
-class SuggestableText extends StatelessWidget {
-  final String message;
-  final String text;
-  final Color? color;
-
-  const SuggestableText({
-    super.key,
-    required this.message,
-    required this.text,
-    this.color,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final objectCodeIsVisualized = context.watch<ObjectCodeIsVisualized>();
-    final isVisualized = objectCodeIsVisualized.visualized;
-    final body = InkWell(
-      onTap: () {},
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 350),
-        curve: Curves.easeInOutCirc,
-        padding: EdgeInsets.all(isVisualized ? 8 : 0),
-        margin: EdgeInsets.all(isVisualized ? 2 : 0),
-        clipBehavior: Clip.hardEdge,
-        decoration: BoxDecoration(
-          color: isVisualized
-              ? Theme.of(context)
-                  .colorScheme
-                  .surfaceTint
-                  .harmonizeWith(
-                    color ?? Theme.of(context).colorScheme.surfaceTint,
-                  )
-                  .withOpacity(.10)
-              : Colors.transparent,
-          borderRadius: BorderRadius.circular(6),
-        ),
-        child: Text(
-          text.toUpperCase(),
-          style: GoogleFonts.spaceMono().copyWith(
-            color: color != null
-                ? Theme.of(context).colorScheme.primary.harmonizeWith(color!)
-                : null,
-          ),
-        ),
-      ),
-    );
-
-    return Builder(builder: (context) {
-      return Tooltip(
-        message: message,
-        child: body,
-      );
-    });
   }
 }

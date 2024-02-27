@@ -23,7 +23,8 @@ class VMInspector extends StatelessWidget {
           children: [
             Expanded(
               child: SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(vertical: 16),
+                padding: const EdgeInsets.symmetric(vertical: 16)
+                    .copyWith(bottom: 128),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [

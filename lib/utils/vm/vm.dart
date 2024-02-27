@@ -35,6 +35,21 @@ class SICXE {
 
     curInstruction = instruction;
   }
+
+  SICXE snapshot() {
+    final s = SICXE();
+
+    s.pc = pc.clone();
+    s.regA = regA.clone();
+    s.regX = regX.clone();
+    s.regL = regL.clone();
+    s.regSw = regSw.clone();
+    s.regB = regB.clone();
+    s.regS = regS.clone();
+    s.regT = regT.clone();
+
+    return s;
+  }
 }
 
 class TargetAddress {
@@ -86,6 +101,13 @@ class ProgramCounter extends IntegerData {
 
     // 3. retrun final instruction
     return instr;
+  }
+
+  @override
+  ProgramCounter clone() {
+    final copy = ProgramCounter();
+    copy.set(get());
+    return copy;
   }
 }
 

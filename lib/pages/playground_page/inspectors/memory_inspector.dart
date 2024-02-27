@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:sicxe/widgets/document_display/document_display_model.dart';
+import 'package:sicxe/widgets/document_display/document_display_provider.dart';
 import 'package:sicxe/widgets/overview_card.dart';
 import 'package:sicxe/utils/vm/vm.dart';
 
@@ -30,7 +30,7 @@ class _MemoryInspectorState extends State<MemoryInspector> {
       expanded: true,
       title: Text("Memory overview"),
       onInfoOpen: () =>
-          Provider.of<DocumentDisplayModel>(context, listen: false)
+          Provider.of<DocumentDisplayProvider>(context, listen: false)
               .changeMarkdown("memory.md"),
       child: Card(
         elevation: 0,

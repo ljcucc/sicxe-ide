@@ -1,37 +1,49 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
-import 'package:sicxe/widgets/document_display/document_display_model.dart';
+import 'package:sicxe/widgets/document_display/document_display_widget.dart';
 
-class DocumentDisplayProvider extends StatefulWidget {
-  final Widget child;
+class DocumentDisplayProvider extends ChangeNotifier {
+  bool _enable = true;
+  String _markdown = "README.md";
 
-  const DocumentDisplayProvider({
-    super.key,
-    required this.child,
-  });
-
-  @override
-  State<DocumentDisplayProvider> createState() =>
-      _DocumentDisplayProviderState();
-}
-
-class _DocumentDisplayProviderState extends State<DocumentDisplayProvider> {
-  late DocumentDisplayModel ddm;
-
-  @override
-  void initState() {
-    super.initState();
-
-    ddm = DocumentDisplayModel();
-
-    ddm.changeMarkdown("README.md");
+  String get markdown {
+    return _markdown;
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return ChangeNotifierProvider<DocumentDisplayModel>(
-      create: (_) => ddm,
-      child: widget.child,
+  bool get enable {
+    return _enable;
+  }
+
+  set enable(bool e) {
+    _enable = e;
+    notifyListeners();
+  }
+
+  /// update document display model of document_display_widget by document_Display_provider
+  static openPopup(context, String filename) {
+    final ddm = Provider.of<DocumentDisplayProvider>(context);
+    ddm.changeMarkdown(filename);
+
+    showBottomSheet(
+      context: context,
+      builder: (context) {
+        return DocumentDisplayWidget();
+      },
     );
+  }
+
+  /// internal change markdown logic
+  Future<void> changeMarkdown(String filename) async {
+    _markdown = await _getDocument(filename);
+    notifyListeners();
+  }
+
+  Future<String> _getDocument(String filename) async {
+    String filepath = "docs/$filename";
+    if (filename == "README.md") {
+      filepath = filename;
+    }
+    return rootBundle.loadString(filepath);
   }
 }
