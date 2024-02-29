@@ -108,9 +108,11 @@ class LargeLayout extends StatelessWidget {
       );
     });
 
+    final screenSize = MediaQuery.of(context).size;
+
     return Consumer<DocumentDisplayProvider>(builder: (context, ddm, _) {
       return Provider.value(
-        value: ScreenSize.Large,
+        value: screenSize.width < 1200 ? ScreenSize.Medium : ScreenSize.Large,
         child: Column(
           children: [
             Expanded(

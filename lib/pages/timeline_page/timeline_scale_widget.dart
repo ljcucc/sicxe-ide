@@ -11,23 +11,61 @@ class TimelineScaleWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Consumer<TimelineScaleController>(builder: (context, tsc, _) {
       return Consumer<ScreenSize>(builder: (context, screenSize, _) {
-        if (screenSize == ScreenSize.Compact) {
-          return FilledButton.icon(
-            style: FilledButton.styleFrom(
-              shadowColor: Colors.transparent,
-              backgroundColor: Theme.of(context).colorScheme.surface,
-              foregroundColor: Theme.of(context).colorScheme.onSurface,
+        if (screenSize != ScreenSize.Large) {
+          return Container(
+            clipBehavior: Clip.antiAlias,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(100),
             ),
-            onPressed: () {
-              tsc.scale = (tsc.scale + 1) % 3;
-            },
-            icon: Icon(Icons.zoom_in),
-            label: Text(switch (tsc.scale) {
-              0 => "x0.5",
-              1 => "x1",
-              2 => "x2",
-              int() => "uwu"
-            }),
+            child: PopupMenuButton(
+              clipBehavior: Clip.antiAlias,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+              position: PopupMenuPosition.under,
+              itemBuilder: (_) => [
+                PopupMenuItem(
+                  onTap: () => tsc.scale = 0,
+                  child: ListTile(
+                    title: Text("0.5"),
+                    subtitle: Text("Detailid view"),
+                  ),
+                ),
+                PopupMenuItem(
+                  onTap: () => tsc.scale = 1,
+                  child: ListTile(
+                    title: Text("1"),
+                    subtitle: Text("Normal view"),
+                  ),
+                ),
+                PopupMenuItem(
+                  onTap: () => tsc.scale = 2,
+                  child: ListTile(
+                    title: Text("2"),
+                    subtitle: Text("Small possible"),
+                  ),
+                ),
+              ],
+              child: Container(
+                width: 60,
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.surface.withOpacity(.35),
+                ),
+                padding: EdgeInsets.symmetric(vertical: 8),
+                child: Text(
+                  switch (tsc.scale) {
+                    0 => "x0.5",
+                    1 => "x1",
+                    2 => "x2",
+                    int() => "uwu"
+                  },
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurface,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            ),
           );
         }
 
