@@ -24,6 +24,6 @@ If you are interested in how this note (project) works, or if you would like to 
 https://github.com/ljcucc/sicxe-ide
 
 
-Currently for the college course reason, the `docs/` only support Chinese(Traditional), English may planned in future.
+> Currently for the college course reason, the `docs/` only support Chinese(Traditional), English may planned in future.
 
 Thank you for your interest in this repo!
