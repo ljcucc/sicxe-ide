@@ -169,7 +169,7 @@ packages:
     source: hosted
     version: "4.0.2"
   linked_scroll_controller:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: linked_scroll_controller
       sha256: e6020062bcf4ffc907ee7fd090fa971e65d8dfaac3c62baf601a3ced0b37986a
