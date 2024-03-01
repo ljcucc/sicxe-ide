@@ -1,6 +1,12 @@
 class IntegerData {
   int _value = 0x0;
 
+  IntegerData({int? value}) {
+    if (value != null) {
+      set(value);
+    }
+  }
+
   set(int value) {
     _value = value.toUnsigned(24);
   }
@@ -33,5 +39,10 @@ class IntegerData {
     final copy = IntegerData();
     copy.set(_value);
     return copy;
+  }
+
+  @override
+  String toString() {
+    return get().toRadixString(16).padLeft(6, '0');
   }
 }

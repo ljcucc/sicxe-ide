@@ -34,21 +34,22 @@ class SICXE {
     }
 
     curInstruction = instruction;
+    await Instructions[curInstruction!.opcode]!(this, ta!);
+
+    print("eval end");
   }
 
-  SICXE snapshot() {
-    final s = SICXE();
-
-    s.pc = pc.clone();
-    s.regA = regA.clone();
-    s.regX = regX.clone();
-    s.regL = regL.clone();
-    s.regSw = regSw.clone();
-    s.regB = regB.clone();
-    s.regS = regS.clone();
-    s.regT = regT.clone();
-
-    return s;
+  Map<String, dynamic> toMap() {
+    return {
+      "pc": pc,
+      "regA": regA,
+      "regX": regX,
+      "regL": regL,
+      "regSw": regSw,
+      "regB": regB,
+      "regS": regS,
+      "regT": regT,
+    };
   }
 }
 
@@ -108,6 +109,11 @@ class ProgramCounter extends IntegerData {
     final copy = ProgramCounter();
     copy.set(get());
     return copy;
+  }
+
+  @override
+  String toString() {
+    return get().toRadixString(16);
   }
 }
 

@@ -1,10 +1,9 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:linked_scroll_controller/linked_scroll_controller.dart';
 import 'package:provider/provider.dart';
 import 'package:sicxe/pages/timeline_page/timeline_scale_controller.dart';
-import 'package:sicxe/pages/timeline_page/timeline_snapshot_provider.dart';
+import 'package:sicxe/pages/timeline_page/timline_data_lists_provider.dart';
 
 class TimelineRulerWidget extends StatefulWidget {
   const TimelineRulerWidget({super.key});
@@ -34,7 +33,7 @@ class _TimelineRulerWidgetState extends State<TimelineRulerWidget> {
   @override
   Widget build(BuildContext context) {
     return Consumer<TimelineScaleController>(builder: (context, tsc, _) {
-      return Consumer<TimelineSnapshotProvider>(builder: (context, tsp, _) {
+      return Consumer<TimelineDataListsProvider>(builder: (context, tdlp, _) {
         return Container(
           height: 50,
           clipBehavior: Clip.antiAlias,
@@ -46,7 +45,7 @@ class _TimelineRulerWidgetState extends State<TimelineRulerWidget> {
             padding: const EdgeInsets.symmetric(horizontal: 16),
             scrollDirection: Axis.horizontal,
             controller: _controller,
-            itemCount: tsp.snapshots.length,
+            itemCount: tdlp.totalLength,
             itemBuilder: (context, index) {
               return Row(
                 mainAxisSize: MainAxisSize.min,
@@ -54,11 +53,12 @@ class _TimelineRulerWidgetState extends State<TimelineRulerWidget> {
                   AnimatedContainer(
                     duration: Duration(milliseconds: 550),
                     curve: Curves.easeInOutQuart,
-                    width: (tsc.smallView ? 50 : 100),
+                    width: (tsc.blockWidth) + tsc.afterPadding - 2,
                     height: 60,
                     child: Center(
                       child: Text(
-                        tsp.snapshots[index].pc.get().toRadixString(16),
+                        // t.snapshots[index].pc.get().toRadixString(16),
+                        index.toString(),
                         style: GoogleFonts.spaceMono(fontSize: 12),
                       ),
                     ),
