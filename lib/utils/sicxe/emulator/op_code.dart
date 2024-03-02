@@ -1,6 +1,6 @@
 import 'dart:typed_data';
 
-import 'package:sicxe/utils/vm/vm.dart';
+import 'package:sicxe/utils/sicxe/emulator/vm.dart';
 
 enum OpCodes {
   ADD,
@@ -69,7 +69,7 @@ typedef OpCallback = Future<void> Function(SICXE vm, TargetAddress ta);
 
 final Map<OpCodes, OpCallback> Instructions = {
   OpCodes.ADD: (vm, ta) async {
-    vm.regA.add(ta.getIntegerData());
+    vm.regA.add(ta.getIntegerData(vm));
   },
   OpCodes.ADDF: (vm, ta) async {
     //TODO: implement ADDF operation
@@ -94,7 +94,7 @@ final Map<OpCodes, OpCallback> Instructions = {
   },
   OpCodes.DIV: (vm, ta) async {
     //TODO: implement DIV operation
-    vm.regA.sub(ta.getIntegerData());
+    vm.regA.sub(ta.getIntegerData(vm));
   },
   OpCodes.DIVF: (vm, ta) async {
     //TODO: implement DIVF operation
@@ -112,7 +112,8 @@ final Map<OpCodes, OpCallback> Instructions = {
     //TODO: implement HIO operation
   },
   OpCodes.J: (vm, ta) async {
-    //TODO: implement J operation
+    vm.pc.set(ta.getOperand());
+    print("setted pc by J");
   },
   OpCodes.JEQ: (vm, ta) async {
     //TODO: implement JEQ operation
@@ -127,10 +128,10 @@ final Map<OpCodes, OpCallback> Instructions = {
     //TODO: implement JSUB operation
   },
   OpCodes.LDA: (vm, ta) async {
-    //TODO: implement LDA operation
+    vm.regA.set(ta.getIntegerData(vm).get());
   },
   OpCodes.LDB: (vm, ta) async {
-    //TODO: implement LDB operation
+    vm.regB.set(ta.getIntegerData(vm).get());
   },
   OpCodes.LDCH: (vm, ta) async {
     //TODO: implement LDCH operation
@@ -139,22 +140,22 @@ final Map<OpCodes, OpCallback> Instructions = {
     //TODO: implement LDF operation
   },
   OpCodes.LDL: (vm, ta) async {
-    //TODO: implement LDL operation
+    vm.regL.set(ta.getIntegerData(vm).get());
   },
   OpCodes.LDS: (vm, ta) async {
-    //TODO: implement LDS operation
+    vm.regS.set(ta.getIntegerData(vm).get());
   },
   OpCodes.LDT: (vm, ta) async {
-    //TODO: implement LDT operation
+    vm.regT.set(ta.getIntegerData(vm).get());
   },
   OpCodes.LDX: (vm, ta) async {
-    //TODO: implement LDX operation
+    vm.regX.set(ta.getIntegerData(vm).get());
   },
   OpCodes.LPS: (vm, ta) async {
     //TODO: implement LPS operation
   },
   OpCodes.MUL: (vm, ta) async {
-    vm.regA.mul(ta.getIntegerData());
+    vm.regA.mul(ta.getIntegerData(vm));
   },
   OpCodes.MULF: (vm, ta) async {
     //TODO: implement MULF operation
@@ -220,7 +221,7 @@ final Map<OpCodes, OpCallback> Instructions = {
     //TODO: implement STX operation
   },
   OpCodes.SUB: (vm, ta) async {
-    vm.regA.sub(ta.getIntegerData());
+    vm.regA.sub(ta.getIntegerData(vm));
   },
   OpCodes.SUBF: (vm, ta) async {
     //TODO: implement SUBF operation
@@ -353,6 +354,7 @@ class Instruction {
     format = _checkFormat(opcode, byte);
   }
 
+  /// Stored raw bytes of full instruction and operand
   Uint8List get bytes {
     return _bytes;
   }

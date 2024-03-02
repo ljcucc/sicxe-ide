@@ -6,9 +6,10 @@ import 'package:sicxe/widgets/binary_bar.dart';
 import 'package:sicxe/widgets/document_display/document_display_provider.dart';
 import 'package:sicxe/widgets/document_display/document_display_widget.dart';
 import 'package:sicxe/widgets/overview_card.dart';
+import 'package:sicxe/widgets/side_panel/side_panel_controller.dart';
 import 'package:sicxe/widgets/value_block.dart';
-import 'package:sicxe/utils/vm/integer.dart';
-import 'package:sicxe/utils/vm/vm.dart';
+import 'package:sicxe/utils/sicxe/emulator/integer.dart';
+import 'package:sicxe/utils/sicxe/emulator/vm.dart';
 
 class RegistersInspectorList extends StatelessWidget {
   final SICXE vm;
@@ -18,8 +19,6 @@ class RegistersInspectorList extends StatelessWidget {
   void openDocument(String docname, context) {
     final ddm = Provider.of<DocumentDisplayProvider>(context, listen: false);
     ddm.changeMarkdown(docname);
-
-    if (ddm.enable) return;
 
     showModalBottomSheet(
       context: context,
@@ -110,7 +109,7 @@ class IntegerRegisterInspector extends StatelessWidget {
   Widget build(BuildContext context) {
     return ValueBlock(
       title: name,
-      disp: reg.get().toRadixString(16).padLeft(5, '0'),
+      disp: reg.get().toRadixString(16).padLeft(6, '0'),
       onTap: onTap,
     );
   }

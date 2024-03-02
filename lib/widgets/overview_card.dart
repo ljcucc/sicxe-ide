@@ -22,7 +22,7 @@ class OverviewCard extends StatelessWidget {
       child: child,
     );
     return Padding(
-      padding: const EdgeInsets.only(bottom: 16.0),
+      padding: const EdgeInsets.only(bottom: 0),
       child: Container(
         decoration: BoxDecoration(
           border:
@@ -39,10 +39,12 @@ class OverviewCard extends StatelessWidget {
               ListTile(
                 title: title,
                 contentPadding: EdgeInsets.only(left: 16),
-                trailing: IconButton(
-                  onPressed: onInfoOpen,
-                  icon: Icon(Icons.help_outline_rounded),
-                ),
+                trailing: onInfoOpen == null
+                    ? null
+                    : IconButton(
+                        onPressed: onInfoOpen,
+                        icon: Icon(Icons.help_outline_rounded),
+                      ),
               ),
               if (!expanded) SizedBox(height: 8),
               if (expanded)

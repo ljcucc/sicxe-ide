@@ -1,19 +1,27 @@
 import 'dart:io';
-import 'dart:math';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:linked_scroll_controller/linked_scroll_controller.dart';
 import 'package:provider/provider.dart';
 import 'package:sicxe/compact_layout.dart';
-import 'package:sicxe/custom_colorscheme_provider.dart';
 import 'package:sicxe/large_layout.dart';
+
+// Providers
+import 'package:linked_scroll_controller/linked_scroll_controller.dart';
+import 'package:sicxe/custom_colorscheme_provider.dart';
+import 'package:sicxe/navigation_page_provider.dart';
 import 'package:sicxe/pages/assembler_page/assembler_page_provider.dart';
-import 'package:sicxe/pages/playground_page/sicxe_vm_provider.dart';
 import 'package:sicxe/pages/timeline_page/timeline_scale_controller.dart';
 import 'package:sicxe/pages/timeline_page/timing_control_bar_controller.dart';
 import 'package:sicxe/pages/timeline_page/timline_data_lists_provider.dart';
+import 'package:sicxe/utils/sicxe/sicxe_editor_workflow.dart';
+import 'package:sicxe/utils/sicxe/sicxe_emulator_workflow.dart';
+import 'package:sicxe/utils/workflow/editor_workflow.dart';
+import 'package:sicxe/utils/workflow/emulator_workflow.dart';
+import 'package:sicxe/widgets/custom_panel/custom_panel_controller.dart';
 import 'package:sicxe/widgets/document_display/document_display_provider.dart';
+import 'package:sicxe/widgets/side_panel/side_panel_controller.dart';
+import 'package:xterm/xterm.dart';
 
 import 'package:dynamic_color/dynamic_color.dart';
 
@@ -31,13 +39,25 @@ class Providers extends StatelessWidget {
     final colorScheme = Theme.of(context).colorScheme;
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) {
+        ChangeNotifierProvider<DocumentDisplayProvider>(create: (_) {
           final ddm = DocumentDisplayProvider();
           ddm.changeMarkdown("README.md");
           return ddm;
         }),
-        ChangeNotifierProvider<SicxeVmProvider>(
-          create: (_) => SicxeVmProvider(),
+        ChangeNotifierProvider<NavigationPageProvider>(
+          create: (_) => NavigationPageProvider(),
+        ),
+        ChangeNotifierProvider<SidePanelController>(
+          create: (_) => SidePanelController(),
+        ),
+        ChangeNotifierProvider<CustomPanelController>(
+          create: (_) => CustomPanelController(),
+        ),
+        ChangeNotifierProvider<EmulatorWorkflow>(
+          create: (_) => SicxeEmulatorWorkflow(),
+        ),
+        ChangeNotifierProvider<EditorWorkflow>(
+          create: (_) => SicxeEditorWorkflow(),
         ),
         ChangeNotifierProvider<AssemblerPageProvider>(
           create: (_) => AssemblerPageProvider(
@@ -55,7 +75,14 @@ class Providers extends StatelessWidget {
         ),
         ChangeNotifierProvider<TimelineDataListsProvider>(
           create: (_) => TimelineDataListsProvider(),
-        )
+        ),
+        Provider<Terminal>(
+          create: (_) => Terminal(
+            onOutput: (data) {
+              print(data);
+            },
+          ),
+        ),
       ],
       child: child,
     );
@@ -105,7 +132,9 @@ class MyApp extends StatelessWidget {
                     Platform.isAndroid ? deviceColorScheme : defaultColorScheme,
                 useMaterial3: true,
               ),
-              home: Providers(child: MyHomePage(title: 'SICXE')),
+              home: Providers(
+                child: MyHomePage(title: 'SICXE'),
+              ),
               debugShowCheckedModeBanner: false,
             );
           });
@@ -125,31 +154,9 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _index = 0;
-
   @override
   void initState() {
     super.initState();
-  }
-
-  _setPage(index) {
-    setState(() {
-      _index = index;
-    });
-
-    final documentFilenames = [
-      "README.md",
-      "emulator.md",
-      "emulator.md",
-      "assembler_language.md"
-    ];
-
-    Provider.of<DocumentDisplayProvider>(context, listen: false).changeMarkdown(
-      documentFilenames[min(documentFilenames.length - 1, index)],
-    );
-
-    Provider.of<TimingControlBarController>(context, listen: false).enable =
-        index == 1 || index == 2;
   }
 
   @override
@@ -158,15 +165,7 @@ class _MyHomePageState extends State<MyHomePage> {
         MediaQuery.of(context).orientation == Orientation.portrait &&
             MediaQuery.of(context).size.width < 700;
 
-    Widget body = (compactLayout)
-        ? CompactLayout(
-            selectedIndex: _index,
-            onSelected: _setPage,
-          )
-        : LargeLayout(
-            selectedIndex: _index,
-            onSelected: (index) => _setPage(index),
-          );
+    Widget body = (compactLayout) ? CompactLayout() : LargeLayout();
 
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.background,

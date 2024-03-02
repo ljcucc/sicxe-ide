@@ -43,8 +43,11 @@ class _TimelineTrackbarListState extends State<TimelineTrackbarList> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              for (final list in tdlp.lists.values)
-                TimelineTrackbar(list: list),
+              for (final (index, list) in tdlp.lists.values.indexed)
+                TimelineTrackbar(
+                  list: list,
+                  color: Colors.accents[index % Colors.accents.length],
+                ),
             ],
           ),
         );

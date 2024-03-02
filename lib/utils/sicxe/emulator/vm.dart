@@ -1,9 +1,9 @@
 import 'dart:math';
 import 'dart:typed_data';
 
-import 'package:sicxe/utils/vm/floating_point.dart';
-import 'package:sicxe/utils/vm/integer.dart';
-import 'package:sicxe/utils/vm/op_code.dart';
+import 'package:sicxe/utils/sicxe/emulator/floating_point.dart';
+import 'package:sicxe/utils/sicxe/emulator/integer.dart';
+import 'package:sicxe/utils/sicxe/emulator/op_code.dart';
 
 typedef Memory = Uint8List;
 
@@ -54,14 +54,27 @@ class SICXE {
 }
 
 class TargetAddress {
+  /// instruction n flag
   bool n = false;
+
+  /// instruction i flag
   bool i = false;
+
+  /// instruction x flag
   bool x = false;
+
+  /// instruction b flag
   bool b = false;
+
+  /// instruction p flag
   bool p = false;
+
+  /// instruction e flag
   bool e = false;
+  late Instruction _instruction;
 
   TargetAddress(Instruction instruction) {
+    _instruction = instruction;
     if (instruction.format == InstructionFormat.Format2 ||
         instruction.format == InstructionFormat.Format1) {
       print("format 1 or format 2 does not have TA");
@@ -84,8 +97,63 @@ class TargetAddress {
     e = sndByte & 0x10 > 0;
   }
 
-  IntegerData getIntegerData() {
-    return IntegerData();
+  /// check the instruction currently is simple addressing or not
+  bool _isSimpleAddressing() {
+    return !n && !i;
+  }
+
+  /// Get raw value in IntegerData directly.
+  /// Different from getOperand(), this method is specially for OpCode operation implementation.
+  IntegerData getDirectValue() {
+    return IntegerData(value: getOperand());
+  }
+
+  /// get raw value from instruction operand field
+  int getOperand() {
+    if (_isSimpleAddressing()) {
+      // block flag "x"
+      int fstByte = _instruction.bytes[1] & 0x80;
+      int sndByte = _instruction.bytes[2];
+
+      print("TA result is ${fstByte << 8 | sndByte}");
+
+      final result = fstByte << 8 | sndByte;
+      return result;
+    }
+
+    return 0;
+  }
+
+  /// operating LOAD instructions
+  IntegerData getIntegerData(SICXE vm) {
+    final address = getOperand();
+    final result =
+        vm.mem[address] << 16 | vm.mem[address + 1] << 8 | vm.mem[address + 2];
+
+    print("Fetched result is ${result}");
+
+    return IntegerData(value: result);
+  }
+
+  /// operaitng STORE instructions
+  void setIntegerData(IntegerData data, SICXE vm) {}
+
+  /// return the flags status in string
+  String flagsToString() {
+    String disp = "";
+    if (switch (_instruction.format) {
+      InstructionFormat.Format1 || InstructionFormat.Format2 => true,
+      InstructionFormat.Format3 || InstructionFormat.Format4 => false,
+    }) return disp;
+
+    disp += n ? "n" : "_";
+    disp += i ? "i" : "_";
+    disp += x ? "x" : "_";
+    disp += b ? "b" : "_";
+    disp += p ? "p" : "_";
+    disp += e ? "e" : "_";
+
+    return disp;
   }
 }
 

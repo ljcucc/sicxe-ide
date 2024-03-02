@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:sicxe/pages/assembler_page/tabs/assembler_object_program_tab/object_code_visualize_provider.dart';
-import 'package:sicxe/utils/vm/op_code.dart';
+import 'package:sicxe/utils/sicxe/emulator/op_code.dart';
 
 typedef AssembleFunction = String Function(int operand);
 

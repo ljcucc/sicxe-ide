@@ -5,7 +5,7 @@ import 'package:highlight/languages/dart.dart';
 import 'package:flutter_highlight/themes/monokai-sublime.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:sicxe/utils/assembler.dart';
+import 'package:sicxe/utils/sicxe/assembler/assembler.dart';
 import 'package:sicxe/pages/assembler_page/tabs/assembler_editor_tab.dart';
 import 'package:sicxe/pages/assembler_page/assembler_examples.dart';
 import 'package:sicxe/pages/assembler_page/tabs/assembler_object_program_tab/assembler_object_program_tab.dart';

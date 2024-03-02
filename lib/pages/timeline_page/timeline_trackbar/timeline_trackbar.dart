@@ -7,8 +7,14 @@ import 'package:sicxe/pages/timeline_page/timeline_track_sized_box.dart';
 
 /// This widget provided to render track of blocks
 class TimelineTrackbar extends StatelessWidget {
+  final Color? color;
   final TimelineDataList list;
-  const TimelineTrackbar({super.key, required this.list});
+
+  const TimelineTrackbar({
+    super.key,
+    required this.list,
+    this.color,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -27,7 +33,10 @@ class TimelineTrackbar extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 for (final data in list.blocks)
-                  TimelineTrackBlockBlockView(data: data),
+                  TimelineTrackBlockBlockView(
+                    data: data,
+                    color: color,
+                  ),
               ],
             ),
           ),

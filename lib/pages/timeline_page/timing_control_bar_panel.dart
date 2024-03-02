@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:sicxe/pages/playground_page/sicxe_vm_provider.dart';
 import 'package:sicxe/pages/timeline_page/timeline_scale_widget.dart';
 import 'package:sicxe/pages/timeline_page/timline_data_lists_provider.dart';
 import 'package:sicxe/screen_size.dart';
+import 'package:sicxe/utils/workflow/emulator_workflow.dart';
+import 'package:sicxe/widgets/custom_panel/custom_panel_controller.dart';
+import 'package:sicxe/widgets/side_panel/side_panel_controller.dart';
 
 class TimingControlBarPanel extends StatefulWidget {
   const TimingControlBarPanel({super.key});
@@ -17,21 +19,17 @@ class _TimingControlBarPanelState extends State<TimingControlBarPanel> {
   Widget build(BuildContext context) {
     return Consumer<ScreenSize>(builder: (context, screenSize, _) {
       return Consumer<TimelineDataListsProvider>(builder: (context, tdlp, _) {
-        return Consumer<SicxeVmProvider>(
-          builder: (context, svp, child) {
-            final vm = svp.vm;
+        return Consumer<EmulatorWorkflow>(
+          builder: (context, emulator, child) {
             final center = Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 IconButton(
                   color: Theme.of(context).colorScheme.onSurfaceVariant,
                   onPressed: () async {
-                    await vm.eval();
-                    svp.update();
+                    await emulator.eval();
                     tdlp.add(
-                      vm.toMap().map(
-                            (key, value) => MapEntry(key, value.toString()),
-                          ),
+                      emulator.toTimelineMap(),
                     );
                   },
                   tooltip: 'Step',
@@ -71,8 +69,7 @@ class _TimingControlBarPanelState extends State<TimingControlBarPanel> {
                 ),
                 SizedBox(width: 16),
                 TimelineScaleWidget(),
-                SizedBox(width: 16),
-                PopupMenuButton(itemBuilder: (_) => []),
+                // SizedBox(width: 16),
               ],
             );
 

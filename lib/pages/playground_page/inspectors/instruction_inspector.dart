@@ -6,7 +6,7 @@ import 'package:sicxe/widgets/binary_bar.dart';
 import 'package:sicxe/widgets/document_display/document_display_provider.dart';
 import 'package:sicxe/widgets/overview_card.dart';
 import 'package:sicxe/widgets/value_block.dart';
-import 'package:sicxe/utils/vm/vm.dart';
+import 'package:sicxe/utils/sicxe/emulator/vm.dart';
 
 class InstructionInspector extends StatelessWidget {
   final SICXE vm;
@@ -14,17 +14,7 @@ class InstructionInspector extends StatelessWidget {
   const InstructionInspector({super.key, required this.vm});
 
   _flags2disp(TargetAddress? ta) {
-    String disp = "";
-    if (ta == null) return disp;
-
-    disp += ta.n ? "n" : "_";
-    disp += ta.i ? "i" : "_";
-    disp += ta.x ? "x" : "_";
-    disp += ta.b ? "b" : "_";
-    disp += ta.p ? "p" : "_";
-    disp += ta.e ? "e" : "_";
-
-    return disp;
+    return ta?.flagsToString() ?? "";
   }
 
   @override

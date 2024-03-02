@@ -1,12 +1,9 @@
 import 'package:code_text_field/code_text_field.dart';
 import 'package:dynamic_color/dynamic_color.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:sicxe/pages/assembler_page/assembler_examples.dart';
-import 'package:sicxe/utils/assembler.dart';
 
 class AssemblerPageProvider extends ChangeNotifier {
-  LlbAssembler? assembler;
   CodeController? codeController;
 
   final ColorScheme colorScheme;
@@ -15,14 +12,6 @@ class AssemblerPageProvider extends ChangeNotifier {
     required this.colorScheme,
   }) {
     _setupCodeController();
-  }
-
-  onCompile() {
-    assembler = LlbAssembler(text: codeController?.text ?? "");
-    assembler?.pass1();
-    assembler?.pass2();
-
-    notifyListeners();
   }
 
   _setupCodeController() {

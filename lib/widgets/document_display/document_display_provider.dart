@@ -4,20 +4,10 @@ import 'package:provider/provider.dart';
 import 'package:sicxe/widgets/document_display/document_display_widget.dart';
 
 class DocumentDisplayProvider extends ChangeNotifier {
-  bool _enable = true;
   String _markdown = "README.md";
 
   String get markdown {
     return _markdown;
-  }
-
-  bool get enable {
-    return _enable;
-  }
-
-  set enable(bool e) {
-    _enable = e;
-    notifyListeners();
   }
 
   /// update document display model of document_display_widget by document_Display_provider

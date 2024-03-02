@@ -1,3 +1,4 @@
+import 'package:dynamic_color/dynamic_color.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
@@ -7,7 +8,13 @@ import 'package:sicxe/pages/timeline_page/timeline_scale_controller.dart';
 /// This widget provided to render a single block on track
 class TimelineTrackBlockBlockView extends StatelessWidget {
   final TimelineDataBlock data;
-  const TimelineTrackBlockBlockView({super.key, required this.data});
+  final Color? color;
+
+  const TimelineTrackBlockBlockView({
+    super.key,
+    required this.data,
+    this.color,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -34,7 +41,10 @@ class TimelineTrackBlockBlockView extends StatelessWidget {
             height: tsc.blockHeight,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(4),
-              color: Theme.of(context).colorScheme.secondary,
+              color: color != null
+                  ? Theme.of(context).colorScheme.primary.harmonizeWith(color!)
+                  : Theme.of(context).colorScheme.secondary,
+              // .harmonizeWith(Colors.transparent),
             ),
             child: width < 50
                 ? Container()

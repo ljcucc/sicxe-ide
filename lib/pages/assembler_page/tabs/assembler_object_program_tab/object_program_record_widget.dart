@@ -3,7 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
-import 'package:sicxe/utils/assembler.dart';
+import 'package:sicxe/utils/sicxe/assembler/assembler.dart';
 import 'package:sicxe/pages/assembler_page/tabs/assembler_object_program_tab/object_code_visualize_provider.dart';
 
 class SuggestableText extends StatelessWidget {
