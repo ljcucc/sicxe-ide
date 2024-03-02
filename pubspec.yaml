@@ -42,6 +42,7 @@ dependencies:
   flutter_markdown: ^0.6.18+3
   url_launcher: ^6.2.4
   linked_scroll_controller: ^0.2.0
+  xterm: ^3.5.0
 
 dev_dependencies:
   flutter_test:
