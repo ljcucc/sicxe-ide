@@ -5,6 +5,10 @@ class CustomPanelController extends ChangeNotifier {
 
   String get pageId => _pageId;
 
+  CustomPanelController({String? pageId}) {
+    _pageId = pageId ?? "";
+  }
+
   set pageId(String pageId) {
     _pageId = pageId;
     notifyListeners();

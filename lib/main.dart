@@ -39,6 +39,11 @@ class Providers extends StatelessWidget {
     final colorScheme = Theme.of(context).colorScheme;
     return MultiProvider(
       providers: [
+        ChangeNotifierProvider(
+          create: (_) => CustomColorshcemeProvider(
+            Color.fromARGB(255, 246, 192, 58),
+          ),
+        ),
         ChangeNotifierProvider<DocumentDisplayProvider>(create: (_) {
           final ddm = DocumentDisplayProvider();
           ddm.changeMarkdown("README.md");
@@ -95,10 +100,7 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (_) => CustomColorshcemeProvider(
-        Color.fromARGB(255, 246, 192, 58),
-      ),
+    return Providers(
       child: Consumer<CustomColorshcemeProvider>(
         builder: (context, colorschemeProvider, _) {
           var defaultColorScheme = ColorScheme.fromSeed(
@@ -132,9 +134,7 @@ class MyApp extends StatelessWidget {
                     Platform.isAndroid ? deviceColorScheme : defaultColorScheme,
                 useMaterial3: true,
               ),
-              home: Providers(
-                child: MyHomePage(title: 'SICXE'),
-              ),
+              home: MyHomePage(title: 'SICXE'),
               debugShowCheckedModeBanner: false,
             );
           });

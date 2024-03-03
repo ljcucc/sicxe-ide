@@ -12,12 +12,29 @@ import 'package:sicxe/pages/timeline_page/timeline_page.dart';
 import 'package:sicxe/pages/timeline_page/timing_control_bar.dart';
 import 'package:sicxe/pages/timeline_page/timing_control_bar_controller.dart';
 import 'package:sicxe/screen_size.dart';
+import 'package:sicxe/widgets/custom_panel/custom_panel_controller.dart';
+import 'package:sicxe/widgets/custom_panel/custom_panel_widget.dart';
 import 'package:sicxe/widgets/logo_widget.dart';
 
 class CompactLayout extends StatelessWidget {
   const CompactLayout({
     super.key,
   });
+
+  _openSidePanel(String id, context) {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) => BottomSheet(
+        onClosing: () {},
+        builder: (context) {
+          return ChangeNotifierProvider(
+            create: (_) => CustomPanelController(pageId: id),
+            child: const CustomPanelWidget(),
+          );
+        },
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -46,6 +63,30 @@ class CompactLayout extends StatelessWidget {
           ),
           centerTitle: true,
           actions: [
+            PopupMenuButton(
+              tooltip: "Widgets",
+              icon: Icon(Icons.web_asset),
+              itemBuilder: (_) => [
+                PopupMenuItem(
+                  onTap: () {
+                    _openSidePanel("memory", context);
+                  },
+                  child: ListTile(
+                    leading: Icon(Icons.dns_outlined),
+                    title: Text("Memory"),
+                  ),
+                ),
+                PopupMenuItem(
+                  onTap: () {
+                    _openSidePanel("symtab", context);
+                  },
+                  child: ListTile(
+                    leading: Icon(Icons.view_list_outlined),
+                    title: Text("Symbols"),
+                  ),
+                ),
+              ],
+            ),
             PopupMenuButton(
               itemBuilder: (_) => [
                 PopupMenuItem(

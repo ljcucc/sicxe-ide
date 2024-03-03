@@ -113,13 +113,14 @@ class LargeLayout extends StatelessWidget {
                             centerTitle: true,
                             actions: [
                               IconButton(
+                                tooltip: "View sidebar",
                                 onPressed: () {
                                   sidePanelController.toggle();
                                 },
                                 icon: Icon(
                                   sidePanelController.isOpen
-                                      ? Icons.web_asset_off
-                                      : Icons.web_asset,
+                                      ? Icons.view_sidebar
+                                      : Icons.view_sidebar_outlined,
                                 ),
                               ),
                               SizedBox(width: 8),
