@@ -5,7 +5,7 @@ enum NavigationPageId {
   Timeline,
   Inspector,
   Terminal,
-  Assembler,
+  Editor,
 }
 
 class NavigationPageProvider extends ChangeNotifier {

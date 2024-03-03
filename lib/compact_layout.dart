@@ -46,7 +46,7 @@ class CompactLayout extends StatelessWidget {
         NavigationPageId.Timeline,
         NavigationPageId.Inspector,
         NavigationPageId.Terminal,
-        NavigationPageId.Assembler,
+        NavigationPageId.Editor,
       ];
 
       return Scaffold(
@@ -151,8 +151,8 @@ class CompactLayout extends StatelessWidget {
               label: "Terminal",
             ),
             NavigationDestination(
-              icon: Icon(Icons.auto_awesome_rounded),
-              label: "Assembler",
+              icon: Icon(Icons.code_rounded),
+              label: "Editor",
             ),
           ],
         ),

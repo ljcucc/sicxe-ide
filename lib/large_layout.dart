@@ -33,7 +33,7 @@ class LargeLayout extends StatelessWidget {
         NavigationPageId.Home: "README.md",
         NavigationPageId.Timeline: "emulator.md",
         NavigationPageId.Terminal: "emulator.md",
-        NavigationPageId.Assembler: "assembler_language.md"
+        NavigationPageId.Editor: "assembler_language.md"
       };
 
       Provider.of<DocumentDisplayProvider>(context, listen: false)
@@ -53,7 +53,7 @@ class LargeLayout extends StatelessWidget {
           NavigationPageId.Home,
           NavigationPageId.Timeline,
           NavigationPageId.Terminal,
-          NavigationPageId.Assembler,
+          NavigationPageId.Editor,
         ];
 
         if (!pageIndexMap.contains(pageId)) {
@@ -83,8 +83,8 @@ class LargeLayout extends StatelessWidget {
               label: Text("Terminal"),
             ),
             NavigationRailDestination(
-              icon: Icon(Icons.auto_awesome_rounded),
-              label: Text("Assembler"),
+              icon: Icon(Icons.code_rounded),
+              label: Text("Editor"),
             ),
           ],
           selectedIndex: max(pageIndexMap.indexOf(pageId), 0),

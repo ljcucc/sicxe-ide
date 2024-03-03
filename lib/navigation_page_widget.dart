@@ -20,7 +20,7 @@ class NavigationPageWidget extends StatelessWidget {
           NavigationPageId.Timeline => const TimelinePage(),
           NavigationPageId.Inspector => const InspectorPage(),
           NavigationPageId.Terminal => const TerminalPage(),
-          NavigationPageId.Assembler => const AssemblerPage(),
+          NavigationPageId.Editor => const AssemblerPage(),
         };
 
         return selectedPage;
