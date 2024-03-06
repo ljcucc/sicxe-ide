@@ -55,8 +55,9 @@ class LlbAssemblerLineParserOperand {
 /// The job of LlbAssemblerLineParser is to parse and collect, be able to provide as much details as possible from a line.
 class LlbAssemblerLineParser {
   final int locctr;
-  final int baseLoc;
   final String line;
+
+  int baseLoc;
 
   String _colLabel = "";
   String _colOperand = "";

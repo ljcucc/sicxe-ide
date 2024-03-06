@@ -36,32 +36,52 @@ class LlbAssembler {
   Map<String, int> symtab = {};
   List<ObjectProgramRecord> records = [];
 
+  /// The starting location
   int startingLoc = 0;
-  int locctr = 0;
-  int baseLoc = 0;
+
+  int programLenth = 0;
 
   LlbAssembler({required this.text});
 
-  pass1() {
+  LlbAssemblerLineParser parseLine(int index, String line, int locctr) {
+    final parsed = LlbAssemblerLineParser(
+      line: line,
+      locctr: locctr,
+      baseLoc: 0,
+    );
+
+    return parsed;
+  }
+
+  /// reset all data structure into initial state.
+  init() {
+    parsedLines = [];
+    records = [];
     symtab = {};
-    locctr = 0;
     startingLoc = 0;
+    programLenth = 0;
+  }
+
+  /// all parsed object will store here
+  List<LlbAssemblerLineParser> parsedLines = [];
+
+  /// pass1 will parse each line, and store it for forward referenced.
+  pass1() {
+    init();
+
+    // current location
+    int locctr = 0;
 
     List<String> lines = text.split("\n");
+
     for (final (index, line) in lines.indexed) {
       if (line.isEmpty || line[0] == ".") continue;
 
-      final parsed = LlbAssemblerLineParser(
-        line: line,
-        locctr: locctr,
-        baseLoc: baseLoc,
-      );
+      final parsed = parseLine(index, line, locctr);
 
-      // starting line detection
       if (index == 0 &&
           parsed.directiveType == LlbAssemblerDirectiveType.START) {
         locctr = parsed.operand.toInt();
-        print("derective: START, $locctr");
         startingLoc = locctr;
       }
 
@@ -72,46 +92,32 @@ class LlbAssembler {
         }
 
         symtab[parsed.label] = locctr;
-        print("added ${parsed.label} to symtab, with loc $locctr");
       }
 
-      print("parsed $line in $locctr, len: ${parsed.objLength}");
-      // constants & reserved detection
       locctr += parsed.objLength;
+      parsedLines.add(parsed);
     }
-  }
-
-  pass2() {
-    records = [];
-    baseLoc = 0;
 
     // store the program length and reset locctr for object program generate
-    final programLenth = locctr - startingLoc;
-    locctr = startingLoc;
+    programLenth = locctr - startingLoc;
+  }
+
+  // TODO: combine two pass into one by recycling parsed lines
+  pass2() {
+    int baseLoc = 0;
 
     final ObjectCodeGenerate codeGenerate = ObjectCodeGenerate(
       symtab: symtab,
       programLenth: programLenth,
     );
 
-    List<String> lines = text.split("\n");
-    for (final (index, line) in lines.indexed) {
-      if (line.isEmpty || line[0] == ".") continue;
-
-      final parsed = LlbAssemblerLineParser(
-        line: line,
-        locctr: locctr,
-        baseLoc: baseLoc,
-      );
-
+    for (var parsed in parsedLines) {
       if (parsed.directiveType == LlbAssemblerDirectiveType.BASE) {
         baseLoc = symtab[parsed.operand.toSymbol()] ?? 0;
       }
 
+      parsed.baseLoc = baseLoc;
       codeGenerate.push(parsed);
-
-      // constants & reserved detection
-      locctr += parsed.objLength;
     }
 
     codeGenerate.ending(startingLoc);
