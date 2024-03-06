@@ -1,15 +1,24 @@
 import 'package:dynamic_color/dynamic_color.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:sicxe/pages/terminal_page/terminal_controller.dart';
+import 'package:sicxe/utils/sicxe/sicxe_emulator_workflow.dart';
+import 'package:sicxe/utils/workflow/emulator_workflow.dart';
 import 'package:xterm/xterm.dart';
 
-class TerminalPage extends StatelessWidget {
+class TerminalPage extends StatefulWidget {
   const TerminalPage({super.key});
 
   @override
+  State<TerminalPage> createState() => _TerminalPageState();
+}
+
+class _TerminalPageState extends State<TerminalPage> {
+  @override
   Widget build(BuildContext context) {
-    return Consumer<Terminal>(
-      builder: (context, terminal, _) {
+    return Consumer<EmulatorWorkflow>(
+      builder: (context, emulator, _) {
+        final terminal = emulator.termianl;
         final colorScheme = Theme.of(context).colorScheme;
 
         return Padding(
@@ -19,6 +28,13 @@ class TerminalPage extends StatelessWidget {
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(16),
               color: colorScheme.surface,
+              boxShadow: [
+                BoxShadow(
+                  color: Theme.of(context).colorScheme.primary.withOpacity(.05),
+                  spreadRadius: 0,
+                  blurRadius: 25,
+                )
+              ],
             ),
             padding: const EdgeInsets.all(16.0),
             child: TerminalView(

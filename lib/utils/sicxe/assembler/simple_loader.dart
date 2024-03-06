@@ -1,4 +1,5 @@
 import 'package:sicxe/utils/sicxe/assembler/assembler.dart';
+import 'package:sicxe/utils/sicxe/assembler/object_program_record.dart';
 import 'package:sicxe/utils/sicxe/emulator/vm.dart';
 
 /// Called "Simple Bootstrap Loader" in textbook
@@ -31,7 +32,7 @@ class SimpleLoader {
     final startingAddres = int.tryParse(tr.startingAddress, radix: 16) ?? 0;
     for (int i = 0; i < tr.length / 2; i++) {
       print(
-          "laoding to ${startingAddres + i}: ${tr.blocks.join("").substring(i * 2, (i + 1) * 2)}");
+          "loading to ${startingAddres + i}: ${tr.blocks.join("").substring(i * 2, (i + 1) * 2)}");
       vm.mem[startingAddres + i] = int.tryParse(
               tr.blocks.join("").substring(i * 2, (i + 1) * 2),
               radix: 16) ??

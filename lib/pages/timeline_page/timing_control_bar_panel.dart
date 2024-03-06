@@ -38,9 +38,17 @@ class _TimingControlBarPanelState extends State<TimingControlBarPanel> {
                 SizedBox(width: 16),
                 IconButton(
                   color: Theme.of(context).colorScheme.onSurfaceVariant,
-                  onPressed: () {},
+                  onPressed: () {
+                    if (emulator.isLoopRunning()) {
+                      emulator.stopEvalLoop();
+                    } else {
+                      emulator.evalLoop(tdlp);
+                    }
+                  },
                   tooltip: 'Continious',
-                  icon: const Icon(Icons.play_arrow),
+                  icon: Icon(
+                    emulator.isLoopRunning() ? Icons.pause : Icons.play_arrow,
+                  ),
                 ),
                 SizedBox(width: 16),
                 IconButton(

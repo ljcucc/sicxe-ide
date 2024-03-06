@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import 'package:sicxe/screen_size.dart';
 import 'package:sicxe/utils/workflow/emulator_workflow.dart';
 import 'package:sicxe/widgets/overview_card.dart';
 import 'package:sicxe/widgets/value_block.dart';
@@ -13,36 +15,90 @@ class InspectorPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<EmulatorWorkflow>(
-      builder: (context, emulator, child) {
-        final inspectorContent = emulator.toInspectorMap();
+    return Consumer<ScreenSize>(builder: (context, screenSize, _) {
+      return Consumer<EmulatorWorkflow>(
+        builder: (context, emulator, child) {
+          final inspectorContent = emulator.toInspectorMap();
+          final color = Theme.of(context).colorScheme.secondary;
+          final bordercolor = Theme.of(context).colorScheme.outlineVariant;
 
-        return Padding(
-          padding: padding,
-          child: SingleChildScrollView(
-            child: Column(children: [
-              for (final key in inspectorContent.keys)
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 8.0),
-                  child: OverviewCard(
-                    title: Text(key),
-                    child: Wrap(
-                      spacing: 8,
-                      runSpacing: 8,
-                      children: [
-                        for (final sectionKey in inspectorContent[key]!.keys)
-                          ValueBlock(
-                            title: sectionKey,
-                            disp: inspectorContent[key]![sectionKey] ?? "",
-                          )
-                      ],
-                    ),
+          return Container(
+            padding: padding,
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SizedBox(
+                    height: switch (screenSize) {
+                      ScreenSize.Compact => 64,
+                      ScreenSize.Large => 16,
+                      ScreenSize.Medium => 16,
+                    },
                   ),
-                ),
-            ]),
-          ),
-        );
-      },
-    );
+                  for (final key in inspectorContent.keys)
+                    Container(
+                      padding: EdgeInsets.only(bottom: 60, left: 8, right: 8),
+                      width: double.infinity,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            key,
+                            style: GoogleFonts.inter(
+                              fontSize: 16,
+                              color: color,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          SizedBox(height: 24),
+                          for (final sectionKey in inspectorContent[key]!.keys)
+                            Padding(
+                              padding: const EdgeInsets.only(bottom: 8.0),
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  border: Border(
+                                    bottom: BorderSide(
+                                      color: bordercolor,
+                                      width: 1,
+                                    ),
+                                  ),
+                                ),
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.end,
+                                  children: [
+                                    SizedBox(
+                                      width: 180,
+                                      child: Text(
+                                        sectionKey,
+                                        style: GoogleFonts.inter(
+                                          fontSize: 16,
+                                          color: color,
+                                        ),
+                                      ),
+                                    ),
+                                    Expanded(
+                                      child: Text(
+                                        inspectorContent[key]![sectionKey] ??
+                                            "",
+                                        style: GoogleFonts.spaceMono(
+                                          fontSize: 16,
+                                          color: color,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
+                ],
+              ),
+            ),
+          );
+        },
+      );
+    });
   }
 }

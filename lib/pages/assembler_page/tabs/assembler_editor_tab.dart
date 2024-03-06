@@ -90,6 +90,17 @@ class AssemblerEditorTab extends StatelessWidget {
                     decoration: BoxDecoration(
                       color: Theme.of(context).colorScheme.surface,
                       borderRadius: BorderRadius.circular(16),
+                      boxShadow: [
+                        BoxShadow(
+                          offset: Offset(0, 20),
+                          color: Theme.of(context)
+                              .colorScheme
+                              .primary
+                              .withOpacity(.05),
+                          spreadRadius: 0,
+                          blurRadius: 15,
+                        )
+                      ],
                     ),
                     child: SingleChildScrollView(
                       padding: EdgeInsets.all(16),

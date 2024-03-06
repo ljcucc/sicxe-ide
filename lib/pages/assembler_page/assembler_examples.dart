@@ -1,52 +1,53 @@
-const assemblerExampleCode = """COPY   START  1000
-FIRST  STL    RETADR
-CLOOP  JSUB   RDREC
-       LDA    LENGTH
-       COMP   ZERO
-       JEQ    ENDFIL
-       JSUB   WRREC
-       J      CLOOP
-ENDFIL LDA    EOF
-       STA    BUFFER
-       LDA    THREE
-       STA    LENGTH
-       JSUB   WRREC
-       LDL    RETADR
-       RSUB
-EOF    BYTE   C'EOF'
-THREE  WORD   3
-ZERO   WORD   0
-RETADR RESW   1
-LENGTH RESW   1
-BUFFER RESB   4096
+const assemblerExampleCode = """COPY    START  0
+FIRST   STL    RETADR
+        LDB   #LENGTH
+        BASE   LENGTH
+CLOOP  +JSUB   RDREC
+        LDA    LENGTH
+        COMP  #0
+        JEQ    ENDFIL
+       +JSUB   WRREC
+        J      CLOOP
+ENDFIL  LDA    EOF
+        STA    BUFFER
+        LDA   #3
+        STA    LENGTH
+       +JSUB   WRREC
+        J      @RETADR
+EOF     BYTE   C'EOF'
+RETADR  RESW   1
+LENGTH  RESW   1
+BUFFER  RESB   4096
 .
-.      SUBROUTINE TO READ RECORD INTO BUFFER
+.       SUBROUTINE TO READ RECORD INTO BUFFER
 .
-RDREC  LDX    ZERO
-       LDA    ZERO
-RLOOP  TD     INPUT
-       JEQ    RLOOP
-       RD     INPUT
-       COMP   ZERO
-       JEQ    EXIT
-       STCH   BUFFER,X
-       TIX    MAXLEN
-       JLT    RLOOP
-EXIT   STX    LENGTH
-       RSUB
-INPUT  BYTE   X'F1'
-MAXLEN WORD   4096
+RDREC   CLEAR  X
+        CLEAR  A
+        CLEAR  S
+       +LDT   #4096
+RLOOP   TD     INPUT
+        JEQ    RLOOP
+        RD     INPUT
+        COMPR  A,S
+        JEQ    EXIT
+        STCH   BUFFER,X
+        TIXR   T
+        JLT    RLOOP
+EXIT    STX    LENGTH
+        RSUB
+INPUT   BYTE   X'F1'
 .
-.      SUBROUTINE TO WRITE RECORD FROM BUFFER
+.       SUBROUTINE TO WRITE RECORD FROM BUFFER
 .
-WRREC  LDX    ZERO
-WLOOP  TD     OUTPUT
-       JEQ    WLOOP
-       LDCH   BUFFER,X
-       WD     OUTPUT
-       TIX    LENGTH
-       JLT    WLOOP
-       RSUB
-OUTPUT BYTE   X'06'
-       END    FIRST
+WRREC   CLEAR  X
+        LDT    LENGTH
+WLOOP   TD     OUTPUT
+        JEQ    WLOOP
+        LDCH   BUFFER,X
+        WD     OUTPUT
+        TIXR   T
+        JLT    WLOOP
+        RSUB
+OUTPUT  BYTE   X'06'
+        END    FIRST
 """;

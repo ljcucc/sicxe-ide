@@ -51,9 +51,9 @@ class LargeLayout extends StatelessWidget {
 
         final pageIndexMap = [
           NavigationPageId.Home,
-          NavigationPageId.Timeline,
-          NavigationPageId.Terminal,
           NavigationPageId.Editor,
+          NavigationPageId.Terminal,
+          NavigationPageId.Timeline,
         ];
 
         if (!pageIndexMap.contains(pageId)) {
@@ -75,16 +75,16 @@ class LargeLayout extends StatelessWidget {
               label: Text("Home"),
             ),
             NavigationRailDestination(
-              icon: Icon(Icons.graphic_eq),
-              label: Text("Timeline"),
+              icon: Icon(Icons.code_rounded),
+              label: Text("Editor"),
             ),
             NavigationRailDestination(
               icon: Icon(Icons.monitor),
               label: Text("Terminal"),
             ),
             NavigationRailDestination(
-              icon: Icon(Icons.code_rounded),
-              label: Text("Editor"),
+              icon: Icon(Icons.graphic_eq),
+              label: Text("Timeline"),
             ),
           ],
           selectedIndex: max(pageIndexMap.indexOf(pageId), 0),

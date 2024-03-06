@@ -1,5 +1,8 @@
 import 'dart:typed_data';
 
+import 'package:sicxe/utils/sicxe/emulator/integer.dart';
+import 'package:sicxe/utils/sicxe/emulator/status_word.dart';
+import 'package:sicxe/utils/sicxe/emulator/target_address.dart';
 import 'package:sicxe/utils/sicxe/emulator/vm.dart';
 
 enum OpCodes {
@@ -65,42 +68,97 @@ enum OpCodes {
   OP_NOT_FOUND,
 }
 
+/// This list recorded all format2 opcodes
+const instrFormat2 = [
+  OpCodes.ADDR,
+  OpCodes.CLEAR,
+  OpCodes.COMPR,
+  OpCodes.DIVR,
+  OpCodes.MULR,
+  OpCodes.RMO,
+  OpCodes.SHIFTL,
+  OpCodes.SHIFTR,
+  OpCodes.SUBR,
+  OpCodes.SVC,
+  OpCodes.TIXR,
+];
+
+/// This list recorded all format1 opcodes
+const instrFormat1 = [
+  OpCodes.FIX,
+  OpCodes.FLOAT,
+  OpCodes.HIO,
+  OpCodes.NORM,
+  OpCodes.SIO,
+  OpCodes.TIO,
+];
+
 typedef OpCallback = Future<void> Function(SICXE vm, TargetAddress ta);
 
 final Map<OpCodes, OpCallback> Instructions = {
   OpCodes.ADD: (vm, ta) async {
-    vm.regA.add(ta.getIntegerData(vm));
+    vm.regA.add(ta.getIntegerData());
   },
   OpCodes.ADDF: (vm, ta) async {
     //TODO: implement ADDF operation
   },
   OpCodes.ADDR: (vm, ta) async {
-    //TODO: implement ADDR operation
+    final a = ta.getR1() ?? IntegerData();
+    final b = ta.getR2() ?? IntegerData();
+
+    b.set(b.get() + a.get());
   },
   OpCodes.AND: (vm, ta) async {
-    //TODO: implement AND operation
+    final a = vm.regA;
+    final b = ta.getIntegerData();
+
+    a.set(a.get() & b.get());
   },
   OpCodes.CLEAR: (vm, ta) async {
-    //TODO: implement CLEAR operation
+    ta.getR1()?.set(0);
   },
   OpCodes.COMP: (vm, ta) async {
-    //TODO: implement COMP operation
+    // TODO: implement compare in IntegerData
+    final a = vm.regA.get().toSigned(24);
+    final b = ta.getIntegerData().get().toSigned(24);
+    if (a > b) {
+      vm.regSw.conditionCode = ConditionCode.GreaterThan;
+    } else if (a < b) {
+      vm.regSw.conditionCode = ConditionCode.LessThan;
+    } else {
+      vm.regSw.conditionCode = ConditionCode.Equal;
+    }
   },
   OpCodes.COMPF: (vm, ta) async {
     //TODO: implement COMPF operation
   },
   OpCodes.COMPR: (vm, ta) async {
-    //TODO: implement COMPR operation
+    final a = ta.getR1()?.get().toSigned(24) ?? 0;
+    final b = ta.getR2()?.get().toSigned(24) ?? 0;
+
+    if (a > b) {
+      vm.regSw.conditionCode = ConditionCode.GreaterThan;
+    } else if (a < b) {
+      vm.regSw.conditionCode = ConditionCode.LessThan;
+    } else {
+      vm.regSw.conditionCode = ConditionCode.Equal;
+    }
   },
   OpCodes.DIV: (vm, ta) async {
-    //TODO: implement DIV operation
-    vm.regA.sub(ta.getIntegerData(vm));
+    try {
+      vm.regA.div(ta.getIntegerData());
+    } on UnsupportedError catch (e) {
+      print(e);
+    }
   },
   OpCodes.DIVF: (vm, ta) async {
     //TODO: implement DIVF operation
   },
   OpCodes.DIVR: (vm, ta) async {
-    //TODO: implement DIVR operation
+    final a = ta.getR1() ?? IntegerData();
+    final b = ta.getR2() ?? IntegerData();
+
+    b.set(b.get() ~/ a.get());
   },
   OpCodes.FIX: (vm, ta) async {
     //TODO: implement FIX operation
@@ -112,74 +170,97 @@ final Map<OpCodes, OpCallback> Instructions = {
     //TODO: implement HIO operation
   },
   OpCodes.J: (vm, ta) async {
-    vm.pc.set(ta.getOperand());
-    print("setted pc by J");
+    vm.pc.set(ta.getPrefetchedTa());
   },
   OpCodes.JEQ: (vm, ta) async {
-    //TODO: implement JEQ operation
+    if (vm.regSw.conditionCode == ConditionCode.Equal) {
+      final address = ta.getPrefetchedTa();
+      vm.pc.set(address);
+      print("jump bc eq");
+    }
   },
   OpCodes.JGT: (vm, ta) async {
-    //TODO: implement JGT operation
+    if (vm.regSw.conditionCode == ConditionCode.GreaterThan) {
+      final address = ta.getPrefetchedTa();
+      vm.pc.set(address);
+      print("jump bc gt");
+    }
   },
   OpCodes.JLT: (vm, ta) async {
-    //TODO: implement JLT operation
+    if (vm.regSw.conditionCode == ConditionCode.LessThan) {
+      final address = ta.getPrefetchedTa();
+      vm.pc.set(address);
+      print("jump bc lt");
+    }
   },
   OpCodes.JSUB: (vm, ta) async {
-    //TODO: implement JSUB operation
+    vm.regL.set(vm.pc.get());
+    print("JSUB called");
+    print(ta.getPrefetchedTa().toRadixString(16));
+    vm.pc.set(ta.getPrefetchedTa());
   },
   OpCodes.LDA: (vm, ta) async {
-    vm.regA.set(ta.getIntegerData(vm).get());
+    vm.regA.set(ta.getIntegerData().get());
   },
   OpCodes.LDB: (vm, ta) async {
-    vm.regB.set(ta.getIntegerData(vm).get());
+    vm.regB.set(ta.getIntegerData().get());
   },
   OpCodes.LDCH: (vm, ta) async {
-    //TODO: implement LDCH operation
+    final byte = ta.getIntegerData().get() & 0xFF0000;
+    int regAValue = vm.regA.get() & 0xFFFF00;
+    regAValue |= (byte >> 16);
+    vm.regA.set(regAValue);
   },
   OpCodes.LDF: (vm, ta) async {
     //TODO: implement LDF operation
   },
   OpCodes.LDL: (vm, ta) async {
-    vm.regL.set(ta.getIntegerData(vm).get());
+    vm.regL.set(ta.getIntegerData().get());
   },
   OpCodes.LDS: (vm, ta) async {
-    vm.regS.set(ta.getIntegerData(vm).get());
+    vm.regS.set(ta.getIntegerData().get());
   },
   OpCodes.LDT: (vm, ta) async {
-    vm.regT.set(ta.getIntegerData(vm).get());
+    vm.regT.set(ta.getIntegerData().get());
   },
   OpCodes.LDX: (vm, ta) async {
-    vm.regX.set(ta.getIntegerData(vm).get());
+    vm.regX.set(ta.getIntegerData().get());
   },
   OpCodes.LPS: (vm, ta) async {
     //TODO: implement LPS operation
   },
   OpCodes.MUL: (vm, ta) async {
-    vm.regA.mul(ta.getIntegerData(vm));
+    vm.regA.mul(ta.getIntegerData());
   },
   OpCodes.MULF: (vm, ta) async {
     //TODO: implement MULF operation
   },
   OpCodes.MULR: (vm, ta) async {
-    //TODO: implement MULR operation
+    final a = ta.getR1() ?? IntegerData();
+    final b = ta.getR2() ?? IntegerData();
+
+    b.set(b.get() * a.get());
   },
   OpCodes.NORM: (vm, ta) async {
     //TODO: implement NORM operation
   },
   OpCodes.OR: (vm, ta) async {
-    //TODO: implement OR operation
+    final a = vm.regA;
+    final b = ta.getIntegerData();
+
+    a.set(a.get() | b.get());
   },
   OpCodes.RD: (vm, ta) async {
     //TODO: implement RD operation
   },
   OpCodes.RMO: (vm, ta) async {
-    //TODO: implement RMO operation
+    ta.getR2()?.set(ta.getR1()?.get() ?? 0);
   },
   OpCodes.RSUB: (vm, ta) async {
-    //TODO: implement RSUB operation
+    vm.pc.set(vm.regL.get());
   },
   OpCodes.SHIFTL: (vm, ta) async {
-    //TODO: implement SHIFTL operation
+    ta.getR1();
   },
   OpCodes.SHIFTR: (vm, ta) async {
     //TODO: implement SHIFTR operation
@@ -191,13 +272,15 @@ final Map<OpCodes, OpCallback> Instructions = {
     //TODO: implement SSK operation
   },
   OpCodes.STA: (vm, ta) async {
-    //TODO: implement STA operation
+    ta.setIntegerData(vm.regA);
   },
   OpCodes.STB: (vm, ta) async {
-    //TODO: implement STB operation
+    ta.setIntegerData(vm.regB);
   },
   OpCodes.STCH: (vm, ta) async {
-    //TODO: implement STCH operation
+    ta.setIntegerData(IntegerData(
+      value: vm.regA.get() & 0xFF,
+    ));
   },
   OpCodes.STF: (vm, ta) async {
     //TODO: implement STF operation
@@ -206,46 +289,88 @@ final Map<OpCodes, OpCallback> Instructions = {
     //TODO: implement STI operation
   },
   OpCodes.STL: (vm, ta) async {
-    //TODO: implement STL operation
+    ta.setIntegerData(vm.regL);
   },
   OpCodes.STS: (vm, ta) async {
-    //TODO: implement STS operation
+    ta.setIntegerData(vm.regS);
   },
   OpCodes.STSW: (vm, ta) async {
-    //TODO: implement STSW operation
+    ta.setIntegerData(vm.regSw);
   },
   OpCodes.STT: (vm, ta) async {
-    //TODO: implement STT operation
+    ta.setIntegerData(vm.regT);
   },
   OpCodes.STX: (vm, ta) async {
-    //TODO: implement STX operation
+    ta.setIntegerData(vm.regX);
   },
   OpCodes.SUB: (vm, ta) async {
-    vm.regA.sub(ta.getIntegerData(vm));
+    vm.regA.sub(ta.getIntegerData());
   },
   OpCodes.SUBF: (vm, ta) async {
     //TODO: implement SUBF operation
   },
   OpCodes.SUBR: (vm, ta) async {
-    //TODO: implement SUBR operation
+    final a = ta.getR1() ?? IntegerData();
+    final b = ta.getR2() ?? IntegerData();
+
+    b.set(b.get() - a.get());
   },
   OpCodes.SVC: (vm, ta) async {
     //TODO: implement SVC operation
   },
   OpCodes.TD: (vm, ta) async {
-    //TODO: implement TD operation
+    vm.regSw.conditionCode = ConditionCode.None;
   },
   OpCodes.TIO: (vm, ta) async {
     //TODO: implement TIO operation
   },
   OpCodes.TIX: (vm, ta) async {
-    //TODO: implement TIX operation
+    // X++
+    final regX = vm.regX;
+    regX.set(regX.get() + 1);
+
+    // compare
+    final x = regX.get().toSigned(24);
+    final a = ta.getIntegerData().get().toSigned(24);
+
+    print("compare with $x and $a");
+
+    if (x > a) {
+      vm.regSw.conditionCode = ConditionCode.GreaterThan;
+    } else if (x < a) {
+      vm.regSw.conditionCode = ConditionCode.LessThan;
+    } else {
+      vm.regSw.conditionCode = ConditionCode.Equal;
+    }
   },
   OpCodes.TIXR: (vm, ta) async {
-    //TODO: implement TIXR operation
+    // X++
+    final regX = vm.regX;
+    regX.set(regX.get() + 1);
+
+    // compare
+    final x = regX.get().toSigned(24);
+    final a = ta.getR1()?.get().toSigned(24) ?? 0;
+
+    if (x > a) {
+      vm.regSw.conditionCode = ConditionCode.GreaterThan;
+    } else if (x < a) {
+      vm.regSw.conditionCode = ConditionCode.LessThan;
+    } else {
+      vm.regSw.conditionCode = ConditionCode.Equal;
+    }
   },
   OpCodes.WD: (vm, ta) async {
-    //TODO: implement WD operation
+    final deviceAddr = (ta.getIntegerData(length: 1).get().toUnsigned(24));
+    final value = vm.regA.get() & 0xFF;
+    print("output device: $deviceAddr, $value");
+    print(ta.getIntegerData().get().toUnsigned(24).toRadixString(16));
+    print(deviceAddr.toRadixString(16));
+    if (vm.onOutput != null) {
+      vm.onOutput!(deviceAddr, value);
+    } else {
+      print("output is not defined");
+    }
   },
 };
 
@@ -372,29 +497,6 @@ class Instruction {
   }
 
   _checkFormat(OpCodes opcode, Uint8List instruction) {
-    final instrFormat2 = [
-      OpCodes.ADDR,
-      OpCodes.CLEAR,
-      OpCodes.COMPR,
-      OpCodes.DIVR,
-      OpCodes.MULR,
-      OpCodes.RMO,
-      OpCodes.SHIFTL,
-      OpCodes.SHIFTR,
-      OpCodes.SUBR,
-      OpCodes.SVC,
-      OpCodes.TIXR,
-    ];
-
-    final instrFormat1 = [
-      OpCodes.FIX,
-      OpCodes.FLOAT,
-      OpCodes.HIO,
-      OpCodes.NORM,
-      OpCodes.SIO,
-      OpCodes.TIO,
-    ];
-
     if (instrFormat2.contains(opcode)) {
       return InstructionFormat.Format2;
     }
@@ -403,6 +505,12 @@ class Instruction {
       return InstructionFormat.Format1;
     }
 
+    // SIC compatible foramt3
+    if (instruction[0] & 0x03 == 0) {
+      return InstructionFormat.Format3;
+    }
+
+    // checking flag E
     // if statement using mask 0x10: 00010000 -> xbpE....
     if (instruction[1] & 0x10 > 0) {
       return InstructionFormat.Format4;

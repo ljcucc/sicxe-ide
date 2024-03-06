@@ -1,10 +1,9 @@
 import 'package:dynamic_color/dynamic_color.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
-import 'package:sicxe/utils/sicxe/assembler/assembler.dart';
 import 'package:sicxe/pages/assembler_page/tabs/assembler_object_program_tab/object_code_visualize_provider.dart';
+import 'package:sicxe/utils/sicxe/assembler/object_program_record.dart';
 
 class SuggestableText extends StatelessWidget {
   final String message;
@@ -55,6 +54,14 @@ class SuggestableText extends StatelessWidget {
 
     return Builder(builder: (context) {
       return Tooltip(
+        textStyle: GoogleFonts.robotoMono(
+          fontSize: 14,
+          color: Theme.of(context).colorScheme.onSurfaceVariant,
+        ),
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.surfaceVariant,
+          borderRadius: BorderRadius.circular(8),
+        ),
         message: message,
         child: body,
       );
@@ -107,13 +114,18 @@ class ObjectProgramRecordWdiget extends StatelessWidget {
         SuggestableText(
             message: "Heading char, for TextRecord is [T]", text: "T"),
         SuggestableText(
-            message: "Starting address for object code in this record.",
-            text: tr.startingAddress),
+          message: "Starting address for object code in this record.",
+          text: tr.startingAddress,
+        ),
         SuggestableText(
-            message: "Length of object code in this record in bytes",
-            text: tr.lengthString),
+          message: "Length of object code in this record in bytes",
+          text: tr.lengthString,
+        ),
         for (final block in tr.blocks)
-          SuggestableText(message: "Object code: $block", text: block),
+          SuggestableText(
+            message: "ObjectCode: $block\nsrc: ${block.src}",
+            text: block.toString(),
+          ),
       ],
     );
   }
