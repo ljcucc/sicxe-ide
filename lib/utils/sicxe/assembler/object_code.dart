@@ -4,21 +4,27 @@ import 'package:sicxe/utils/sicxe/assembler/object_program_record.dart';
 import 'package:sicxe/utils/sicxe/assembler/parser.dart';
 import 'package:sicxe/utils/sicxe/emulator/op_code.dart';
 
-class ObjectCodeGenerateOperand {
+/// Calculate values of operand, which will convert symbol string into locatoin by symtab,
+/// and calculate final value with PC or base
+class ObjectCodeOperand {
   final LlbAssemblerLineParser parsed;
   final Map<String, int> symtab;
 
   int operandValue = 0;
   bool isPcAddressing = false;
 
-  ObjectCodeGenerateOperand(this.parsed, this.symtab) {
+  ObjectCodeOperand(this.parsed, this.symtab) {
     _parseByAddressing();
   }
 
   _parseByAddressing() {
-    if (!parsed.hasOperand) return;
+    if (parsed.colOperand.isEmpty) return;
+
+    // is format1 or format2
     if (instrFormat1.contains(parsed.opcode) ||
         instrFormat2.contains(parsed.opcode)) return;
+
+    // is no operand command
     if (OpCodes.RSUB == parsed.opcode) return;
 
     // if symbal is a constant with in 0-4095
@@ -75,11 +81,12 @@ class ObjectCodeGenerateOperand {
   }
 }
 
-class ObjectCodeGenerateOpcode {
+/// Responsible for generate final object code
+class ObjectCodeOpcode {
   final LlbAssemblerLineParser parsed;
-  final ObjectCodeGenerateOperand operand;
+  final ObjectCodeOperand operand;
 
-  ObjectCodeGenerateOpcode(
+  ObjectCodeOpcode(
     this.parsed,
     this.operand,
   );
@@ -173,8 +180,7 @@ class ObjectCodeGenerate {
       _byteTextRecord(parsed);
     }
     if (parsed.directiveType == LlbAssemblerDirectiveType.WORD) {
-      final operandValue =
-          int.tryParse(parsed.operand.colOperand) ?? 0 & 0xFFFFFF;
+      final operandValue = int.tryParse(parsed.colOperand) ?? 0 & 0xFFFFFF;
       final objectCode = operandValue.toRadixString(16).padLeft(6, '0');
       _appendToRecord(parsed.locctr, objectCode, parsed);
     }
@@ -193,7 +199,7 @@ class ObjectCodeGenerate {
 
   // TODO: write a class for this textRecord.
   _byteTextRecord(LlbAssemblerLineParser parsed) {
-    final colOperand = parsed.operand.colOperand;
+    final colOperand = parsed.colOperand;
     String objectCode = "";
     if (colOperand.startsWith("X")) {
       final innerString = colOperand.split("'")[1] ?? "";
@@ -216,8 +222,8 @@ class ObjectCodeGenerate {
 
   /// Generate instruction object code
   _instructionTextRecord(LlbAssemblerLineParser parsed) {
-    final ocgOperand = ObjectCodeGenerateOperand(parsed, symtab);
-    final ocgOpcode = ObjectCodeGenerateOpcode(parsed, ocgOperand);
+    final ocgOperand = ObjectCodeOperand(parsed, symtab);
+    final ocgOpcode = ObjectCodeOpcode(parsed, ocgOperand);
     final objectCode = ocgOpcode.toInstructionHexString();
 
     print("isPCAddressing: ${ocgOperand.isPcAddressing}");

@@ -75,7 +75,7 @@ class LlbAssembler {
     List<String> lines = text.split("\n");
 
     for (final (index, line) in lines.indexed) {
-      if (line.isEmpty || line[0] == ".") continue;
+      if (line.trim().isEmpty || line[0] == ".") continue;
 
       final parsed = parseLine(index, line, locctr);
 
@@ -86,12 +86,12 @@ class LlbAssembler {
       }
 
       // symbol detection
-      if (parsed.hasLabel) {
-        if (symtab.containsKey(parsed.label)) {
-          throw "duplicate symbol: ${parsed.label}";
+      if (parsed.colLabel.isNotEmpty) {
+        if (symtab.containsKey(parsed.colLabel)) {
+          throw "duplicate symbol: ${parsed.colLabel}";
         }
 
-        symtab[parsed.label] = locctr;
+        symtab[parsed.colLabel] = locctr;
       }
 
       locctr += parsed.objLength;

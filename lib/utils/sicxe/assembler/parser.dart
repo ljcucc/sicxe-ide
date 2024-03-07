@@ -57,11 +57,17 @@ class LlbAssemblerLineParser {
   final int locctr;
   final String line;
 
+  /// location of base
   int baseLoc;
 
-  String _colLabel = "";
-  String _colOperand = "";
-  String _colOpcode = "";
+  /// Parsed raw label column
+  String colLabel = "";
+
+  /// Parsed raw operand column
+  String colOperand = "";
+
+  /// Parsed raw opcode column
+  String colOpcode = "";
 
   OpCodes opcode = OpCodes.OP_NOT_FOUND;
 
@@ -72,15 +78,16 @@ class LlbAssemblerLineParser {
   }) {
     final splitedLine = _split2cols(line);
 
+    final hasLabel = line[0] != " ";
     if (hasLabel) {
       // Shift the first item as label
-      _colLabel = splitedLine.removeAt(0).toUpperCase();
+      colLabel = splitedLine.removeAt(0).toUpperCase();
     }
 
-    _colOpcode = splitedLine[0].toUpperCase();
-    _colOperand = splitedLine.length > 1 ? splitedLine[1] : "";
+    colOpcode = splitedLine[0].toUpperCase();
+    colOperand = splitedLine.length > 1 ? splitedLine[1] : "";
 
-    opcode = getOpcodeByString(getMnemonicFromOpcode(_colOpcode));
+    opcode = getOpcodeByString(getMnemonicFromOpcode(colOpcode));
   } // this function will split a line of string into cols without breaking string paren.
 
   List<String> _split2cols(String line) {
@@ -100,21 +107,16 @@ class LlbAssemblerLineParser {
         .toList();
   }
 
-  bool get hasLabel => line[0] != " ";
-  get label => _colLabel;
-
-  bool get hasOperand => _colOperand != "";
-
   LlbAssemblerLineParserOperand get operand =>
-      LlbAssemblerLineParserOperand(colOperand: _colOperand);
+      LlbAssemblerLineParserOperand(colOperand: colOperand);
 
-  bool get flagX => _colOperand.endsWith(",X");
-  bool get flagE => _colOpcode.startsWith("+");
-  bool get flagN => _colOperand.startsWith("@");
-  bool get flagI => _colOperand.startsWith("#");
+  bool get flagX => colOperand.endsWith(",X");
+  bool get flagE => colOpcode.startsWith("+");
+  bool get flagN => colOperand.startsWith("@");
+  bool get flagI => colOperand.startsWith("#");
 
   LlbAssemblerDirectiveType get directiveType {
-    return switch (_colOpcode) {
+    return switch (colOpcode) {
       "START" => LlbAssemblerDirectiveType.START,
       "RESW" => LlbAssemblerDirectiveType.RESW,
       "RESB" => LlbAssemblerDirectiveType.RESB,
@@ -154,16 +156,16 @@ class LlbAssemblerLineParser {
 
     if (directiveType == LlbAssemblerDirectiveType.WORD) return 3;
     if (directiveType == LlbAssemblerDirectiveType.BYTE) {
-      final segments = _colOperand.split('\'');
+      final segments = colOperand.split('\'');
       if (segments[0] == 'C') return segments[1].length;
       // if (segments[0] == 'X')
       return 1;
     }
     if (directiveType == LlbAssemblerDirectiveType.RESW) {
-      return 3 * (int.tryParse(_colOperand, radix: 10) ?? 0);
+      return 3 * (int.tryParse(colOperand, radix: 10) ?? 0);
     }
     if (directiveType == LlbAssemblerDirectiveType.RESB) {
-      return int.tryParse(_colOperand, radix: 10) ?? 0;
+      return int.tryParse(colOperand, radix: 10) ?? 0;
     }
 
     print("statement not found, $opcode");
