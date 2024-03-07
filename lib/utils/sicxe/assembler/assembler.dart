@@ -1,13 +1,6 @@
-import 'package:dynamic_color/dynamic_color.dart';
-import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:provider/provider.dart';
-import 'package:sicxe/pages/assembler_page/tabs/assembler_object_program_tab/object_code_visualize_provider.dart';
-import 'package:sicxe/utils/sicxe/assembler/object_code.dart';
+import 'package:sicxe/utils/sicxe/assembler/object_code/object_code_builder.dart';
 import 'package:sicxe/utils/sicxe/assembler/object_program_record.dart';
 import 'package:sicxe/utils/sicxe/assembler/parser.dart';
-import 'package:sicxe/utils/sicxe/emulator/op_code.dart';
-import 'package:sicxe/utils/sicxe/emulator/target_address.dart';
 
 typedef AssembleFunction = String Function(int operand);
 
@@ -102,11 +95,10 @@ class LlbAssembler {
     programLenth = locctr - startingLoc;
   }
 
-  // TODO: combine two pass into one by recycling parsed lines
   pass2() {
     int baseLoc = 0;
 
-    final ObjectCodeGenerate codeGenerate = ObjectCodeGenerate(
+    final buildContext = ObjectCodeBuilderContext(
       symtab: symtab,
       programLenth: programLenth,
     );
@@ -117,10 +109,12 @@ class LlbAssembler {
       }
 
       parsed.baseLoc = baseLoc;
-      codeGenerate.push(parsed);
+      final builder = ObjectCodeBuilder.resolve(parsed);
+      if (builder == null) continue;
+      builder.build(buildContext);
     }
 
-    codeGenerate.ending(startingLoc);
-    records = codeGenerate.records;
+    buildContext.ending(startingLoc);
+    records = buildContext.records;
   }
 }
