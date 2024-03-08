@@ -113,6 +113,7 @@ class ObjectCodeBuilderDirectiveRes extends ObjectCodeBuilder {
 }
 
 class ObjectCodeBuilderContext {
+  List<ModificationRecord> modiRecords = [];
   List<ObjectProgramRecord> records = [];
   final Map<String, int> symtab;
   final int programLenth;
@@ -162,6 +163,8 @@ class ObjectCodeBuilderContext {
     if ((records.last as TextRecord).length == 0) {
       records.removeLast();
     }
+
+    records.addAll(modiRecords);
 
     final er = EndRecord();
     er.bootAddress = startingLoc.toRadixString(16).padLeft(6, '0');

@@ -64,3 +64,18 @@ class EndRecord extends ObjectProgramRecord {
     return "E$bootAddress\n";
   }
 }
+
+class ModificationRecord extends ObjectProgramRecord {
+  final String startingLocation;
+  final String digitLength;
+
+  ModificationRecord({
+    required this.startingLocation,
+    required this.digitLength,
+  });
+
+  @override
+  String getRecord() {
+    return "M$startingLocation$digitLength\n";
+  }
+}

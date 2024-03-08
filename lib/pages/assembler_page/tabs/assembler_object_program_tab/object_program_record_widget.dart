@@ -146,6 +146,25 @@ class ObjectProgramRecordWdiget extends StatelessWidget {
     );
   }
 
+  Widget modiInteractiveDisp(ModificationRecord mr) {
+    return Row(
+      children: [
+        SuggestableText(
+          message: "Heading char, for ModificationRecord is [M]",
+          text: "M",
+        ),
+        SuggestableText(
+          message: "Starting location of the address",
+          text: mr.startingLocation,
+        ),
+        SuggestableText(
+          message: "Length of modification in digits (half-bytes)",
+          text: mr.digitLength,
+        ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     if (objectProgramRecord is HeaderRecord) {
@@ -158,6 +177,10 @@ class ObjectProgramRecordWdiget extends StatelessWidget {
 
     if (objectProgramRecord is EndRecord) {
       return endInteractiveDisp(objectProgramRecord as EndRecord);
+    }
+
+    if (objectProgramRecord is ModificationRecord) {
+      return modiInteractiveDisp(objectProgramRecord as ModificationRecord);
     }
 
     return Container();

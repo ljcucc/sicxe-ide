@@ -1,5 +1,6 @@
 import 'package:sicxe/utils/sicxe/assembler/object_code/object_code_builder.dart';
 import 'package:sicxe/utils/sicxe/assembler/object_code/object_code_operand.dart';
+import 'package:sicxe/utils/sicxe/assembler/object_program_record.dart';
 import 'package:sicxe/utils/sicxe/assembler/parser.dart';
 import 'package:sicxe/utils/sicxe/emulator/op_code.dart';
 
@@ -85,5 +86,26 @@ class ObjectCodeBuilderInstruction extends ObjectCodeBuilder {
     final objectCode = toInstructionHexString(context);
 
     context.pushTextRecordPart(objectCode, parserContext);
+
+    // generate modification record (if need)
+    if (parserContext.flagI || !parserContext.flagE) return;
+    ObjectCodeBuilderModificationRecord(parserContext: parserContext)
+        .build(context);
+  }
+}
+
+class ObjectCodeBuilderModificationRecord extends ObjectCodeBuilder {
+  ObjectCodeBuilderModificationRecord({required super.parserContext});
+
+  @override
+  build(ObjectCodeBuilderContext context) {
+    if (parserContext.flagI || !parserContext.flagE) return;
+
+    final modiRecord = ModificationRecord(
+      startingLocation:
+          toFixedHexString(value: parserContext.locctr + 1, pad: 6),
+      digitLength: "05",
+    );
+    context.modiRecords.add(modiRecord);
   }
 }
