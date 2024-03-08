@@ -26,13 +26,13 @@ class Providers extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
+    final colorSchemeProvider = CustomColorshcemeProvider(
+      Color.fromARGB(255, 246, 192, 58),
+    );
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(
-          create: (_) => CustomColorshcemeProvider(
-            Color.fromARGB(255, 246, 192, 58),
-          ),
+          create: (_) => colorSchemeProvider,
         ),
         ChangeNotifierProvider<DocumentDisplayProvider>(create: (_) {
           final ddm = DocumentDisplayProvider();
@@ -56,7 +56,10 @@ class Providers extends StatelessWidget {
         ),
         ChangeNotifierProvider<AssemblerPageProvider>(
           create: (_) => AssemblerPageProvider(
-            colorScheme: colorScheme,
+            colorScheme: ColorScheme.fromSeed(
+              seedColor: colorSchemeProvider.color,
+              brightness: MediaQuery.of(context).platformBrightness,
+            ),
           ),
         ),
         ChangeNotifierProvider<TimingControlBarController>(

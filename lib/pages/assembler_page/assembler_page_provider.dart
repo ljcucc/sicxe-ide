@@ -26,11 +26,12 @@ class AssemblerPageProvider extends ChangeNotifier {
       'RESB': TextStyle(color: primary),
       'START': TextStyle(color: primary),
       'END': TextStyle(color: primary),
+      'BASE': TextStyle(color: primary),
     }, patternMap: {
       r"\..*": TextStyle(color: tertiary.withOpacity(.5)),
-      r"C'[^']+'": TextStyle(color: Colors.green.harmonizeWith(secondary)),
-      r"X'[^']+'": TextStyle(color: Colors.red.harmonizeWith(secondary)),
-      r"[^,X\s]+,X": TextStyle(color: Colors.blue.harmonizeWith(secondary)),
+      r"C'[^']+'": TextStyle(color: secondary.harmonizeWith(Colors.green)),
+      r"X'[^']+'": TextStyle(color: secondary.harmonizeWith(Colors.red)),
+      r"[^,X\s]+,X": TextStyle(color: secondary.harmonizeWith(Colors.blue)),
     });
   }
 }
