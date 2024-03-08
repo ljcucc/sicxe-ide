@@ -1,6 +1,10 @@
 /// The job of ObjectProgramRecord is to keep and store all record data as a class
 abstract class ObjectProgramRecord {
+  /// return a pure string object code.
   String getRecord();
+
+  /// return a JSON compatible list<Map> object
+  List<Map<String, String>> toMapList();
 }
 
 class ObjectCodeBlock {
@@ -23,6 +27,28 @@ class HeaderRecord extends ObjectProgramRecord {
   @override
   String getRecord() {
     return "H$programName$startingAddress$length\n";
+  }
+
+  @override
+  List<Map<String, String>> toMapList() {
+    return [
+      {
+        'text': "H",
+        'tooltip': "Header char, for HeaderRecord is [H]",
+      },
+      {
+        'text': programName,
+        'tooltip': "Program name",
+      },
+      {
+        'text': startingAddress,
+        'tooltip': "Staring address of object program.",
+      },
+      {
+        'text': length,
+        'tooltip': "Length of object program in bytes.",
+      },
+    ];
   }
 }
 
@@ -54,6 +80,29 @@ class TextRecord extends ObjectProgramRecord {
     var objectCodeString = blocks.join();
     return "T$startingAddress$lengthString$objectCodeString\n".toUpperCase();
   }
+
+  @override
+  List<Map<String, String>> toMapList() {
+    return [
+      {
+        'text': "T",
+        'tooltip': "Heading char, for TextRecord is [T]",
+      },
+      {
+        'text': startingAddress,
+        'tooltip': "Starting address for object code in this record.",
+      },
+      {
+        'text': lengthString,
+        'tooltip': "Length of object code in this record in bytes",
+      },
+      for (final block in blocks)
+        {
+          'tooltip': "ObjectCode: $block\nsrc: ${block.src}",
+          'text': block.toString(),
+        },
+    ];
+  }
 }
 
 class EndRecord extends ObjectProgramRecord {
@@ -62,6 +111,20 @@ class EndRecord extends ObjectProgramRecord {
   @override
   String getRecord() {
     return "E$bootAddress\n";
+  }
+
+  @override
+  List<Map<String, String>> toMapList() {
+    return [
+      {
+        'tooltip': "Heading char, for EndRecord is [E]",
+        "text": "E",
+      },
+      {
+        "tooltip": "Starting address of this program",
+        "text": bootAddress,
+      },
+    ];
   }
 }
 
@@ -77,5 +140,23 @@ class ModificationRecord extends ObjectProgramRecord {
   @override
   String getRecord() {
     return "M$startingLocation$digitLength\n";
+  }
+
+  @override
+  List<Map<String, String>> toMapList() {
+    return [
+      {
+        "tooltip": "Heading char, for ModificationRecord is [M]",
+        "text": "M",
+      },
+      {
+        "tooltip": "Starting location of the address",
+        "text": startingLocation,
+      },
+      {
+        "tooltip": "Length of modification in digits (half-bytes)",
+        "text": digitLength,
+      },
+    ];
   }
 }

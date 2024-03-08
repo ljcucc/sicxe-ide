@@ -77,112 +77,16 @@ class ObjectProgramRecordWdiget extends StatelessWidget {
     required this.objectProgramRecord,
   });
 
-  /// Header record display widget
-  Widget headerInteractiveDisp(HeaderRecord hr) {
-    return Builder(builder: (context) {
-      return Row(
-        children: [
-          SuggestableText(
-            message: "Header char, for HeaderRecord is [T]",
-            text: "H",
-            color: Colors.green[800],
-          ),
-          SuggestableText(
-            message: "Program name",
-            text: hr.programName,
-            color: Colors.green[800],
-          ),
-          SuggestableText(
-            message: "Staring address of object program.",
-            text: hr.startingAddress,
-            color: Colors.green[800],
-          ),
-          SuggestableText(
-            message: "Length of object program in bytes.",
-            text: hr.length,
-            color: Colors.green[800],
-          ),
-        ],
-      );
-    });
-  }
-
-  /// Text record display widget
-  Widget textInteractiveDisp(TextRecord tr) {
-    return Row(
-      children: [
-        SuggestableText(
-            message: "Heading char, for TextRecord is [T]", text: "T"),
-        SuggestableText(
-          message: "Starting address for object code in this record.",
-          text: tr.startingAddress,
-        ),
-        SuggestableText(
-          message: "Length of object code in this record in bytes",
-          text: tr.lengthString,
-        ),
-        for (final block in tr.blocks)
-          SuggestableText(
-            message: "ObjectCode: $block\nsrc: ${block.src}",
-            text: block.toString(),
-          ),
-      ],
-    );
-  }
-
-  /// End record display widget
-  Widget endInteractiveDisp(EndRecord er) {
-    return Row(
-      children: [
-        SuggestableText(
-          message: "Heading char, for EndRecord is [E]",
-          text: "E",
-        ),
-        SuggestableText(
-          message: "Starting address of this program",
-          text: er.bootAddress,
-        ),
-      ],
-    );
-  }
-
-  Widget modiInteractiveDisp(ModificationRecord mr) {
-    return Row(
-      children: [
-        SuggestableText(
-          message: "Heading char, for ModificationRecord is [M]",
-          text: "M",
-        ),
-        SuggestableText(
-          message: "Starting location of the address",
-          text: mr.startingLocation,
-        ),
-        SuggestableText(
-          message: "Length of modification in digits (half-bytes)",
-          text: mr.digitLength,
-        ),
-      ],
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
-    if (objectProgramRecord is HeaderRecord) {
-      return headerInteractiveDisp(objectProgramRecord as HeaderRecord);
-    }
-
-    if (objectProgramRecord is TextRecord) {
-      return textInteractiveDisp(objectProgramRecord as TextRecord);
-    }
-
-    if (objectProgramRecord is EndRecord) {
-      return endInteractiveDisp(objectProgramRecord as EndRecord);
-    }
-
-    if (objectProgramRecord is ModificationRecord) {
-      return modiInteractiveDisp(objectProgramRecord as ModificationRecord);
-    }
-
-    return Container();
+    return Row(
+      children: [
+        for (Map<String, String> map in objectProgramRecord.toMapList())
+          SuggestableText(
+            message: map['tooltip'] ?? "",
+            text: map['text'] ?? "",
+          ),
+      ],
+    );
   }
 }
