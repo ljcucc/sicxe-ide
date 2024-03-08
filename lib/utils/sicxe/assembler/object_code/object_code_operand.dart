@@ -1,72 +1,71 @@
+import 'package:sicxe/utils/sicxe/assembler/object_code/object_code_builder.dart';
 import 'package:sicxe/utils/sicxe/assembler/parser.dart';
 import 'package:sicxe/utils/sicxe/emulator/op_code.dart';
 
 /// Calculate values of operand, which will convert symbol string into locatoin by symtab,
 /// and calculate final value with PC or base
-class ObjectCodeOperand {
-  final LlbAssemblerLineParser parsed;
-  final Map<String, int> symtab;
-
+class ObjectCodeBuilderOperand extends ObjectCodeBuilder {
   int operandValue = 0;
   bool isPcAddressing = false;
 
-  ObjectCodeOperand(this.parsed, this.symtab) {
-    _parseByAddressing();
-  }
+  ObjectCodeBuilderOperand({required super.parserContext});
 
-  _parseByAddressing() {
-    if (parsed.colOperand.isEmpty) return;
+  _parseByAddressing(ObjectCodeBuilderContext context) {
+    if (parserContext.colOperand.isEmpty) return;
+
+    final opcode = LineParserOpcode(context: parserContext).opcode;
+    final operand = LineParserOperand(context: parserContext);
 
     // is format1 or format2
-    if (instrFormat1.contains(parsed.opcode) ||
-        instrFormat2.contains(parsed.opcode)) return;
+    if (instrFormat1.contains(opcode) || instrFormat2.contains(opcode)) return;
 
     // is no operand command
-    if (OpCodes.RSUB == parsed.opcode) return;
+    if (OpCodes.RSUB == opcode) return;
 
     // if symbal is a constant with in 0-4095
-    if (parsed.operand.toNumberSymbol() != null) {
-      operandValue = parsed.operand.toNumberSymbol() ?? 0;
+    if (operand.toNumberSymbol() != null) {
+      operandValue = operand.toNumberSymbol() ?? 0;
       return;
     }
 
-    final stringSymbol = parsed.operand.toSymbol();
+    final stringSymbol = operand.toSymbol();
 
-    if (!symtab.containsKey(stringSymbol)) {
+    if (!context.symtab.containsKey(stringSymbol)) {
       throw "undefined symbol: ${stringSymbol}";
     }
 
-    int symbolLoc = symtab[stringSymbol] ?? 0;
+    int symbolLoc = context.symtab[stringSymbol] ?? 0;
 
-    if (parsed.flagE) {
+    if (parserContext.flagE) {
       operandValue = symbolLoc;
       return;
     }
 
-    isPcAddressing = _isPcAddressingValid(symbolLoc);
+    isPcAddressing = _isPcAddressingValid(parserContext, symbolLoc);
     if (isPcAddressing) {
-      final pcLoc = parsed.locctr + parsed.objLength;
+      final objLength = LineParserCodeLength(context: parserContext).objLength;
+      final pcLoc = parserContext.locctr + objLength;
       operandValue = symbolLoc - pcLoc;
     } else {
-      operandValue = symbolLoc - parsed.baseLoc;
+      operandValue = symbolLoc - parserContext.baseLoc;
     }
   }
 
   String toHexString() {
     return operandValue
-        .toUnsigned(parsed.flagE ? 20 : 12)
+        .toUnsigned(parserContext.flagE ? 20 : 12)
         .toRadixString(16)
-        .padLeft(parsed.flagE ? 5 : 3);
+        .padLeft(parserContext.flagE ? 5 : 3);
   }
 
   // if it's be able to do pc addressing
-  _isPcAddressingValid(int symbolLoc) {
-    final d = symbolLoc - parsed.locctr;
-    print("d: ${symbolLoc - parsed.locctr}");
-    print("flagE: ${parsed.flagE}");
+  _isPcAddressingValid(LineParserContext context, symbolLoc) {
+    final d = symbolLoc - context.locctr;
+    print("d: ${symbolLoc - context.locctr}");
+    print("flagE: ${context.flagE}");
     bool valid = false;
 
-    if (parsed.flagE) {
+    if (context.flagE) {
       // is format 4
       valid = d < 524288 && d >= -524288;
     } else {
@@ -75,5 +74,10 @@ class ObjectCodeOperand {
     }
 
     return valid;
+  }
+
+  @override
+  build(ObjectCodeBuilderContext context) {
+    _parseByAddressing(context);
   }
 }

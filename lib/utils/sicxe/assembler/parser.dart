@@ -16,79 +16,25 @@ const registerIndexMap = [
   "SW",
 ];
 
-class LlbAssemblerLineParserOperand {
-  final String colOperand;
-
-  LlbAssemblerLineParserOperand({required this.colOperand});
-
-  int toInt() {
-    return int.tryParse(colOperand, radix: 16) ?? 0;
-  }
-
-  String toSymbol() {
-    return _getSymbolFromOperand(colOperand);
-  }
-
-  int? toNumberSymbol() {
-    return int.tryParse(toSymbol());
-  }
-
-  _getSymbolFromOperand(String colOperand) =>
-      colOperand.replaceAll("#", "").replaceAll(",X", "").replaceAll("@", "");
-
-  List<String> getSplitRegisterSymbol() {
-    return colOperand.split(",").map((e) => e.trim()).toList();
-  }
-
-  /// get format 2 r1 index.
-  int get r1Index {
-    return max(registerIndexMap.indexOf(getSplitRegisterSymbol()[0]), 0);
-  }
-
-  /// get format 2 r2 index.
-  int get r2Index {
-    if (getSplitRegisterSymbol().length < 2) return 0;
-    return max(registerIndexMap.indexOf(getSplitRegisterSymbol()[1]), 0);
-  }
+abstract class LinePaerserBuilder {
+  final LineParserContext context;
+  LinePaerserBuilder({required this.context});
 }
 
-/// The job of LlbAssemblerLineParser is to parse and collect, be able to provide as much details as possible from a line.
-class LlbAssemblerLineParser {
-  final int locctr;
-  final String line;
+/// A starting point for parse stage, parse the columns
+class LineParser extends LinePaerserBuilder {
+  LineParser({required super.context}) {
+    final splitedLine = _split2cols(context.line);
 
-  /// location of base
-  int baseLoc;
-
-  /// Parsed raw label column
-  String colLabel = "";
-
-  /// Parsed raw operand column
-  String colOperand = "";
-
-  /// Parsed raw opcode column
-  String colOpcode = "";
-
-  OpCodes opcode = OpCodes.OP_NOT_FOUND;
-
-  LlbAssemblerLineParser({
-    required this.line,
-    required this.locctr,
-    required this.baseLoc,
-  }) {
-    final splitedLine = _split2cols(line);
-
-    final hasLabel = line[0] != " ";
+    final hasLabel = context.line[0] != " ";
     if (hasLabel) {
       // Shift the first item as label
-      colLabel = splitedLine.removeAt(0).toUpperCase();
+      context.colLabel = splitedLine.removeAt(0).toUpperCase();
     }
 
-    colOpcode = splitedLine[0].toUpperCase();
-    colOperand = splitedLine.length > 1 ? splitedLine[1] : "";
-
-    opcode = getOpcodeByString(getMnemonicFromOpcode(colOpcode));
-  } // this function will split a line of string into cols without breaking string paren.
+    context.colOpcode = splitedLine[0].toUpperCase();
+    context.colOperand = splitedLine.length > 1 ? splitedLine[1] : "";
+  }
 
   List<String> _split2cols(String line) {
     const superSpaceReplacement = "SUPER_SPACE_REPLACEMENT";
@@ -106,9 +52,121 @@ class LlbAssemblerLineParser {
         .map((e) => e.replaceAll(superSpaceReplacement, " "))
         .toList();
   }
+}
 
-  LlbAssemblerLineParserOperand get operand =>
-      LlbAssemblerLineParserOperand(colOperand: colOperand);
+/// Provide information about opcode by parsing from source
+class LineParserOpcode extends LinePaerserBuilder {
+  LineParserOpcode({required super.context});
+
+  OpCodes get opcode {
+    return getOpcodeByString(context.colOpcode);
+  }
+
+  getOpcodeByString(String opcode) {
+    String pureColOpcode =
+        opcode.replaceAll("+", "").replaceAll("#", "").trim();
+    final opcodeIndexMap = OpCodes.values.map((e) => e.name).toList();
+    if (opcodeIndexMap.contains(pureColOpcode)) {
+      return OpCodes.values[opcodeIndexMap.indexOf(pureColOpcode)];
+    }
+    return OpCodes.OP_NOT_FOUND;
+  }
+
+  /// return the length of instruction
+  int get instructionLen {
+    if (instrFormat1.contains(opcode)) {
+      return 1;
+    } else if (instrFormat2.contains(opcode)) {
+      return 2;
+    } else if (context.flagE) {
+      return 4;
+    }
+    return 3;
+  }
+}
+
+/// Get all information about operand by parsing
+class LineParserOperand extends LinePaerserBuilder {
+  LineParserOperand({required super.context});
+
+  int toInt() {
+    return int.tryParse(context.colOperand, radix: 16) ?? 0;
+  }
+
+  String toSymbol() {
+    return _getSymbolFromOperand(context.colOperand);
+  }
+
+  int? toNumberSymbol() {
+    return int.tryParse(toSymbol());
+  }
+
+  _getSymbolFromOperand(String colOperand) =>
+      colOperand.replaceAll("#", "").replaceAll(",X", "").replaceAll("@", "");
+
+  List<String> getSplitRegisterSymbol() {
+    return context.colOperand.split(",").map((e) => e.trim()).toList();
+  }
+
+  /// get format 2 r1 index.
+  int get r1Index {
+    return max(registerIndexMap.indexOf(getSplitRegisterSymbol()[0]), 0);
+  }
+
+  /// get format 2 r2 index.
+  int get r2Index {
+    if (getSplitRegisterSymbol().length < 2) return 0;
+    return max(registerIndexMap.indexOf(getSplitRegisterSymbol()[1]), 0);
+  }
+}
+
+/// Get the object code legnth
+class LineParserCodeLength extends LinePaerserBuilder {
+  LineParserCodeLength({required super.context});
+
+  /// return the length of object code, used for calculate locctr.
+  int get objLength {
+    final opcode = LineParserOpcode(context: context);
+    if (opcode.opcode != OpCodes.OP_NOT_FOUND) return opcode.instructionLen;
+
+    if (context.directiveType == LlbAssemblerDirectiveType.WORD) return 3;
+    if (context.directiveType == LlbAssemblerDirectiveType.BYTE) {
+      final segments = context.colOperand.split('\'');
+      if (segments[0] == 'C') return segments[1].length;
+      // if (segments[0] == 'X')
+      return 1;
+    }
+    if (context.directiveType == LlbAssemblerDirectiveType.RESW) {
+      return 3 * (int.tryParse(context.colOperand, radix: 10) ?? 0);
+    }
+    if (context.directiveType == LlbAssemblerDirectiveType.RESB) {
+      return int.tryParse(context.colOperand, radix: 10) ?? 0;
+    }
+
+    print("statement not found, $opcode");
+
+    return 0;
+  }
+}
+
+/// Context of LineParser, provide none-other than value.
+class LineParserContext {
+  /// source line string
+  final String line;
+
+  /// location of the object code & base
+  final int locctr;
+  int baseLoc = 0;
+
+  /// Parsed raw label, operand, opcode column
+  String colLabel = "";
+  String colOperand = "";
+  String colOpcode = "";
+
+  LineParserContext({
+    required this.line,
+    required this.locctr,
+  });
 
   bool get flagX => colOperand.endsWith(",X");
   bool get flagE => colOpcode.startsWith("+");
@@ -126,50 +184,5 @@ class LlbAssemblerLineParser {
       "NOBASE" => LlbAssemblerDirectiveType.NOBASE,
       String() => LlbAssemblerDirectiveType.IS_NOT_DIRECTIVE,
     };
-  }
-
-  getMnemonicFromOpcode(String colOpcode) => colOpcode.replaceAll("+", "");
-
-  int getInstrLen() {
-    if (instrFormat1.contains(opcode)) {
-      return 1;
-    } else if (instrFormat2.contains(opcode)) {
-      return 2;
-    } else if (flagE) {
-      return 4;
-    }
-    return 3;
-  }
-
-  getOpcodeByString(String opcode) {
-    String pureColOpcode =
-        opcode.replaceAll("+", "").replaceAll("#", "").trim();
-    final opcodeIndexMap = OpCodes.values.map((e) => e.name).toList();
-    if (opcodeIndexMap.contains(pureColOpcode)) {
-      return OpCodes.values[opcodeIndexMap.indexOf(pureColOpcode)];
-    }
-    return OpCodes.OP_NOT_FOUND;
-  }
-
-  int get objLength {
-    if (opcode != OpCodes.OP_NOT_FOUND) return getInstrLen();
-
-    if (directiveType == LlbAssemblerDirectiveType.WORD) return 3;
-    if (directiveType == LlbAssemblerDirectiveType.BYTE) {
-      final segments = colOperand.split('\'');
-      if (segments[0] == 'C') return segments[1].length;
-      // if (segments[0] == 'X')
-      return 1;
-    }
-    if (directiveType == LlbAssemblerDirectiveType.RESW) {
-      return 3 * (int.tryParse(colOperand, radix: 10) ?? 0);
-    }
-    if (directiveType == LlbAssemblerDirectiveType.RESB) {
-      return int.tryParse(colOperand, radix: 10) ?? 0;
-    }
-
-    print("statement not found, $opcode");
-
-    return 0;
   }
 }

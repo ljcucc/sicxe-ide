@@ -29,6 +29,9 @@ class LlbAssembler {
   Map<String, int> symtab = {};
   List<ObjectProgramRecord> records = [];
 
+  /// all parsed object will store here
+  List<LineParserContext> parserContexts = [];
+
   /// The starting location
   int startingLoc = 0;
 
@@ -36,27 +39,14 @@ class LlbAssembler {
 
   LlbAssembler({required this.text});
 
-  LlbAssemblerLineParser parseLine(int index, String line, int locctr) {
-    final parsed = LlbAssemblerLineParser(
-      line: line,
-      locctr: locctr,
-      baseLoc: 0,
-    );
-
-    return parsed;
-  }
-
   /// reset all data structure into initial state.
   init() {
-    parsedLines = [];
+    parserContexts = [];
     records = [];
     symtab = {};
     startingLoc = 0;
     programLenth = 0;
   }
-
-  /// all parsed object will store here
-  List<LlbAssemblerLineParser> parsedLines = [];
 
   /// pass1 will parse each line, and store it for forward referenced.
   pass1() {
@@ -70,25 +60,29 @@ class LlbAssembler {
     for (final (index, line) in lines.indexed) {
       if (line.trim().isEmpty || line[0] == ".") continue;
 
-      final parsed = parseLine(index, line, locctr);
+      final context = LineParser(
+        context: LineParserContext(line: line, locctr: locctr),
+      ).context;
+
+      final operand = LineParserOperand(context: context);
 
       if (index == 0 &&
-          parsed.directiveType == LlbAssemblerDirectiveType.START) {
-        locctr = parsed.operand.toInt();
+          context.directiveType == LlbAssemblerDirectiveType.START) {
+        locctr = operand.toInt();
         startingLoc = locctr;
       }
 
       // symbol detection
-      if (parsed.colLabel.isNotEmpty) {
-        if (symtab.containsKey(parsed.colLabel)) {
-          throw "duplicate symbol: ${parsed.colLabel}";
+      if (context.colLabel.isNotEmpty) {
+        if (symtab.containsKey(context.colLabel)) {
+          throw "duplicate symbol: ${context.colLabel}";
         }
 
-        symtab[parsed.colLabel] = locctr;
+        symtab[context.colLabel] = locctr;
       }
 
-      locctr += parsed.objLength;
-      parsedLines.add(parsed);
+      locctr += LineParserCodeLength(context: context).objLength;
+      parserContexts.add(context);
     }
 
     // store the program length and reset locctr for object program generate
@@ -103,13 +97,14 @@ class LlbAssembler {
       programLenth: programLenth,
     );
 
-    for (var parsed in parsedLines) {
-      if (parsed.directiveType == LlbAssemblerDirectiveType.BASE) {
-        baseLoc = symtab[parsed.operand.toSymbol()] ?? 0;
+    for (var parserContext in parserContexts) {
+      final operand = LineParserOperand(context: parserContext);
+      if (parserContext.directiveType == LlbAssemblerDirectiveType.BASE) {
+        baseLoc = symtab[operand.toSymbol()] ?? 0;
       }
 
-      parsed.baseLoc = baseLoc;
-      final builder = ObjectCodeBuilder.resolve(parsed);
+      parserContext.baseLoc = baseLoc;
+      final builder = ObjectCodeBuilder.resolve(parserContext);
       if (builder == null) continue;
       builder.build(buildContext);
     }

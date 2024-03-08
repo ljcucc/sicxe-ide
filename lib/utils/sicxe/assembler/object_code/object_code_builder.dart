@@ -3,54 +3,43 @@ import 'package:sicxe/utils/sicxe/assembler/assembler.dart';
 import 'package:sicxe/utils/sicxe/assembler/object_program_record.dart';
 import 'package:sicxe/utils/sicxe/assembler/parser.dart';
 import 'package:sicxe/utils/sicxe/emulator/op_code.dart';
-import 'package:sicxe/utils/sicxe/assembler/object_code/object_code_opcode.dart';
-import 'package:sicxe/utils/sicxe/assembler/object_code/object_code_operand.dart';
+import 'package:sicxe/utils/sicxe/assembler/object_code/object_code_instruction.dart';
 
 String toFixedHexString({required int value, int pad = 2}) {
   return value.toRadixString(16).padLeft(pad, '0');
 }
 
 abstract class ObjectCodeBuilder {
-  LlbAssemblerLineParser parsed;
+  LineParserContext parserContext;
 
-  ObjectCodeBuilder({required this.parsed});
+  ObjectCodeBuilder({required this.parserContext});
 
   build(ObjectCodeBuilderContext context);
 
-  static resolve(LlbAssemblerLineParser parsed) {
-    if (parsed.opcode != OpCodes.OP_NOT_FOUND) {
-      return ObjectCodeBuilderOpcode(parsed: parsed);
-    }
-    if (parsed.directiveType == LlbAssemblerDirectiveType.START) {
-      return ObjectCodeBuilderDirectiveStart(parsed: parsed);
-    }
-    if (parsed.directiveType == LlbAssemblerDirectiveType.BYTE) {
-      return ObjectCodeBuilderDirectiveByte(parsed: parsed);
-    }
-    if (parsed.directiveType == LlbAssemblerDirectiveType.WORD) {
-      return ObjectCodeBuilderDirectiveWord(parsed: parsed);
-    }
-    if (parsed.directiveType == LlbAssemblerDirectiveType.RESW ||
-        parsed.directiveType == LlbAssemblerDirectiveType.RESB) {
-      return ObjectCodeBuilderDirectiveRes(parsed: parsed);
-    }
-  }
-}
+  static resolve(LineParserContext context) {
+    final opcode = LineParserOpcode(context: context).opcode;
 
-class ObjectCodeBuilderOpcode extends ObjectCodeBuilder {
-  ObjectCodeBuilderOpcode({required super.parsed});
-
-  @override
-  build(ObjectCodeBuilderContext context) {
-    final operand = ObjectCodeOperand(parsed, context.symtab);
-    final opcode = ObjectCodeOpcode(parsed, operand);
-    final objectCode = opcode.toInstructionHexString();
-    context.pushTextRecordPart(objectCode, operand.parsed);
+    if (opcode != OpCodes.OP_NOT_FOUND) {
+      return ObjectCodeBuilderInstruction(parserContext: context);
+    }
+    if (context.directiveType == LlbAssemblerDirectiveType.START) {
+      return ObjectCodeBuilderDirectiveStart(parserContext: context);
+    }
+    if (context.directiveType == LlbAssemblerDirectiveType.BYTE) {
+      return ObjectCodeBuilderDirectiveByte(parserContext: context);
+    }
+    if (context.directiveType == LlbAssemblerDirectiveType.WORD) {
+      return ObjectCodeBuilderDirectiveWord(parserContext: context);
+    }
+    if (context.directiveType == LlbAssemblerDirectiveType.RESW ||
+        context.directiveType == LlbAssemblerDirectiveType.RESB) {
+      return ObjectCodeBuilderDirectiveRes(parserContext: context);
+    }
   }
 }
 
 class ObjectCodeBuilderDirectiveStart extends ObjectCodeBuilder {
-  ObjectCodeBuilderDirectiveStart({required super.parsed});
+  ObjectCodeBuilderDirectiveStart({required super.parserContext});
 
   @override
   build(ObjectCodeBuilderContext context) {
@@ -74,11 +63,11 @@ class ObjectCodeBuilderDirectiveStart extends ObjectCodeBuilder {
 }
 
 class ObjectCodeBuilderDirectiveByte extends ObjectCodeBuilder {
-  ObjectCodeBuilderDirectiveByte({required super.parsed});
+  ObjectCodeBuilderDirectiveByte({required super.parserContext});
 
   @override
   build(ObjectCodeBuilderContext context) {
-    final colOperand = parsed.colOperand;
+    final colOperand = parserContext.colOperand;
     String objectCode = "";
     if (colOperand.startsWith("X")) {
       final innerString = colOperand.split("'")[1] ?? "";
@@ -92,23 +81,23 @@ class ObjectCodeBuilderDirectiveByte extends ObjectCodeBuilder {
           .join();
     }
 
-    context.pushTextRecordPart(objectCode, parsed);
+    context.pushTextRecordPart(objectCode, parserContext);
   }
 }
 
 class ObjectCodeBuilderDirectiveWord extends ObjectCodeBuilder {
-  ObjectCodeBuilderDirectiveWord({required super.parsed});
+  ObjectCodeBuilderDirectiveWord({required super.parserContext});
 
   @override
   build(ObjectCodeBuilderContext context) {
-    final operandValue = int.tryParse(parsed.colOperand) ?? 0 & 0xFFFFFF;
+    final operandValue = int.tryParse(parserContext.colOperand) ?? 0 & 0xFFFFFF;
     final objectCode = operandValue.toRadixString(16).padLeft(6, '0');
-    context.pushTextRecordPart(objectCode, parsed);
+    context.pushTextRecordPart(objectCode, parserContext);
   }
 }
 
 class ObjectCodeBuilderDirectiveRes extends ObjectCodeBuilder {
-  ObjectCodeBuilderDirectiveRes({required super.parsed});
+  ObjectCodeBuilderDirectiveRes({required super.parserContext});
 
   @override
   build(ObjectCodeBuilderContext context) {
@@ -119,7 +108,7 @@ class ObjectCodeBuilderDirectiveRes extends ObjectCodeBuilder {
       print("split new textRecord");
     }
     print("update last startingAddress");
-    tr.startingAddress = parsed.locctr.toRadixString(16).padLeft(6, '0');
+    tr.startingAddress = parserContext.locctr.toRadixString(16).padLeft(6, '0');
   }
 }
 
@@ -147,21 +136,23 @@ class ObjectCodeBuilderContext {
 
   pushTextRecordPart(
     String objectCode,
-    LlbAssemblerLineParser parsed,
+    LineParserContext parserContext,
   ) {
     TextRecord tr = records.last as TextRecord;
     if (tr.length == 0) {
-      tr.startingAddress = parsed.locctr.toRadixString(16).padLeft(6, '0');
+      tr.startingAddress =
+          parserContext.locctr.toRadixString(16).padLeft(6, '0');
     }
     if (!tr.add(ObjectCodeBlock(
       string: objectCode,
-      src: parsed.line,
+      src: parserContext.line,
     ))) {
       tr = TextRecord();
-      tr.startingAddress = parsed.locctr.toRadixString(16).padLeft(6, '0');
+      tr.startingAddress =
+          parserContext.locctr.toRadixString(16).padLeft(6, '0');
       tr.add(ObjectCodeBlock(
         string: objectCode,
-        src: parsed.line,
+        src: parserContext.line,
       ));
       records.add(tr);
     }
