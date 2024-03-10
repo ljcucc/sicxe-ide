@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:sicxe/utils/sicxe/assembler/assembler.dart';
 
 class ObjectCodeIsVisualized extends ChangeNotifier {
   bool _visualized = false;

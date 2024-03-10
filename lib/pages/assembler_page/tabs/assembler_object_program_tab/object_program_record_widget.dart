@@ -70,7 +70,7 @@ class SuggestableText extends StatelessWidget {
 }
 
 class ObjectProgramRecordWdiget extends StatelessWidget {
-  final ObjectProgramRecord objectProgramRecord;
+  final List<Map<String, String>> objectProgramRecord;
 
   const ObjectProgramRecordWdiget({
     super.key,
@@ -81,7 +81,7 @@ class ObjectProgramRecordWdiget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        for (Map<String, String> map in objectProgramRecord.toMapList())
+        for (Map<String, String> map in objectProgramRecord)
           SuggestableText(
             message: map['tooltip'] ?? "",
             text: map['text'] ?? "",

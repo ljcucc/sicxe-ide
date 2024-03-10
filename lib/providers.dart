@@ -5,8 +5,6 @@ import 'package:linked_scroll_controller/linked_scroll_controller.dart';
 import 'package:provider/provider.dart';
 import 'package:sicxe/custom_colorscheme_provider.dart';
 import 'package:sicxe/navigation_page_provider.dart';
-import 'package:sicxe/pages/assembler_page/assembler_page_provider.dart';
-import 'package:sicxe/pages/terminal_page/terminal_controller.dart';
 import 'package:sicxe/pages/timeline_page/timeline_scale_controller.dart';
 import 'package:sicxe/pages/timeline_page/timing_control_bar_controller.dart';
 import 'package:sicxe/pages/timeline_page/timline_data_lists_provider.dart';
@@ -17,7 +15,6 @@ import 'package:sicxe/utils/workflow/emulator_workflow.dart';
 import 'package:sicxe/widgets/custom_panel/custom_panel_controller.dart';
 import 'package:sicxe/widgets/document_display/document_display_provider.dart';
 import 'package:sicxe/widgets/side_panel/side_panel_controller.dart';
-import 'package:xterm/xterm.dart';
 
 class Providers extends StatelessWidget {
   final Widget child;
@@ -53,14 +50,6 @@ class Providers extends StatelessWidget {
         ),
         ChangeNotifierProvider<EditorWorkflow>(
           create: (_) => SicxeEditorWorkflow(),
-        ),
-        ChangeNotifierProvider<AssemblerPageProvider>(
-          create: (_) => AssemblerPageProvider(
-            colorScheme: ColorScheme.fromSeed(
-              seedColor: colorSchemeProvider.color,
-              brightness: MediaQuery.of(context).platformBrightness,
-            ),
-          ),
         ),
         ChangeNotifierProvider<TimingControlBarController>(
           create: (_) => TimingControlBarController(),
