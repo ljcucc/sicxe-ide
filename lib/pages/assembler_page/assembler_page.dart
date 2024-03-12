@@ -1,8 +1,7 @@
 // Import the language & theme
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:sicxe/pages/assembler_page/editor_buttons.dart';
 import 'package:sicxe/pages/assembler_page/tabs/assembler_editor_tab.dart';
 import 'package:sicxe/pages/assembler_page/tabs/assembler_object_program_tab/assembler_object_program_tab.dart';
 import 'package:sicxe/utils/workflow/editor_workflow.dart';
@@ -21,34 +20,80 @@ class _AssemblerPageState extends State<AssemblerPage> {
     super.initState();
   }
 
-  _onCompile(EditorWorkflow editor, context) {
-    // editor.contents["main.asm"] = app.codeController?.text ?? "";
-    editor.compile();
+  _closeTab(index) {
+    final editor = Provider.of<EditorWorkflow>(context, listen: false);
+    final filename = editor.contents.keys.toList()[index];
+    editor.contents.remove(filename);
+    setState(() {});
+  }
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        behavior: SnackBarBehavior.floating,
-        content: Text("Code is compiled, view the object code in its tab."),
-        action: SnackBarAction(
-          label: "View",
-          onPressed: () {
-            final objfile = editor.contents.keys
-                .where((element) => element.endsWith(".vobj"))
-                .toList()[0];
-            final index = editor.contents.keys.toList().indexOf(objfile);
-            DefaultTabController.of(context).animateTo(max(index, 0));
-          },
-        ),
-      ),
+  _newFile() async {
+    print("_newFile");
+    String filename = "";
+    await showDialog(
+      context: context,
+      builder: (context) {
+        TextEditingController filenameInput = TextEditingController.fromValue(
+          const TextEditingValue(text: "helluwu.asm"),
+        );
+        return AlertDialog(
+          title: Text("New Tab"),
+          content: TextField(
+            controller: filenameInput,
+          ),
+          actions: [
+            FilledButton(
+              onPressed: () {
+                print(filenameInput.text);
+                filename = filenameInput.text;
+                if (!filename.endsWith(".asm")) {
+                  filename += ".asm";
+                }
+
+                Navigator.of(context).pop();
+              },
+              child: Text("Create"),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text("Cancel"),
+            ),
+          ],
+        );
+      },
     );
+
+    print("filename: $filename");
+    if (filename.isEmpty) return;
+
+    final editor = Provider.of<EditorWorkflow>(context, listen: false);
+    if (editor.contents.containsKey(filename)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          behavior: SnackBarBehavior.floating,
+          content: Text("The tab name is exists."),
+          action: SnackBarAction(
+            label: "Dismiss",
+            onPressed: () {},
+          ),
+        ),
+      );
+      return;
+    }
+
+    editor.contents[filename] = ". enter your code here";
+
+    setState(() {});
   }
 
   @override
   Widget build(BuildContext context) {
     return Consumer<EmulatorWorkflow>(builder: (context, emulator, _) {
       return Consumer<EditorWorkflow>(builder: (context, editor, _) {
-        print(editor.contents.keys);
         return DefaultTabController(
+          animationDuration: Duration.zero,
           initialIndex: 0,
           length: editor.contents.keys.length,
           child: Builder(builder: (context) {
@@ -58,51 +103,7 @@ class _AssemblerPageState extends State<AssemblerPage> {
                 // title: Text("Assembler"),
                 surfaceTintColor: Colors.transparent,
                 centerTitle: false,
-                title: Padding(
-                  padding: const EdgeInsets.only(bottom: 16.0),
-                  child: LayoutBuilder(builder: (context, constraints) {
-                    if (constraints.maxWidth > 700) {
-                      return Row(
-                        children: [
-                          FilledButton.icon(
-                            onPressed: () => _onCompile(
-                              editor,
-                              context,
-                            ),
-                            label: Text("Compile"),
-                            icon: Icon(Icons.play_arrow_outlined),
-                          ),
-                          SizedBox(width: 16),
-                          FilledButton.tonalIcon(
-                            onPressed: () => editor.upload(emulator),
-                            label: Text("Upload"),
-                            icon: Icon(Icons.file_upload_outlined),
-                          ),
-                        ],
-                      );
-                    } else {
-                      return Row(
-                        children: [
-                          IconButton.filled(
-                            onPressed: () => _onCompile(
-                              editor,
-                              context,
-                            ),
-                            icon: Icon(
-                              Icons.play_arrow_outlined,
-                              color: Theme.of(context).colorScheme.onPrimary,
-                            ),
-                          ),
-                          SizedBox(width: 8),
-                          IconButton.filledTonal(
-                            onPressed: () => editor.upload(emulator),
-                            icon: Icon(Icons.file_upload_outlined),
-                          ),
-                        ],
-                      );
-                    }
-                  }),
-                ),
+                title: EditorButtons(),
               ),
               // floatingActionButton: DefaultTabController.of(context).index == 0
               //     ?
@@ -125,33 +126,87 @@ class _AssemblerPageState extends State<AssemblerPage> {
                             tabs: [
                               for (var filename in editor.contents.keys)
                                 Tab(
-                                  text: filename,
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Icon(
+                                        switch (filename.split(".").last) {
+                                          "asm" => Icons.code,
+                                          "vobj" => Icons.view_in_ar_outlined,
+                                          String() =>
+                                            Icons.insert_drive_file_outlined,
+                                        },
+                                      ),
+                                      SizedBox(width: 8),
+                                      Text(filename),
+                                    ],
+                                  ),
                                 ),
                             ],
                           ),
                         ),
                         SizedBox(width: 16),
-                        IconButton(
-                          onPressed: () {},
-                          icon: Icon(Icons.add),
+                        PopupMenuButton(
+                          itemBuilder: (_) => <PopupMenuEntry>[
+                            PopupMenuItem(
+                              onTap: () async => await _newFile(),
+                              child: ListTile(
+                                leading: Icon(Icons.add),
+                                title: Text("New tab"),
+                              ),
+                            ),
+                            PopupMenuItem(
+                              onTap: () => _closeTab(
+                                DefaultTabController.of(context).index,
+                              ),
+                              child: ListTile(
+                                leading: Icon(Icons.close),
+                                title: Text("Close tab"),
+                              ),
+                            ),
+                          ],
                         ),
                       ],
                     ),
                   ),
                   Expanded(
-                    child: TabBarView(
-                      children: [
-                        for (var filename in editor.contents.keys) ...[
-                          if (filename.endsWith(".asm"))
-                            AssemblerEditorTab(
-                              filename: filename,
-                              text: editor.contents[filename] ?? "",
-                              onChange: (e) {},
-                            ),
-                          if (filename.endsWith(".vobj"))
-                            AssemblerObjectProgramTab(filename: filename ?? ""),
-                        ],
-                      ],
+                    child: SafeArea(
+                      minimum: const EdgeInsets.all(16.0),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).colorScheme.surface,
+                          borderRadius: BorderRadius.circular(16),
+                          boxShadow: [
+                            BoxShadow(
+                              offset: Offset(0, 20),
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .primary
+                                  .withOpacity(.05),
+                              spreadRadius: 0,
+                              blurRadius: 15,
+                            )
+                          ],
+                        ),
+                        child: TabBarView(
+                          physics: NeverScrollableScrollPhysics(),
+                          children: [
+                            for (var filename in editor.contents.keys) ...[
+                              if (filename.endsWith(".asm"))
+                                AssemblerEditorTab(
+                                  filename: filename,
+                                  text: editor.contents[filename] ?? "",
+                                  onChange: (e) {
+                                    editor.contents[filename] = e;
+                                  },
+                                ),
+                              if (filename.endsWith(".vobj"))
+                                AssemblerObjectProgramTab(
+                                    filename: filename ?? ""),
+                            ],
+                          ],
+                        ),
+                      ),
                     ),
                   ),
                 ],

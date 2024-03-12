@@ -98,12 +98,6 @@ class _AssemblerObjectProgramTabState extends State<AssemblerObjectProgramTab> {
                         );
                       },
                     ),
-                    PopupMenuItem(
-                      child: ListTile(
-                        title: Text("Upload to memory"),
-                        leading: Icon(Icons.file_upload_outlined),
-                      ),
-                    ),
                   ],
                 ),
               ),

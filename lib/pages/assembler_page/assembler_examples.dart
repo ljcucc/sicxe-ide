@@ -51,3 +51,23 @@ WLOOP   TD     OUTPUT
 OUTPUT  BYTE   X'06'
         END    FIRST
 """;
+
+const terminalExample = """
+HELLO         START    1000
+.
+.             This is a terminal output example
+.             that will output hello wolrd into terminal page
+.
+              LDX      #0
+TLOOP         TD       #128
+              JEQ      TLOOP
+WLOOP         LDCH     STRING,X
+              WD       #128
+              TIX      #12
+              JLT      WLOOP
+EXITLOOP      J        EXITLOOP
+.
+.             data section
+STRING        BYTE     C'Hello world!'
+              END      HELLO
+""";

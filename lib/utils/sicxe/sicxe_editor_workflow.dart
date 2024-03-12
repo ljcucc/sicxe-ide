@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:sicxe/pages/assembler_page/assembler_examples.dart';
 import 'package:sicxe/utils/sicxe/assembler/assembler.dart';
+import 'package:sicxe/utils/sicxe/code_format.dart';
 import 'package:sicxe/utils/sicxe/sicxe_emulator_workflow.dart';
 import 'package:sicxe/utils/sicxe/assembler/simple_loader.dart';
 import 'package:sicxe/utils/workflow/editor_workflow.dart';
@@ -13,18 +14,23 @@ class SicxeEditorWorkflow extends EditorWorkflow {
   SicxeEditorWorkflow() {
     contents = {
       "main.asm": assemblerExampleCode,
+      "output.asm": terminalExample,
     };
   }
 
   @override
-  void compile() {
-  void compile(Map<String, String> contents) {
-    assembler = LlbAssembler(text: contents["main"] ?? "");
+  void compile(String filename) {
+    final name = filename.split(".").first;
+    assembler = LlbAssembler(
+      context: LlbAssemblerContext(
+        text: contents[filename] ?? "",
+      ),
+    );
     assembler?.pass1();
     assembler?.pass2();
     final objectCode =
         assembler?.context.records.map((e) => e.toMapList()).toList();
-    contents["main.vobj"] = jsonEncode(objectCode);
+    contents["$name.vobj"] = jsonEncode(objectCode);
     notifyListeners();
   }
 
@@ -40,5 +46,14 @@ class SicxeEditorWorkflow extends EditorWorkflow {
     loader.load();
 
     emulator.notifyListeners();
+  }
+
+  @override
+  void format(String filename) {
+    if (!filename.endsWith(".asm")) return;
+
+    contents[filename] = codeFormat(contents[filename] ?? "");
+    print(contents[filename]);
+    notifyListeners();
   }
 }

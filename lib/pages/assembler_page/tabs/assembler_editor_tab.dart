@@ -67,57 +67,43 @@ class _AssemblerEditorTabState extends State<AssemblerEditorTab> {
     if (codeController == null) {
       _setupCodeController();
     }
+
     return Consumer<EditorWorkflow>(builder: (context, editor, _) {
-      return SafeArea(
-        minimum: EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.surface,
-                  borderRadius: BorderRadius.circular(16),
-                  boxShadow: [
-                    BoxShadow(
-                      offset: Offset(0, 20),
+      if (codeController?.text != editor.contents[widget.filename]) {
+        codeController?.text = editor.contents[widget.filename] ?? "";
+      }
+
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(
+            child: SingleChildScrollView(
+              padding: EdgeInsets.all(16),
+              child: CodeField(
+                onChanged: widget.onChange,
+                background: Colors.transparent,
+                cursorColor: Theme.of(context).colorScheme.onSurface,
+                controller: codeController!,
+                textStyle: GoogleFonts.robotoMono(
+                    color: Theme.of(context).colorScheme.onSurface),
+                lineNumberStyle: LineNumberStyle(
+                  width: 50,
+                ),
+                lineNumberBuilder: (p0, p1) {
+                  return TextSpan(
+                    text: (p0 * 5).toString(),
+                    style: GoogleFonts.robotoMono(
                       color: Theme.of(context)
                           .colorScheme
-                          .primary
-                          .withOpacity(.05),
-                      spreadRadius: 0,
-                      blurRadius: 15,
-                    )
-                  ],
-                ),
-                child: SingleChildScrollView(
-                  padding: EdgeInsets.all(16),
-                  child: CodeField(
-                    background: Colors.transparent,
-                    cursorColor: Theme.of(context).colorScheme.onSurface,
-                    controller: codeController!,
-                    textStyle: GoogleFonts.robotoMono(
-                        color: Theme.of(context).colorScheme.onSurface),
-                    lineNumberStyle: LineNumberStyle(
-                      width: 50,
+                          .onSurfaceVariant
+                          .withOpacity(.5),
                     ),
-                    lineNumberBuilder: (p0, p1) {
-                      return TextSpan(
-                        text: (p0 * 5).toString(),
-                        style: GoogleFonts.robotoMono(
-                          color: Theme.of(context)
-                              .colorScheme
-                              .onSurfaceVariant
-                              .withOpacity(.5),
-                        ),
-                      );
-                    },
-                  ),
-                ),
+                  );
+                },
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       );
     });
   }
