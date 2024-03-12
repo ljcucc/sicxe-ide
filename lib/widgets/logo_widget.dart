@@ -15,7 +15,7 @@ class LogoWidget extends StatelessWidget {
         text: "SIC",
         style: GoogleFonts.playfairDisplay(
           fontWeight: FontWeight.w600,
-          fontSize: 32,
+          fontSize: compact ? 24 : 32,
         ),
       ),
       TextSpan(
@@ -23,18 +23,19 @@ class LogoWidget extends StatelessWidget {
         style: GoogleFonts.playfairDisplay(
           fontWeight: FontWeight.w600,
           fontStyle: FontStyle.italic,
-          fontSize: 32,
+          fontSize: compact ? 24 : 32,
         ),
       ),
     ];
 
     final playground = TextSpan(
       text: "Playground",
-      style: GoogleFonts.inter(fontSize: 12),
+      style: GoogleFonts.inter(fontSize: compact ? 8 : 12),
     );
 
     if (compact) {
       return Column(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Text.rich(TextSpan(children: SICXE)),
           Text.rich(playground),

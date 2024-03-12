@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:sicxe/pages/timeline_page/timing_control_bar_controller.dart';
 import 'package:sicxe/pages/timeline_page/timing_control_bar_panel.dart';
+import 'package:sicxe/widgets/time_control_segmented_buttons.dart';
 
 class TimingControlBar extends StatelessWidget {
   final bool compact;
@@ -21,8 +22,8 @@ class TimingControlBar extends StatelessWidget {
         curve: Curves.easeInOutQuart,
         height: tcb.enable ? height : 0,
         decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.secondary.withOpacity(.3),
-        ),
+            // color: Theme.of(context).colorScheme.secondary.withOpacity(.3),
+            ),
         child: SingleChildScrollView(
           child: SizedBox(
             height: height,
@@ -32,7 +33,18 @@ class TimingControlBar extends StatelessWidget {
               children: [
                 SafeArea(
                   // minimum: EdgeInsets.all(12),
-                  child: TimingControlBarPanel(),
+                  // child: TimingControlBarPanel(),
+                  child: SingleChildScrollView(
+                    padding: EdgeInsets.symmetric(horizontal: 16),
+                    scrollDirection: Axis.horizontal,
+                    child: Container(
+                      clipBehavior: Clip.antiAlias,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                      child: TimeControlSegmentedButtons(),
+                    ),
+                  ),
                 ),
               ],
             ),

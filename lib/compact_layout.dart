@@ -43,10 +43,10 @@ class CompactLayout extends StatelessWidget {
       final pageId = navPageProvider.id;
       final pageIndexMap = [
         NavigationPageId.Home,
-        NavigationPageId.Timeline,
-        NavigationPageId.Inspector,
-        NavigationPageId.Terminal,
         NavigationPageId.Editor,
+        NavigationPageId.Terminal,
+        NavigationPageId.Inspector,
+        NavigationPageId.Timeline,
       ];
 
       return Scaffold(
@@ -72,7 +72,7 @@ class CompactLayout extends StatelessWidget {
                     _openSidePanel("memory", context);
                   },
                   child: ListTile(
-                    leading: Icon(Icons.dns_outlined),
+                    leading: Icon(Icons.table_rows_outlined),
                     title: Text("Memory"),
                   ),
                 ),
@@ -139,20 +139,20 @@ class CompactLayout extends StatelessWidget {
               label: "Home",
             ),
             NavigationDestination(
-              icon: Icon(Icons.graphic_eq),
-              label: "Timeline",
+              icon: Icon(Icons.draw_outlined),
+              label: "Editor",
             ),
             NavigationDestination(
-              icon: Icon(Icons.memory_rounded),
-              label: "Inspector",
-            ),
-            NavigationDestination(
-              icon: Icon(Icons.monitor),
+              icon: Icon(Icons.computer),
               label: "Terminal",
             ),
             NavigationDestination(
-              icon: Icon(Icons.code_rounded),
-              label: "Editor",
+              icon: Icon(Icons.insert_chart_outlined),
+              label: "Inspector",
+            ),
+            NavigationDestination(
+              icon: Icon(Icons.graphic_eq),
+              label: "Timeline",
             ),
           ],
         ),
