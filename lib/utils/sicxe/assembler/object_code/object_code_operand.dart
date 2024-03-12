@@ -15,6 +15,7 @@ class ObjectCodeBuilderOperand extends ObjectCodeBuilder {
 
     final opcode = LineParserOpcode(context: parserContext).opcode;
     final operand = LineParserOperand(context: parserContext);
+    final literal = LineParserLiterals(context: parserContext);
 
     // is format1 or format2
     if (instrFormat1.contains(opcode) || instrFormat2.contains(opcode)) return;
@@ -31,6 +32,7 @@ class ObjectCodeBuilderOperand extends ObjectCodeBuilder {
     final stringSymbol = operand.toSymbol();
 
     if (!context.symtab.containsKey(stringSymbol)) {
+      print(context.symtab);
       throw "undefined symbol: ${stringSymbol}";
     }
 

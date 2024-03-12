@@ -37,6 +37,8 @@ class ObjectCodeBuilderInstruction extends ObjectCodeBuilder {
     final parsedOpcode = LineParserOpcode(context: parserContext).opcode;
     final parsedOperand = LineParserOperand(context: parserContext);
     final operand = ObjectCodeBuilderOperand(parserContext: parserContext);
+    final literal = LineParserLiterals(context: parserContext);
+
     operand.build(context);
 
     int opcode = _opcodeToHex(parsedOpcode);

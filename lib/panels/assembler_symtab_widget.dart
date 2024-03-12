@@ -1,9 +1,6 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
-import 'package:sicxe/pages/assembler_page/assembler_page_provider.dart';
-import 'package:sicxe/utils/sicxe/assembler/assembler.dart';
 import 'package:sicxe/utils/sicxe/sicxe_editor_workflow.dart';
 import 'package:sicxe/utils/workflow/editor_workflow.dart';
 import 'package:sicxe/widgets/document_display/document_display_provider.dart';
@@ -39,7 +36,7 @@ class AssemblerSymtabWidget extends StatelessWidget {
                 ],
                 rows: [
                   for (MapEntry<String, int> symbol
-                      in (assembler?.symtab ?? {}).entries)
+                      in (assembler?.context.symtab ?? {}).entries)
                     DataRow(cells: [
                       DataCell(Text(symbol.key)),
                       DataCell(Text(

@@ -120,6 +120,17 @@ class LineParserOperand extends LinePaerserBuilder {
   }
 }
 
+class LineParserLiterals extends LinePaerserBuilder {
+  LineParserLiterals({required super.context});
+
+  bool get isLiteral =>
+      context.colOperand.isNotEmpty && context.colOperand[0] == '=';
+  bool get isLocLiteralDefine =>
+      context.colOperand.isNotEmpty && context.colOperand[0] == '*';
+  bool get isLocLiteral =>
+      context.colOperand.isNotEmpty && context.colOperand.startsWith("=*");
+}
+
 /// Get the object code legnth
 class LineParserCodeLength extends LinePaerserBuilder {
   LineParserCodeLength({required super.context});
@@ -143,7 +154,7 @@ class LineParserCodeLength extends LinePaerserBuilder {
       return int.tryParse(context.colOperand, radix: 10) ?? 0;
     }
 
-    print("statement not found, $opcode");
+    print("statement not found, ${opcode.opcode}, ${context.line} ");
 
     return 0;
   }
@@ -155,7 +166,7 @@ class LineParserContext {
   final String line;
 
   /// location of the object code & base
-  final int locctr;
+  int locctr;
   int baseLoc = 0;
 
   /// Parsed raw label, operand, opcode column
@@ -171,7 +182,7 @@ class LineParserContext {
   bool get flagX => colOperand.endsWith(",X");
   bool get flagE => colOpcode.startsWith("+");
   bool get flagN => colOperand.startsWith("@");
-  bool get flagI => colOperand.startsWith("#");
+  bool get flagI => colOperand.startsWith("#") || colOperand.startsWith("=*");
 
   LlbAssemblerDirectiveType get directiveType {
     return switch (colOpcode) {
@@ -182,6 +193,8 @@ class LineParserContext {
       "BYTE" => LlbAssemblerDirectiveType.BYTE,
       "BASE" => LlbAssemblerDirectiveType.BASE,
       "NOBASE" => LlbAssemblerDirectiveType.NOBASE,
+      "CSECT" => LlbAssemblerDirectiveType.CSECT,
+      "LTORG" => LlbAssemblerDirectiveType.LTORG,
       String() => LlbAssemblerDirectiveType.IS_NOT_DIRECTIVE,
     };
   }

@@ -10,7 +10,7 @@ String toFixedHexString({required int value, int pad = 2}) {
 }
 
 abstract class ObjectCodeBuilder {
-  LineParserContext parserContext;
+  late LineParserContext parserContext;
 
   ObjectCodeBuilder({required this.parserContext});
 
@@ -34,6 +34,9 @@ abstract class ObjectCodeBuilder {
     if (context.directiveType == LlbAssemblerDirectiveType.RESW ||
         context.directiveType == LlbAssemblerDirectiveType.RESB) {
       return ObjectCodeBuilderDirectiveRes(parserContext: context);
+    }
+    if (context.directiveType == LlbAssemblerDirectiveType.LTORG) {
+      return ObjectCodeBuilderLiteral(parserContext: context);
     }
   }
 }
@@ -71,8 +74,12 @@ class ObjectCodeBuilderDirectiveByte extends ObjectCodeBuilder {
     String objectCode = "";
     if (colOperand.startsWith("X")) {
       final innerString = colOperand.split("'")[1] ?? "";
-      final operandValue = int.tryParse(innerString, radix: 16) ?? 0;
-      objectCode = toFixedHexString(value: operandValue, pad: 2);
+
+      if (innerString.length.isOdd) throw "Hex raw data must be odd pairs";
+
+      if (int.tryParse(innerString, radix: 16) == null)
+        throw "Hex syntax is wrong.";
+      objectCode = innerString;
     } else if (colOperand.startsWith("C")) {
       objectCode = colOperand
           .split("'")[1]
@@ -112,15 +119,43 @@ class ObjectCodeBuilderDirectiveRes extends ObjectCodeBuilder {
   }
 }
 
+class ObjectCodeBuilderLiteral extends ObjectCodeBuilder {
+  ObjectCodeBuilderLiteral({required super.parserContext});
+
+  @override
+  build(ObjectCodeBuilderContext context) {
+    for (final symbolName in context.literals.literals.keys) {
+      if (symbolName[0] != "=") continue;
+
+      String objectCode = "";
+      if (symbolName.startsWith("=X")) {
+        final innerString = symbolName.split("'")[1] ?? "";
+        final operandValue = int.tryParse(innerString, radix: 16) ?? 0;
+        objectCode = toFixedHexString(value: operandValue, pad: 2);
+      } else if (symbolName.startsWith("=C")) {
+        objectCode = symbolName
+            .split("'")[1]
+            .characters
+            .map((e) => e.codeUnitAt(0).toRadixString(16).padLeft(2, '0'))
+            .join();
+      }
+
+      context.pushTextRecordPart(objectCode, parserContext);
+    }
+  }
+}
+
 class ObjectCodeBuilderContext {
   List<ModificationRecord> modiRecords = [];
   List<ObjectProgramRecord> records = [];
   final Map<String, int> symtab;
   final int programLenth;
+  LiteralsContext literals;
 
   ObjectCodeBuilderContext({
     required this.symtab,
     required this.programLenth,
+    required this.literals,
   }) {
     print(symtab);
   }
