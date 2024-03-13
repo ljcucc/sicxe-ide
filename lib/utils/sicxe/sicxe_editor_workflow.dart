@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:sicxe/pages/assembler_page/assembler_examples.dart';
+import 'package:sicxe/utils/sicxe/assembler_examples.dart';
 import 'package:sicxe/utils/sicxe/assembler/assembler.dart';
 import 'package:sicxe/utils/sicxe/code_format.dart';
 import 'package:sicxe/utils/sicxe/sicxe_emulator_workflow.dart';

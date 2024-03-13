@@ -2,8 +2,7 @@ import 'package:dynamic_color/dynamic_color.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
-import 'package:sicxe/pages/assembler_page/tabs/assembler_object_program_tab/object_code_visualize_provider.dart';
-import 'package:sicxe/utils/sicxe/assembler/object_program_record.dart';
+import 'package:sicxe/pages/editor_page/tabs/vobj_viewer_tab/object_code_visualize_provider.dart';
 
 class SuggestableText extends StatelessWidget {
   final String message;
@@ -69,10 +68,10 @@ class SuggestableText extends StatelessWidget {
   }
 }
 
-class ObjectProgramRecordWdiget extends StatelessWidget {
+class VobjBlockWdiget extends StatelessWidget {
   final List<Map<String, String>> objectProgramRecord;
 
-  const ObjectProgramRecordWdiget({
+  const VobjBlockWdiget({
     super.key,
     required this.objectProgramRecord,
   });

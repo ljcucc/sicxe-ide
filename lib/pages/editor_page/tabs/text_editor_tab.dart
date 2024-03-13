@@ -5,12 +5,12 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:sicxe/utils/workflow/editor_workflow.dart';
 
-class AssemblerEditorTab extends StatefulWidget {
+class TextEditorTab extends StatefulWidget {
   final String filename;
   final String text;
   final Function(String) onChange;
 
-  const AssemblerEditorTab({
+  const TextEditorTab({
     super.key,
     required this.filename,
     required this.text,
@@ -18,10 +18,10 @@ class AssemblerEditorTab extends StatefulWidget {
   });
 
   @override
-  State<AssemblerEditorTab> createState() => _AssemblerEditorTabState();
+  State<TextEditorTab> createState() => _TextEditorTabState();
 }
 
-class _AssemblerEditorTabState extends State<AssemblerEditorTab> {
+class _TextEditorTabState extends State<TextEditorTab> {
   CodeController? codeController;
 
   @override

@@ -1,20 +1,20 @@
 // Import the language & theme
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:sicxe/pages/assembler_page/editor_buttons.dart';
-import 'package:sicxe/pages/assembler_page/tabs/assembler_editor_tab.dart';
-import 'package:sicxe/pages/assembler_page/tabs/assembler_object_program_tab/assembler_object_program_tab.dart';
+import 'package:sicxe/pages/editor_page/editor_buttons.dart';
+import 'package:sicxe/pages/editor_page/tabs/text_editor_tab.dart';
+import 'package:sicxe/pages/editor_page/tabs/vobj_viewer_tab/vobj_viewer_tab.dart';
 import 'package:sicxe/utils/workflow/editor_workflow.dart';
 import 'package:sicxe/utils/workflow/emulator_workflow.dart';
 
-class AssemblerPage extends StatefulWidget {
-  const AssemblerPage({super.key});
+class EditorPage extends StatefulWidget {
+  const EditorPage({super.key});
 
   @override
-  State<AssemblerPage> createState() => _AssemblerPageState();
+  State<EditorPage> createState() => _EditorPageState();
 }
 
-class _AssemblerPageState extends State<AssemblerPage> {
+class _EditorPageState extends State<EditorPage> {
   @override
   void initState() {
     super.initState();
@@ -193,7 +193,7 @@ class _AssemblerPageState extends State<AssemblerPage> {
                           children: [
                             for (var filename in editor.contents.keys) ...[
                               if (filename.endsWith(".asm"))
-                                AssemblerEditorTab(
+                                TextEditorTab(
                                   filename: filename,
                                   text: editor.contents[filename] ?? "",
                                   onChange: (e) {
@@ -201,8 +201,7 @@ class _AssemblerPageState extends State<AssemblerPage> {
                                   },
                                 ),
                               if (filename.endsWith(".vobj"))
-                                AssemblerObjectProgramTab(
-                                    filename: filename ?? ""),
+                                VobjViewerTab(filename: filename ?? ""),
                             ],
                           ],
                         ),

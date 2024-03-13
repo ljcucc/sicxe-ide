@@ -3,26 +3,25 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
-import 'package:sicxe/pages/assembler_page/tabs/assembler_object_program_tab/object_code_visualize_provider.dart';
-import 'package:sicxe/pages/assembler_page/tabs/assembler_object_program_tab/object_program_record_widget.dart';
+import 'package:sicxe/pages/editor_page/tabs/vobj_viewer_tab/object_code_visualize_provider.dart';
+import 'package:sicxe/pages/editor_page/tabs/vobj_viewer_tab/vobj_block_widget.dart';
 import 'package:sicxe/utils/workflow/editor_workflow.dart';
 import 'package:sicxe/widgets/document_display/document_display_provider.dart';
 import 'package:sicxe/widgets/overview_card.dart';
 
-class AssemblerObjectProgramTab extends StatefulWidget {
+class VobjViewerTab extends StatefulWidget {
   final String filename;
 
-  const AssemblerObjectProgramTab({
+  const VobjViewerTab({
     super.key,
     required this.filename,
   });
 
   @override
-  State<AssemblerObjectProgramTab> createState() =>
-      _AssemblerObjectProgramTabState();
+  State<VobjViewerTab> createState() => _VobjViewerTabState();
 }
 
-class _AssemblerObjectProgramTabState extends State<AssemblerObjectProgramTab> {
+class _VobjViewerTabState extends State<VobjViewerTab> {
   ObjectCodeIsVisualized visualized = ObjectCodeIsVisualized();
 
   _objectCodeToString(List<List<Map<String, String>>> objectCode) {
@@ -61,8 +60,7 @@ class _AssemblerObjectProgramTabState extends State<AssemblerObjectProgramTab> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           for (final record in objectCodes)
-                            ObjectProgramRecordWdiget(
-                                objectProgramRecord: record)
+                            VobjBlockWdiget(objectProgramRecord: record)
                         ],
                       ),
                     ),

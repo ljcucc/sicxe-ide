@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:sicxe/navigation_page_provider.dart';
 import 'package:sicxe/navigation_page_widget.dart';
-import 'package:sicxe/pages/assembler_page/assembler_page.dart';
+import 'package:sicxe/pages/editor_page/editor_page.dart';
 import 'package:sicxe/pages/home_page/home_page.dart';
 import 'package:sicxe/pages/inspector_page/inspector_page.dart';
 import 'package:sicxe/pages/settings_page/settings_page.dart';
@@ -248,7 +248,7 @@ class LargeLayout extends StatelessWidget {
                       children: [
                         navigationRail,
                         Expanded(
-                          child: NavigationPageWidget(),
+                          child: NavigationPageView(),
                         ),
                         SidePanelWidget(
                           child: CustomPanelWidget(),

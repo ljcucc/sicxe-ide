@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:sicxe/pages/assembler_page/assembler_examples.dart';
 import 'package:sicxe/utils/workflow/emulator_workflow.dart';
 
 abstract class EditorWorkflow extends ChangeNotifier {
