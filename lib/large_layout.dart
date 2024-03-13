@@ -3,7 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:sicxe/navigation_page_provider.dart';
-import 'package:sicxe/navigation_page_widget.dart';
+import 'package:sicxe/navigation_page_view.dart';
 import 'package:sicxe/pages/editor_page/editor_page.dart';
 import 'package:sicxe/pages/home_page/home_page.dart';
 import 'package:sicxe/pages/inspector_page/inspector_page.dart';
@@ -52,7 +52,7 @@ class LargeLayout extends StatelessWidget {
         final pageId = navPageProvider.id;
 
         final pageIndexMap = [
-          NavigationPageId.Home,
+          NavigationPageId.Assets,
           NavigationPageId.Editor,
           NavigationPageId.Terminal,
           NavigationPageId.Timeline,
@@ -66,8 +66,8 @@ class LargeLayout extends StatelessWidget {
         final navigationRail = LargeScreenNavigationRail(
           destinations: const [
             NavigationDestination(
-              icon: Icon(Icons.home),
-              label: "Home",
+              icon: Icon(Icons.folder),
+              label: "Assets",
             ),
             NavigationDestination(
               icon: Icon(Icons.draw_outlined),

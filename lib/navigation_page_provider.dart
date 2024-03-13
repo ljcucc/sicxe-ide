@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 enum NavigationPageId {
   Home,
+  Assets,
   Timeline,
   Inspector,
   Terminal,
@@ -9,7 +10,7 @@ enum NavigationPageId {
 }
 
 class NavigationPageProvider extends ChangeNotifier {
-  NavigationPageId _pageId = NavigationPageId.Home;
+  NavigationPageId _pageId = NavigationPageId.Assets;
 
   NavigationPageId get id {
     return _pageId;

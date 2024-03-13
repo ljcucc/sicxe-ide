@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:sicxe/navigation_page_provider.dart';
+import 'package:sicxe/pages/assets_page/assets_page.dart';
 import 'package:sicxe/pages/editor_page/editor_page.dart';
 import 'package:sicxe/pages/home_page/home_page.dart';
 import 'package:sicxe/pages/inspector_page/inspector_page.dart';
@@ -21,6 +22,7 @@ class NavigationPageView extends StatelessWidget {
           NavigationPageId.Inspector => const InspectorPage(),
           NavigationPageId.Terminal => const TerminalPage(),
           NavigationPageId.Editor => const EditorPage(),
+          NavigationPageId.Assets => const AssetsPage(),
         };
 
         return selectedPage;

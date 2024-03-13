@@ -3,7 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:sicxe/navigation_page_provider.dart';
-import 'package:sicxe/navigation_page_widget.dart';
+import 'package:sicxe/navigation_page_view.dart';
 import 'package:sicxe/pages/editor_page/editor_page.dart';
 import 'package:sicxe/pages/home_page/home_page_compact.dart';
 import 'package:sicxe/pages/inspector_page/inspector_page.dart';
