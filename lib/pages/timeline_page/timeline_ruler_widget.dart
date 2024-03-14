@@ -1,3 +1,4 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:linked_scroll_controller/linked_scroll_controller.dart';
@@ -34,43 +35,52 @@ class _TimelineRulerWidgetState extends State<TimelineRulerWidget> {
   Widget build(BuildContext context) {
     return Consumer<TimelineScaleController>(builder: (context, tsc, _) {
       return Consumer<TimelineDataListsProvider>(builder: (context, tdlp, _) {
-        return Container(
-          height: 50,
-          clipBehavior: Clip.antiAlias,
-          decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.surfaceVariant,
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: ListView.builder(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            scrollDirection: Axis.horizontal,
-            controller: _controller,
-            itemCount: tdlp.totalLength,
-            itemBuilder: (context, index) {
-              return Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  AnimatedContainer(
-                    duration: Duration(milliseconds: 550),
-                    curve: Curves.easeInOutQuart,
-                    width: (tsc.blockWidth) + tsc.afterPadding - 2,
-                    height: 60,
-                    child: Center(
-                      child: Text(
-                        // t.snapshots[index].pc.get().toRadixString(16),
-                        index.toString(),
-                        style: GoogleFonts.spaceMono(fontSize: 12),
+        return Listener(
+          /// https://github.com/flutter/flutter/issues/105095
+          onPointerSignal: (event) {
+            if (event is PointerScrollEvent) {
+              _controller.animateTo(_controller.offset + event.scrollDelta.dy,
+                  duration: Duration(milliseconds: 2), curve: Curves.bounceIn);
+            }
+          },
+          child: Container(
+            height: 50,
+            clipBehavior: Clip.antiAlias,
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.surfaceVariant,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: ListView.builder(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              scrollDirection: Axis.horizontal,
+              controller: _controller,
+              itemCount: tdlp.totalLength,
+              itemBuilder: (context, index) {
+                return Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    AnimatedContainer(
+                      duration: Duration(milliseconds: 550),
+                      curve: Curves.easeInOutQuart,
+                      width: (tsc.blockWidth) + tsc.afterPadding - 2,
+                      height: 60,
+                      child: Center(
+                        child: Text(
+                          // t.snapshots[index].pc.get().toRadixString(16),
+                          index.toString(),
+                          style: GoogleFonts.spaceMono(fontSize: 12),
+                        ),
                       ),
                     ),
-                  ),
-                  Container(
-                    color: Theme.of(context).colorScheme.outline,
-                    height: 30,
-                    width: 2,
-                  ),
-                ],
-              );
-            },
+                    Container(
+                      color: Theme.of(context).colorScheme.outline,
+                      height: 30,
+                      width: 2,
+                    ),
+                  ],
+                );
+              },
+            ),
           ),
         );
       });
