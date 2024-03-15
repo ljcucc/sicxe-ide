@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:sicxe/pages/settings_page/settings_page.dart';
 
 class LargeScreenNavigationRail extends StatelessWidget {
   final List<NavigationDestination> destinations;
@@ -14,30 +15,52 @@ class LargeScreenNavigationRail extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final iconsRail = Expanded(
+      child: Center(
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              for (final (index, destination) in destinations.indexed) ...[
+                ...[
+                  if (index == selectedIndex)
+                    IconButton.filledTonal(
+                      padding: EdgeInsets.all(16),
+                      onPressed: () => onDestinationSelected(index),
+                      icon: destination.icon,
+                      iconSize: 24,
+                    ),
+                  if (index != selectedIndex)
+                    IconButton(
+                      padding: EdgeInsets.all(16),
+                      onPressed: () => onDestinationSelected(index),
+                      icon: destination.icon,
+                      iconSize: 24,
+                    ),
+                ],
+                if (index != destinations.length) SizedBox(height: 12)
+              ],
+            ],
+          ),
+        ),
+      ),
+    );
+
     return Padding(
       padding: const EdgeInsets.all(12.0),
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          for (final (index, destination) in destinations.indexed) ...[
-            ...[
-              if (index == selectedIndex)
-                IconButton.filledTonal(
-                  padding: EdgeInsets.all(16),
-                  onPressed: () => onDestinationSelected(index),
-                  icon: destination.icon,
-                  iconSize: 24,
-                ),
-              if (index != selectedIndex)
-                IconButton(
-                  padding: EdgeInsets.all(16),
-                  onPressed: () => onDestinationSelected(index),
-                  icon: destination.icon,
-                  iconSize: 24,
-                ),
-            ],
-            if (index != destinations.length) SizedBox(height: 12)
-          ],
+          iconsRail,
+          IconButton(
+            padding: EdgeInsets.all(16),
+            onPressed: () => Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (context) => SettingsPage(),
+              ),
+            ),
+            icon: Icon(Icons.settings),
+            iconSize: 24,
+          ),
         ],
       ),
     );
