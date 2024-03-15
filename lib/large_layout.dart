@@ -4,24 +4,17 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:sicxe/navigation_page_provider.dart';
 import 'package:sicxe/navigation_page_view.dart';
-import 'package:sicxe/pages/editor_page/editor_page.dart';
-import 'package:sicxe/pages/home_page/home_page.dart';
-import 'package:sicxe/pages/inspector_page/inspector_page.dart';
 import 'package:sicxe/pages/settings_page/settings_page.dart';
-import 'package:sicxe/pages/terminal_page/terminal_page.dart';
-import 'package:sicxe/pages/timeline_page/timeline_page.dart';
-import 'package:sicxe/pages/timeline_page/timing_control_bar.dart';
-import 'package:sicxe/pages/timeline_page/timing_control_bar_controller.dart';
 import 'package:sicxe/screen_size.dart';
 import 'package:sicxe/widgets/custom_panel/custom_panel_controller.dart';
 import 'package:sicxe/widgets/custom_panel/custom_panel_widget.dart';
 import 'package:sicxe/widgets/document_display/document_display_provider.dart';
-import 'package:sicxe/widgets/document_display/document_display_widget.dart';
+import 'package:sicxe/widgets/horizontal_scroll_view.dart';
 import 'package:sicxe/widgets/large_screen_navigation_rail.dart';
-import 'package:sicxe/widgets/logo_widget.dart';
 import 'package:sicxe/widgets/side_panel/side_panel_controller.dart';
 import 'package:sicxe/widgets/side_panel/side_panel_widget.dart';
-import 'package:sicxe/widgets/time_control_segmented_buttons.dart';
+import 'package:sicxe/widgets/top_segmented_buttons/navigation_page_top_segmented.dart';
+import 'package:sicxe/widgets/top_segmented_buttons/top_segmented_buttons.dart';
 
 class LargeLayout extends StatelessWidget {
   const LargeLayout({
@@ -93,37 +86,19 @@ class LargeLayout extends StatelessWidget {
           },
         );
 
-        // final navigationRail = NavigationRail(
-        //   backgroundColor: Colors.transparent,
-        //   onDestinationSelected: (index) {
-        //     navPageProvider.id = pageIndexMap[index];
-        //     _setPage(navPageProvider.id);
-        //   },
-        //   groupAlignment: 0,
-        //   labelType: NavigationRailLabelType.none,
-        //   indicatorShape: CircleBorder(),
-        //   destinations: const [
-        //     NavigationRailDestination(
-        //       icon: Icon(Icons.home),
-        //       label: Text("Home"),
-        //     ),
-        //     NavigationRailDestination(
-        //       icon: Icon(Icons.code_rounded),
-        //       label: Text("Editor"),
-        //     ),
-        //     NavigationRailDestination(
-        //       icon: Icon(Icons.monitor),
-        //       label: Text("Terminal"),
-        //     ),
-        //     NavigationRailDestination(
-        //       icon: Icon(Icons.graphic_eq),
-        //       label: Text("Timeline"),
-        //     ),
-        //   ],
-        //   selectedIndex: max(pageIndexMap.indexOf(pageId), 0),
-        // );
-
         final screenSize = MediaQuery.of(context).size;
+
+        final topbar = HorizontalScrollView(
+          child: Container(
+            clipBehavior: Clip.antiAlias,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(14),
+            ),
+            child: NavigationPageTopSegmentedButtonGroup(
+              pageId: pageId,
+            ),
+          ),
+        );
 
         return Consumer<SidePanelController>(
             builder: (context, sidePanelController, _) {
@@ -136,6 +111,7 @@ class LargeLayout extends StatelessWidget {
                   child: Scaffold(
                     backgroundColor: Colors.transparent,
                     appBar: AppBar(
+                      leadingWidth: 80,
                       toolbarHeight: 80,
                       surfaceTintColor: Colors.transparent,
                       title: Container(
@@ -143,7 +119,7 @@ class LargeLayout extends StatelessWidget {
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(14),
                         ),
-                        child: TimeControlSegmentedButtons(),
+                        child: topbar,
                       ),
                       centerTitle: true,
                       actions: [

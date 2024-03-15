@@ -4,17 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:sicxe/navigation_page_provider.dart';
 import 'package:sicxe/navigation_page_view.dart';
-import 'package:sicxe/pages/editor_page/editor_page.dart';
-import 'package:sicxe/pages/home_page/home_page_compact.dart';
-import 'package:sicxe/pages/inspector_page/inspector_page.dart';
-import 'package:sicxe/pages/terminal_page/terminal_page.dart';
-import 'package:sicxe/pages/timeline_page/timeline_page.dart';
-import 'package:sicxe/pages/timeline_page/timing_control_bar.dart';
 import 'package:sicxe/pages/timeline_page/timing_control_bar_controller.dart';
 import 'package:sicxe/screen_size.dart';
 import 'package:sicxe/widgets/custom_panel/custom_panel_controller.dart';
 import 'package:sicxe/widgets/custom_panel/custom_panel_widget.dart';
 import 'package:sicxe/widgets/logo_widget.dart';
+import 'package:sicxe/widgets/top_segmented_buttons/navigation_page_top_segmented.dart';
 
 class CompactLayout extends StatelessWidget {
   const CompactLayout({
@@ -27,14 +22,36 @@ class CompactLayout extends StatelessWidget {
       builder: (context) => BottomSheet(
         onClosing: () {},
         builder: (context) {
-          return ChangeNotifierProvider(
-            create: (_) => CustomPanelController(pageId: id),
-            child: const CustomPanelWidget(),
+          return Container(
+            decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.surface,
+                borderRadius: BorderRadius.circular(16)),
+            padding: const EdgeInsets.only(top: 16.0),
+            child: ChangeNotifierProvider(
+              create: (_) => CustomPanelController(pageId: id),
+              child: const CustomPanelWidget(),
+            ),
           );
         },
       ),
     );
   }
+
+  Widget menuBar() => SingleChildScrollView(
+        padding: EdgeInsets.symmetric(horizontal: 16),
+        scrollDirection: Axis.horizontal,
+        child: Container(
+          clipBehavior: Clip.antiAlias,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(14),
+          ),
+          child: Consumer<NavigationPageProvider>(
+            builder: (context, npp, _) => NavigationPageTopSegmentedButtonGroup(
+              pageId: npp.id,
+            ),
+          ),
+        ),
+      );
 
   @override
   Widget build(BuildContext context) {
@@ -42,7 +59,7 @@ class CompactLayout extends StatelessWidget {
         builder: (context, navPageProvider, child) {
       final pageId = navPageProvider.id;
       final pageIndexMap = [
-        NavigationPageId.Home,
+        NavigationPageId.Assets,
         NavigationPageId.Editor,
         NavigationPageId.Terminal,
         NavigationPageId.Inspector,
@@ -64,9 +81,7 @@ class CompactLayout extends StatelessWidget {
           centerTitle: true,
           actions: [
             PopupMenuButton(
-              tooltip: "Widgets",
-              icon: Icon(Icons.web_asset),
-              itemBuilder: (_) => [
+              itemBuilder: (_) => <PopupMenuEntry>[
                 PopupMenuItem(
                   onTap: () {
                     _openSidePanel("memory", context);
@@ -85,10 +100,7 @@ class CompactLayout extends StatelessWidget {
                     title: Text("Symbols"),
                   ),
                 ),
-              ],
-            ),
-            PopupMenuButton(
-              itemBuilder: (_) => [
+                PopupMenuDivider(),
                 PopupMenuItem(
                   onTap: () {},
                   child: ListTile(
@@ -109,15 +121,13 @@ class CompactLayout extends StatelessWidget {
         ),
         body: Provider.value(
           value: ScreenSize.Compact,
-          child: const Center(
+          child: Center(
             child: Column(
               children: [
                 Expanded(
                   child: NavigationPageView(),
                 ),
-                TimingControlBar(
-                  compact: true,
-                ),
+                menuBar(),
               ],
             ),
           ),

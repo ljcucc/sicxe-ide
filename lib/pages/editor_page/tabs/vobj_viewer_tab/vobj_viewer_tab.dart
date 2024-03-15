@@ -6,8 +6,6 @@ import 'package:provider/provider.dart';
 import 'package:sicxe/pages/editor_page/tabs/vobj_viewer_tab/object_code_visualize_provider.dart';
 import 'package:sicxe/pages/editor_page/tabs/vobj_viewer_tab/vobj_block_widget.dart';
 import 'package:sicxe/utils/workflow/editor_workflow.dart';
-import 'package:sicxe/widgets/document_display/document_display_provider.dart';
-import 'package:sicxe/widgets/overview_card.dart';
 
 class VobjViewerTab extends StatefulWidget {
   final String filename;
