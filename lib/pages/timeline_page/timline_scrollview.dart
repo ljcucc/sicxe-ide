@@ -14,11 +14,7 @@ class TimelineScrollView extends StatelessWidget {
         clipBehavior: Clip.antiAlias,
         decoration: BoxDecoration(
           borderRadius:
-              BorderRadius.circular(screenSize == ScreenSize.Compact ? 0 : 16)
-                  .copyWith(
-            bottomLeft: Radius.zero,
-            bottomRight: Radius.zero,
-          ),
+              BorderRadius.circular(screenSize == ScreenSize.Compact ? 0 : 16),
         ),
         child: SingleChildScrollView(
           child: Stack(
