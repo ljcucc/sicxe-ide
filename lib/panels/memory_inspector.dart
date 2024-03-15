@@ -22,7 +22,7 @@ class _MemoryInspectorState extends State<MemoryInspector> {
 
   _offsetDecrease() {
     int value = int.tryParse(_controller.text, radix: 16) ?? 0;
-    value -= 0xFF8;
+    value -= 0x100;
     setState(() {
       _controller.text = max(value, 0).toRadixString(16).toUpperCase();
     });
@@ -30,7 +30,7 @@ class _MemoryInspectorState extends State<MemoryInspector> {
 
   _offsetIncrease() {
     int value = int.tryParse(_controller.text, radix: 16) ?? 0;
-    value += 0xFF8;
+    value += 0x100;
     setState(() {
       _controller.text = value.toRadixString(16).toUpperCase();
     });
@@ -53,7 +53,7 @@ class _MemoryInspectorState extends State<MemoryInspector> {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                IconButton(
+                IconButton.filledTonal(
                   onPressed: _offsetIncrease,
                   icon: Icon(Icons.add_outlined),
                 ),
@@ -79,7 +79,12 @@ class _MemoryInspectorState extends State<MemoryInspector> {
                   ),
                 ),
                 SizedBox(width: 16),
-                IconButton(
+                IconButton.filledTonal(
+                  // style: IconButton.styleFrom(
+                  //     backgroundColor:
+                  //         Theme.of(context).colorScheme.tertiaryContainer,
+                  //     foregroundColor:
+                  //         Theme.of(context).colorScheme.onTertiaryContainer),
                   onPressed: _offsetDecrease,
                   icon: Icon(Icons.remove_outlined),
                 ),

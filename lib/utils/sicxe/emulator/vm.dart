@@ -12,8 +12,8 @@ typedef Memory = Uint8List;
 typedef DeviceOutputCallback = Function(int addr, int value);
 
 class SICXE {
-  Memory mem = Uint8List.fromList(
-      List.generate(pow(2, 20).toInt(), (index) => 0xFF & index));
+  Memory mem =
+      Uint8List.fromList(List.generate(0xFFFFF + 1, (index) => 0xFF & index));
   ProgramCounter pc = ProgramCounter();
   IntegerData regA = IntegerData();
   IntegerData regX = IntegerData();
