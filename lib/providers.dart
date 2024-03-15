@@ -5,6 +5,7 @@ import 'package:linked_scroll_controller/linked_scroll_controller.dart';
 import 'package:provider/provider.dart';
 import 'package:sicxe/custom_colorscheme_provider.dart';
 import 'package:sicxe/navigation_page_provider.dart';
+import 'package:sicxe/pages/editor_page/editor_tab_controller.dart';
 import 'package:sicxe/pages/timeline_page/timeline_scale_controller.dart';
 import 'package:sicxe/pages/timeline_page/timing_control_bar_controller.dart';
 import 'package:sicxe/pages/timeline_page/timline_data_lists_provider.dart';
@@ -62,6 +63,9 @@ class Providers extends StatelessWidget {
         ),
         ChangeNotifierProvider<TimelineDataListsProvider>(
           create: (_) => TimelineDataListsProvider(),
+        ),
+        ChangeNotifierProvider<EditorTabController>(
+          create: (_) => EditorTabController(),
         ),
         // ChangeNotifierProvider<TerminalPageController>(
         //   create: (_) => TerminalPageController(),
