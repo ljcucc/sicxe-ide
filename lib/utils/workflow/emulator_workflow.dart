@@ -17,6 +17,17 @@ class EmulatorSnapshot {
 }
 
 abstract class EmulatorWorkflow extends ChangeNotifier {
+  int _clockHz = 1;
+
+  /// Get the running clock hz of emulator
+  int get clockHz => _clockHz;
+
+  /// Set the running clock hz of emulator
+  set clockHz(int hz) {
+    _clockHz = hz;
+    notifyListeners();
+  }
+
   Terminal termianl = Terminal();
 
   /// run emulator a step each time.

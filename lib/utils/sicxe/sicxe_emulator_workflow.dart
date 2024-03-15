@@ -120,7 +120,7 @@ class SicxeEmulatorWorkflow extends EmulatorWorkflow {
       await vm.eval();
       tdlp.add(toTimelineMap());
       notifyListeners();
-      await Future.delayed(const Duration(milliseconds: 300));
+      await Future.delayed(Duration(milliseconds: 1000 ~/ clockHz));
     }
   }
 }
