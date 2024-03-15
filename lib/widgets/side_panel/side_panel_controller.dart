@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 class SidePanelController extends ChangeNotifier {
   bool _isOpen = false;
-  double _width = 400;
+  double _width = 350;
 
   bool get isOpen => _isOpen;
   double get width => _width;

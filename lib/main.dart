@@ -36,7 +36,7 @@ class MyApp extends StatelessWidget {
                 useMaterial3: true,
                 brightness: MediaQuery.of(context).platformBrightness,
               ),
-              home: Providers(child: MyHomePage(title: 'SICXE')),
+              home: MyHomePage(title: 'SICXE'),
               debugShowCheckedModeBanner: false,
             );
           }
