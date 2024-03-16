@@ -1,6 +1,8 @@
 import 'dart:async';
+import 'dart:math';
 import 'dart:typed_data';
 
+import 'package:flutter/foundation.dart';
 import 'package:sicxe/pages/timeline_page/timline_data_lists_provider.dart';
 import 'package:sicxe/utils/sicxe/emulator/vm.dart';
 import 'package:sicxe/utils/workflow/emulator_workflow.dart';
@@ -12,7 +14,9 @@ class SicxeEmulatorWorkflow extends EmulatorWorkflow {
     vm = SICXE(onOutput: _onOutput);
   }
 
-  _onOutput(int addr, int value) {
+  int get maxClockHz => 1500;
+
+  _onOutput(int addr, int value) async {
     if (addr == 0x80) {
       super.termianl.write(String.fromCharCode(value));
     }
@@ -107,7 +111,6 @@ class SicxeEmulatorWorkflow extends EmulatorWorkflow {
   bool isLoopRunning() => _isRunning;
 
   stopEvalLoop() {
-    print("stop!!!!!!!!!!!!!!");
     _isRunning = false;
     notifyListeners();
   }
@@ -115,12 +118,51 @@ class SicxeEmulatorWorkflow extends EmulatorWorkflow {
   Future<void> evalLoop(TimelineDataListsProvider tdlp) async {
     print("loop is starting...");
     _isRunning = true;
+    notifyListeners();
+    final counterStopwatch = Stopwatch();
+
+    int counter = 0;
+    counterStopwatch.start();
+
     while (_isRunning) {
-      print("running...");
-      await vm.eval();
-      tdlp.add(toTimelineMap());
-      notifyListeners();
-      await Future.delayed(Duration(milliseconds: 1000 ~/ clockHz));
+      final clockPeriod = clockHz >= maxClockHz ? 0 : (1000000 ~/ clockHz);
+
+      // debug output
+      if (counterStopwatch.elapsedMicroseconds > 1000000) {
+        print("counter: $counter, clockHz $clockHz");
+        counterStopwatch.reset();
+
+        counter = 0;
+      }
+
+      if (clockHz <= 100) {
+        final vmFuture = vm.eval();
+        final delayFuture = Future.delayed(Duration(
+          microseconds: max(0, clockPeriod),
+        ));
+
+        await vmFuture;
+        tdlp.add(toTimelineMap());
+        notifyListeners();
+        await delayFuture;
+
+        counter++;
+      } else {
+        final timesInCycle = (clockHz * 0.05).floor();
+        counter += timesInCycle;
+
+        final futureDelay = Future.delayed(const Duration(
+          milliseconds: 50,
+        ));
+
+        for (int i = 0; i < timesInCycle; i++) {
+          await vm.eval();
+          tdlp.add(toTimelineMap());
+          notifyListeners();
+        }
+
+        await futureDelay;
+      }
     }
   }
 }
