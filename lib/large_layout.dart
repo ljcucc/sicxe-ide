@@ -167,20 +167,6 @@ class LargeLayout extends StatelessWidget {
                                 title: Text("Memory"),
                               ),
                             ),
-                            PopupMenuItem(
-                              onTap: () {
-                                Provider.of<SidePanelController>(context,
-                                        listen: false)
-                                    .open();
-                                Provider.of<CustomPanelController>(context,
-                                        listen: false)
-                                    .pageId = "symtab";
-                              },
-                              child: ListTile(
-                                leading: Icon(Icons.view_list_outlined),
-                                title: Text("Symbols"),
-                              ),
-                            ),
                             PopupMenuDivider(),
                             PopupMenuItem(
                               onTap: () {

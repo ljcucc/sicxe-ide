@@ -19,8 +19,9 @@ class InspectorPage extends StatelessWidget {
       return Consumer<EmulatorWorkflow>(
         builder: (context, emulator, child) {
           final inspectorContent = emulator.toInspectorMap();
-          final color = Theme.of(context).colorScheme.secondary;
-          final bordercolor = Theme.of(context).colorScheme.outlineVariant;
+          final color = Theme.of(context).colorScheme.onPrimaryContainer;
+          final bordercolor =
+              Theme.of(context).colorScheme.onPrimaryContainer.withOpacity(0.5);
 
           return Container(
             padding: padding,
@@ -47,7 +48,7 @@ class InspectorPage extends StatelessWidget {
                             style: GoogleFonts.inter(
                               fontSize: 16,
                               color: color,
-                              fontWeight: FontWeight.w600,
+                              // fontWeight: FontWeight.w600,
                             ),
                           ),
                           SizedBox(height: 24),

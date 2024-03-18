@@ -43,6 +43,7 @@ dependencies:
   url_launcher: ^6.2.4
   linked_scroll_controller: ^0.2.0
   xterm: ^3.5.0
+  csv: ^6.0.0
 
 dev_dependencies:
   flutter_test:

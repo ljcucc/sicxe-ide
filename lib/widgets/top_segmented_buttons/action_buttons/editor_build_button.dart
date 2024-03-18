@@ -28,6 +28,7 @@ class EditorBuildButton extends StatelessWidget {
             ),
           );
           etc.openTab(etc.tabId.split(".")[0] + ".vobj", setTab: false);
+          etc.openTab("symtab.csv", setTab: false);
         }
 
         return Tooltip(

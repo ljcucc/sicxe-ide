@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:sicxe/pages/editor_page/editor_tab_controller.dart';
+import 'package:sicxe/pages/editor_page/tabs/csv_viewer_tab.dart';
 import 'package:sicxe/pages/editor_page/tabs/text_editor_tab.dart';
 import 'package:sicxe/pages/editor_page/tabs/vobj_viewer_tab/vobj_viewer_tab.dart';
 import 'package:sicxe/utils/workflow/editor_workflow.dart';
@@ -27,6 +28,9 @@ class EditorTabView extends StatelessWidget {
           }
           if (etc.tabId.endsWith(".vobj")) {
             return VobjViewerTab(filename: etc.tabId);
+          }
+          if (etc.tabId.endsWith(".csv")) {
+            return CsvViewerTab(filename: etc.tabId);
           }
           return Container();
         },

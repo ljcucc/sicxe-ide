@@ -35,7 +35,6 @@ class NavigationPageTopSegmentedButtonGroup extends StatelessWidget {
           TopSegmentedActionButtonData(id: "file_new"),
         ],
       NavigationPageId.Timeline => [],
-      NavigationPageId.Inspector => [],
       NavigationPageId.Terminal => [
           TopSegmentedActionButtonData(id: "terminal_clear"),
         ],

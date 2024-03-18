@@ -4,7 +4,6 @@ enum NavigationPageId {
   Home,
   Assets,
   Timeline,
-  Inspector,
   Terminal,
   Editor,
 }

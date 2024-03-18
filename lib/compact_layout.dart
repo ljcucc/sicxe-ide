@@ -27,8 +27,15 @@ class CompactLayout extends StatelessWidget {
                 color: Theme.of(context).colorScheme.surface,
                 borderRadius: BorderRadius.circular(16)),
             padding: const EdgeInsets.only(top: 16.0),
-            child: ChangeNotifierProvider(
-              create: (_) => CustomPanelController(pageId: id),
+            child: MultiProvider(
+              providers: [
+                Provider<ScreenSize>.value(
+                  value: ScreenSize.Compact,
+                ),
+                ChangeNotifierProvider(
+                  create: (_) => CustomPanelController(pageId: id),
+                ),
+              ],
               child: const CustomPanelWidget(),
             ),
           );
@@ -62,7 +69,6 @@ class CompactLayout extends StatelessWidget {
         NavigationPageId.Assets,
         NavigationPageId.Editor,
         NavigationPageId.Terminal,
-        NavigationPageId.Inspector,
         NavigationPageId.Timeline,
       ];
 
@@ -84,20 +90,20 @@ class CompactLayout extends StatelessWidget {
               itemBuilder: (_) => <PopupMenuEntry>[
                 PopupMenuItem(
                   onTap: () {
+                    _openSidePanel("inspector", context);
+                  },
+                  child: ListTile(
+                    leading: Icon(Icons.insert_chart_outlined),
+                    title: Text("Inspector"),
+                  ),
+                ),
+                PopupMenuItem(
+                  onTap: () {
                     _openSidePanel("memory", context);
                   },
                   child: ListTile(
                     leading: Icon(Icons.table_rows_outlined),
                     title: Text("Memory"),
-                  ),
-                ),
-                PopupMenuItem(
-                  onTap: () {
-                    _openSidePanel("symtab", context);
-                  },
-                  child: ListTile(
-                    leading: Icon(Icons.view_list_outlined),
-                    title: Text("Symbols"),
                   ),
                 ),
                 PopupMenuDivider(),
@@ -139,14 +145,12 @@ class CompactLayout extends StatelessWidget {
           onDestinationSelected: (index) {
             navPageProvider.id = pageIndexMap[index];
             Provider.of<TimingControlBarController>(context, listen: false)
-                    .enable =
-                navPageProvider.id == NavigationPageId.Timeline ||
-                    navPageProvider.id == NavigationPageId.Inspector;
+                .enable = navPageProvider.id == NavigationPageId.Timeline;
           },
           destinations: const [
             NavigationDestination(
-              icon: Icon(Icons.home),
-              label: "Home",
+              icon: Icon(Icons.folder),
+              label: "Assets",
             ),
             NavigationDestination(
               icon: Icon(Icons.draw_outlined),
@@ -155,10 +159,6 @@ class CompactLayout extends StatelessWidget {
             NavigationDestination(
               icon: Icon(Icons.computer),
               label: "Terminal",
-            ),
-            NavigationDestination(
-              icon: Icon(Icons.insert_chart_outlined),
-              label: "Inspector",
             ),
             NavigationDestination(
               icon: Icon(Icons.graphic_eq),
