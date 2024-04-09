@@ -19,7 +19,7 @@ class InspectorPage extends StatelessWidget {
       return Consumer<EmulatorWorkflow>(
         builder: (context, emulator, child) {
           final inspectorContent = emulator.toInspectorMap();
-          final color = Theme.of(context).colorScheme.onPrimaryContainer;
+          final color = Theme.of(context).colorScheme.onSurface;
           final bordercolor =
               Theme.of(context).colorScheme.onPrimaryContainer.withOpacity(0.5);
 
@@ -41,7 +41,7 @@ class InspectorPage extends StatelessWidget {
                       padding: EdgeInsets.only(bottom: 60, left: 8, right: 8),
                       width: double.infinity,
                       child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
                           Text(
                             key,
@@ -51,24 +51,25 @@ class InspectorPage extends StatelessWidget {
                               // fontWeight: FontWeight.w600,
                             ),
                           ),
+                          Divider(),
                           SizedBox(height: 24),
                           for (final sectionKey in inspectorContent[key]!.keys)
                             Padding(
                               padding: const EdgeInsets.only(bottom: 8.0),
                               child: Container(
                                 decoration: BoxDecoration(
-                                  border: Border(
-                                    bottom: BorderSide(
-                                      color: bordercolor,
-                                      width: 1,
+                                    // border: Border(
+                                    //   bottom: BorderSide(
+                                    //     color: bordercolor,
+                                    //     width: 1,
+                                    //   ),
+                                    // ),
                                     ),
-                                  ),
-                                ),
                                 child: Row(
                                   crossAxisAlignment: CrossAxisAlignment.end,
                                   children: [
                                     SizedBox(
-                                      width: 180,
+                                      width: 100,
                                       child: Text(
                                         sectionKey,
                                         style: GoogleFonts.inter(
@@ -85,6 +86,7 @@ class InspectorPage extends StatelessWidget {
                                           fontSize: 16,
                                           color: color,
                                         ),
+                                        textAlign: TextAlign.right,
                                       ),
                                     ),
                                   ],

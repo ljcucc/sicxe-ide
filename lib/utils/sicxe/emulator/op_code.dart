@@ -176,27 +176,27 @@ final Map<OpCodes, OpCallback> Instructions = {
     if (vm.regSw.conditionCode == ConditionCode.Equal) {
       final address = ta.getPrefetchedTa();
       vm.pc.set(address);
-      print("jump bc eq");
+      // print("jump bc eq");
     }
   },
   OpCodes.JGT: (vm, ta) async {
     if (vm.regSw.conditionCode == ConditionCode.GreaterThan) {
       final address = ta.getPrefetchedTa();
       vm.pc.set(address);
-      print("jump bc gt");
+      // print("jump bc gt");
     }
   },
   OpCodes.JLT: (vm, ta) async {
     if (vm.regSw.conditionCode == ConditionCode.LessThan) {
       final address = ta.getPrefetchedTa();
       vm.pc.set(address);
-      print("jump bc lt");
+      // print("jump bc lt");
     }
   },
   OpCodes.JSUB: (vm, ta) async {
     vm.regL.set(vm.pc.get());
-    print("JSUB called");
-    print(ta.getPrefetchedTa().toRadixString(16));
+    // print("JSUB called");
+    // print(ta.getPrefetchedTa().toRadixString(16));
     vm.pc.set(ta.getPrefetchedTa());
   },
   OpCodes.LDA: (vm, ta) async {
@@ -251,7 +251,20 @@ final Map<OpCodes, OpCallback> Instructions = {
     a.set(a.get() | b.get());
   },
   OpCodes.RD: (vm, ta) async {
-    //TODO: implement RD operation
+    print("Opcode RD!");
+    final addr = (ta.getIntegerData(length: 1).get().toUnsigned(8));
+    var value = 0;
+    print("reading value from device: $addr");
+    if (vm.inputBuffer.containsKey(addr) && vm.inputBuffer.isNotEmpty) {
+      print("shift buffer");
+      value = vm.inputBuffer[addr]!.first;
+      vm.inputBuffer[addr]!.removeAt(0);
+    }
+
+    print(vm.inputBuffer[addr] ?? []);
+
+    var calculated = vm.regA.get() & 0xFFFF00 | value;
+    vm.regA.set(calculated);
   },
   OpCodes.RMO: (vm, ta) async {
     ta.getR2()?.set(ta.getR1()?.get() ?? 0);
@@ -319,6 +332,21 @@ final Map<OpCodes, OpCallback> Instructions = {
     //TODO: implement SVC operation
   },
   OpCodes.TD: (vm, ta) async {
+    final addr = (ta.getIntegerData(length: 1).get().toUnsigned(24));
+    if (addr == 0x80) {
+      vm.regSw.conditionCode = ConditionCode.None;
+      return;
+    }
+    if (!vm.inputBuffer.containsKey(addr)) {
+      vm.regSw.conditionCode = ConditionCode.Equal;
+      return;
+    }
+
+    if (vm.inputBuffer[addr]!.isEmpty) {
+      vm.regSw.conditionCode = ConditionCode.Equal;
+      return;
+    }
+
     vm.regSw.conditionCode = ConditionCode.None;
   },
   OpCodes.TIO: (vm, ta) async {
@@ -333,7 +361,7 @@ final Map<OpCodes, OpCallback> Instructions = {
     final x = regX.get().toSigned(24);
     final a = ta.getIntegerData().get().toSigned(24);
 
-    print("compare with $x and $a");
+    // print("compare with $x and $a");
 
     if (x > a) {
       vm.regSw.conditionCode = ConditionCode.GreaterThan;
@@ -363,9 +391,9 @@ final Map<OpCodes, OpCallback> Instructions = {
   OpCodes.WD: (vm, ta) async {
     final deviceAddr = (ta.getIntegerData(length: 1).get().toUnsigned(24));
     final value = vm.regA.get() & 0xFF;
-    print("output device: $deviceAddr, $value");
-    print(ta.getIntegerData().get().toUnsigned(24).toRadixString(16));
-    print(deviceAddr.toRadixString(16));
+    // print("output device: $deviceAddr, $value");
+    // print(ta.getIntegerData().get().toUnsigned(24).toRadixString(16));
+    // print(deviceAddr.toRadixString(16));
     if (vm.onOutput != null) {
       vm.onOutput!(deviceAddr, value);
     } else {

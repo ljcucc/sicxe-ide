@@ -3,11 +3,9 @@ import 'package:flutter/material.dart';
 // Providers
 import 'package:linked_scroll_controller/linked_scroll_controller.dart';
 import 'package:provider/provider.dart';
-import 'package:sicxe/custom_colorscheme_provider.dart';
 import 'package:sicxe/navigation_page_provider.dart';
 import 'package:sicxe/pages/editor_page/editor_tab_controller.dart';
 import 'package:sicxe/pages/timeline_page/timeline_scale_controller.dart';
-import 'package:sicxe/pages/timeline_page/timing_control_bar_controller.dart';
 import 'package:sicxe/pages/timeline_page/timline_data_lists_provider.dart';
 import 'package:sicxe/utils/sicxe/sicxe_editor_workflow.dart';
 import 'package:sicxe/utils/sicxe/sicxe_emulator_workflow.dart';
@@ -19,19 +17,22 @@ import 'package:sicxe/widgets/side_panel/side_panel_controller.dart';
 
 class Providers extends StatelessWidget {
   final Widget child;
+  final EditorWorkflow editor;
+  final EmulatorWorkflow emulator;
+  final CustomPanelController? customPanelController;
 
-  const Providers({super.key, required this.child});
+  const Providers({
+    super.key,
+    required this.child,
+    required this.editor,
+    required this.emulator,
+    this.customPanelController,
+  });
 
   @override
   Widget build(BuildContext context) {
-    final colorSchemeProvider = CustomColorshcemeProvider(
-      Color.fromARGB(255, 246, 192, 58),
-    );
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider(
-          create: (_) => colorSchemeProvider,
-        ),
         ChangeNotifierProvider<DocumentDisplayProvider>(create: (_) {
           final ddm = DocumentDisplayProvider();
           ddm.changeMarkdown("README.md");
@@ -43,17 +44,24 @@ class Providers extends StatelessWidget {
         ChangeNotifierProvider<SidePanelController>(
           create: (_) => SidePanelController(),
         ),
-        ChangeNotifierProvider<CustomPanelController>(
-          create: (_) => CustomPanelController(),
+
+        // CustomPanelController
+        if (customPanelController == null)
+          ChangeNotifierProvider<CustomPanelController>(
+            create: (_) => customPanelController ?? CustomPanelController(),
+          ),
+        if (customPanelController != null)
+          ChangeNotifierProvider.value(
+            value: customPanelController,
+          ),
+
+        //EmulatorWorkflow
+        ChangeNotifierProvider<EmulatorWorkflow>.value(
+          value: emulator!,
         ),
-        ChangeNotifierProvider<EmulatorWorkflow>(
-          create: (_) => SicxeEmulatorWorkflow(),
-        ),
-        ChangeNotifierProvider<EditorWorkflow>(
-          create: (_) => SicxeEditorWorkflow(),
-        ),
-        ChangeNotifierProvider<TimingControlBarController>(
-          create: (_) => TimingControlBarController(),
+        //EditorWorkflow
+        ChangeNotifierProvider<EditorWorkflow>.value(
+          value: editor!,
         ),
         Provider<LinkedScrollControllerGroup>(
           create: (_) => LinkedScrollControllerGroup(),

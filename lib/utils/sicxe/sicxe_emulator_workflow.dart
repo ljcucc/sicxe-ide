@@ -3,23 +3,51 @@ import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:sicxe/pages/timeline_page/timline_data_lists_provider.dart';
 import 'package:sicxe/utils/sicxe/emulator/vm.dart';
 import 'package:sicxe/utils/workflow/emulator_workflow.dart';
+import 'package:xterm/xterm.dart';
 
 class SicxeEmulatorWorkflow extends EmulatorWorkflow {
   late SICXE vm;
 
+  late final Terminal _terminal;
+
+  Terminal get terminal => _terminal;
+
   SicxeEmulatorWorkflow() {
     vm = SICXE(onOutput: _onOutput);
+
+    _terminal = Terminal(
+      onOutput: (data) {
+        print("on input: $data");
+        for (final char in data.characters) {
+          print("push ($char) to buffer 0x81");
+          onDeviceInput(0x81, char.codeUnitAt(0));
+        }
+      },
+    );
   }
 
+  @override
   int get maxClockHz => 1500;
 
   _onOutput(int addr, int value) async {
+    print("output to device: $addr, value: $value");
     if (addr == 0x80) {
-      super.termianl.write(String.fromCharCode(value));
+      if (value == 12) {
+        terminal.buffer.clear();
+        terminal.setCursor(0, 0);
+        return;
+      }
+      if (value == 13) {
+        terminal.nextLine();
+        return;
+      }
+      terminal.writeChar(value);
     }
+    if (addr == 0x81) {}
   }
 
   @override
@@ -101,9 +129,13 @@ class SicxeEmulatorWorkflow extends EmulatorWorkflow {
     return vm.mem;
   }
 
+  // TODO: move the inputBuffer from vm to here
   @override
   void onDeviceInput(int addr, int value) {
-    // TODO: implement onDeviceInput
+    if (!vm.inputBuffer.containsKey(addr)) {
+      vm.inputBuffer[addr] = [];
+    }
+    vm.inputBuffer[addr]!.add(value);
   }
 
   bool _isRunning = false;
@@ -129,7 +161,8 @@ class SicxeEmulatorWorkflow extends EmulatorWorkflow {
 
       // debug output
       if (counterStopwatch.elapsedMicroseconds > 1000000) {
-        print("counter: $counter, clockHz $clockHz");
+        print(
+            "counter: $counter, clockHz $clockHz, period: ${counterStopwatch.elapsedMilliseconds / 1000}");
         counterStopwatch.reset();
 
         counter = 0;

@@ -10,70 +10,104 @@ class EditorCompactTabSwitchButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    openDialog() {
+    openDialog(editor, etc) {
+      Future<List<String>> keys = editor.contents.getFileList();
       showDialog(
         context: context,
         builder: (context) {
-          return Consumer<EditorTabController>(builder: (context, etc, _) {
-            return Consumer<EditorWorkflow>(builder: (context, editor, _) {
-              final keys = editor.contents.keys.toList();
-              return Dialog(
-                child: Column(
-                  children: [
-                    SizedBox(height: 48),
-                    Divider(height: 0),
-                    Expanded(
-                      child: ListView.builder(
-                        padding: EdgeInsets.zero,
-                        itemCount: keys.length,
-                        itemBuilder: (context, index) {
-                          final key = keys[index];
-                          return ListTile(
-                            minVerticalPadding: 24,
-                            onTap: () {
-                              etc.tabId = key;
-                              Navigator.of(context).pop();
-                            },
-                            title: Text(key),
-                            leading: Container(
-                              padding: EdgeInsets.only(right: 32, left: 16),
-                              child: Icon(getIconById(key)),
+          return MultiProvider(
+            providers: [
+              ChangeNotifierProvider<EditorTabController>.value(value: etc),
+              // ChangeNotifierProvider<EditorWorkflow>.value(value: editor),
+            ],
+            child: Consumer<EditorTabController>(builder: (context, etc, _) {
+              return FutureBuilder(
+                future: keys,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState != ConnectionState.done) {
+                    return Center(child: CircularProgressIndicator());
+                  }
+
+                  final keys = snapshot.data ?? [];
+                  return Dialog(
+                    child: Container(
+                      constraints: BoxConstraints(maxWidth: 500),
+                      child: Column(
+                        children: [
+                          SizedBox(height: 48),
+                          Divider(height: 0),
+                          Expanded(
+                            child: ListView.builder(
+                              padding: EdgeInsets.zero,
+                              itemCount: keys.length,
+                              itemBuilder: (context, index) {
+                                final key = keys[index];
+                                return ListTile(
+                                  minVerticalPadding: 24,
+                                  onTap: () {
+                                    etc.tabId = key;
+                                    Navigator.of(context).pop();
+                                  },
+                                  title: Text(key),
+                                  leading: Container(
+                                    padding:
+                                        EdgeInsets.only(right: 32, left: 16),
+                                    child: Icon(getIconById(key)),
+                                  ),
+                                );
+                              },
                             ),
-                          );
-                        },
+                          ),
+                          Divider(height: 0),
+                          SizedBox(height: 48),
+                        ],
                       ),
                     ),
-                    Divider(height: 0),
-                    SizedBox(height: 48),
-                  ],
-                ),
+                  );
+                },
               );
-            });
-          });
+            }),
+          );
         },
       );
     }
 
-    return Consumer<EditorTabController>(builder: (context, etc, _) {
-      return Material(
-        color: Theme.of(context).colorScheme.secondaryContainer,
-        borderRadius: BorderRadius.circular(12),
-        child: InkWell(
-          onTap: openDialog,
-          borderRadius: BorderRadius.circular(12),
-          child: Container(
-            width: double.infinity,
-            child: ListTile(
-              title: Text(
-                etc.tabId,
-                textAlign: TextAlign.center,
-                style: TextStyle(fontWeight: FontWeight.w500),
-              ),
-              leading: Icon(getIconById(etc.tabId)),
+    final double borderRadius = 100;
+
+    return Consumer<EditorWorkflow>(builder: (context, editor, _) {
+      return Consumer<EditorTabController>(builder: (context, etc, _) {
+        return Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(borderRadius),
+            // color: Theme.of(context)
+            //     .colorScheme
+            //     .secondaryContainer
+            //     .withOpacity(.5),
+            // color: Theme.of(context).colorScheme.secondaryContainer,
+            border: Border.all(
+              color: Theme.of(context).colorScheme.outline,
             ),
           ),
-        ),
-      );
+          child: InkWell(
+            onTap: () => openDialog(editor, etc),
+            borderRadius: BorderRadius.circular(borderRadius),
+            child: Container(
+              width: double.infinity,
+              child: ListTile(
+                contentPadding:
+                    EdgeInsets.symmetric(horizontal: 16).copyWith(right: 8),
+                title: Text(
+                  etc.tabId,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontWeight: FontWeight.w500),
+                ),
+                leading: Icon(getIconById(etc.tabId)),
+                trailing: EditorTabMenu(),
+              ),
+            ),
+          ),
+        );
+      });
     });
   }
 }
@@ -99,7 +133,7 @@ class EditorTabBar extends StatelessWidget {
       return Consumer<EditorTabController>(builder: (context, etc, _) {
         Widget tabWidget(String id) {
           return InkWell(
-            borderRadius: BorderRadius.circular(14),
+            borderRadius: BorderRadius.circular(100),
             onTap: () {
               etc.tabId = id;
             },
@@ -108,9 +142,14 @@ class EditorTabBar extends StatelessWidget {
               padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
               decoration: BoxDecoration(
                 color: etc.tabId == id
-                    ? colorScheme.secondaryContainer
+                    ? colorScheme.secondaryContainer.withOpacity(.75)
                     : Colors.transparent,
-                borderRadius: BorderRadius.circular(14),
+                borderRadius: BorderRadius.circular(100),
+                // border: Border.all(
+                //   color: etc.tabId == id
+                //       ? colorScheme.outline
+                //       : colorScheme.outlineVariant,
+                // ),
               ),
               child: Row(
                 children: [
@@ -131,7 +170,7 @@ class EditorTabBar extends StatelessWidget {
 
         return Container(
           clipBehavior: Clip.antiAlias,
-          decoration: BoxDecoration(borderRadius: BorderRadius.circular(14)),
+          decoration: BoxDecoration(borderRadius: BorderRadius.circular(100)),
           child: HorizontalScrollView(
             child: Row(
               mainAxisSize: MainAxisSize.min,

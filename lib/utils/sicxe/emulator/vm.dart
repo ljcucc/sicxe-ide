@@ -12,6 +12,7 @@ typedef Memory = Uint8List;
 typedef DeviceOutputCallback = Function(int addr, int value);
 
 class SICXE {
+  Map<int, List<int>> inputBuffer = {};
   Memory mem =
       Uint8List.fromList(List.generate(0xFFFFF + 1, (index) => 0xFF & index));
   ProgramCounter pc = ProgramCounter();
@@ -34,7 +35,7 @@ class SICXE {
   Future<void> eval() async {
     // 1. Fetch instruction (pc++)
     final instruction = await pc.count(mem);
-    print("${mem.length}, ${pc.get()}");
+    // print("${mem.length}, ${pc.get()}");
     // 2. Decode instruction
     if (instruction.format == InstructionFormat.Format3 ||
         instruction.format == InstructionFormat.Format4) {
@@ -42,10 +43,10 @@ class SICXE {
     }
 
     curInstruction = instruction;
-    print(curInstruction!.opcode);
+    // print(curInstruction!.opcode);
     await Instructions[curInstruction!.opcode]!(this, ta!);
 
-    print("eval end");
+    // print("eval end");
   }
 
   Map<String, dynamic> toMap() {
@@ -62,6 +63,7 @@ class SICXE {
 
       // TargetAddress
       "operand_calc_disp": ta?.operandCalcDispToString(),
+      "operand_value": ta?.getIntegerData(),
 
       // Instruction
       "instruction_flags": ta?.flagsToString() ?? "",

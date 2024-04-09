@@ -4,17 +4,17 @@ import 'package:provider/provider.dart';
 import 'package:sicxe/utils/workflow/editor_workflow.dart';
 
 class CsvViewerTab extends StatelessWidget {
-  final String filename;
+  final String sourceString;
 
   const CsvViewerTab({
     super.key,
-    required this.filename,
+    required this.sourceString,
   });
 
   @override
   Widget build(BuildContext context) {
     return Consumer<EditorWorkflow>(builder: (context, editor, _) {
-      final csv = CsvToListConverter().convert(editor.contents[filename]);
+      final csv = CsvToListConverter().convert(sourceString);
 
       return SingleChildScrollView(
         child: SingleChildScrollView(
@@ -26,7 +26,7 @@ class CsvViewerTab extends StatelessWidget {
                 for (int i = 0; i < csv.first.length; i++)
                   DataColumn(
                     label: Text(
-                          csv.first[i],
+                      csv.first[i],
                     ),
                   )
               ],

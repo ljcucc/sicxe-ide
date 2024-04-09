@@ -11,7 +11,7 @@ class SettingsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: backgroundColor ?? Colors.transparent,
+      // backgroundColor: backgroundColor ?? Colors.transparent,
       body: Center(
         child: Text("hello"),
       ),

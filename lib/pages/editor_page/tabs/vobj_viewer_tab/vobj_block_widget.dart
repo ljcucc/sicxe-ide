@@ -18,53 +18,60 @@ class SuggestableText extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final objectCodeIsVisualized = context.watch<ObjectCodeIsVisualized>();
-    final isVisualized = objectCodeIsVisualized.visualized;
-    final body = InkWell(
-      onTap: () {},
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 350),
-        curve: Curves.easeInOutCirc,
-        padding: EdgeInsets.all(isVisualized ? 8 : 0),
-        margin: EdgeInsets.all(isVisualized ? 2 : 0),
-        clipBehavior: Clip.hardEdge,
-        decoration: BoxDecoration(
-          color: isVisualized
-              ? Theme.of(context)
-                  .colorScheme
-                  .surfaceTint
-                  .harmonizeWith(
-                    color ?? Theme.of(context).colorScheme.surfaceTint,
-                  )
-                  .withOpacity(.10)
-              : Colors.transparent,
-          borderRadius: BorderRadius.circular(6),
-        ),
-        child: Text(
-          text.toUpperCase(),
-          style: GoogleFonts.robotoMono().copyWith(
-            color: color != null
-                ? Theme.of(context).colorScheme.primary.harmonizeWith(color!)
-                : null,
-          ),
-        ),
-      ),
-    );
+    return Consumer<ObjectCodeIsVisualized>(
+      builder: (context, ociv, _) {
+        final isVisualized = ociv.visualized;
 
-    return Builder(builder: (context) {
-      return Tooltip(
-        textStyle: GoogleFonts.robotoMono(
-          fontSize: 14,
-          color: Theme.of(context).colorScheme.onSurfaceVariant,
-        ),
-        decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.surfaceVariant,
-          borderRadius: BorderRadius.circular(8),
-        ),
-        message: message,
-        child: body,
-      );
-    });
+        final body = InkWell(
+          onTap: () {},
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 350),
+            curve: Curves.easeInOutCirc,
+            padding: EdgeInsets.all(isVisualized ? 8 : 0),
+            margin: EdgeInsets.all(isVisualized ? 2 : 0),
+            clipBehavior: Clip.hardEdge,
+            decoration: BoxDecoration(
+              color: isVisualized
+                  ? Theme.of(context)
+                      .colorScheme
+                      .surfaceTint
+                      .harmonizeWith(
+                        color ?? Theme.of(context).colorScheme.surfaceTint,
+                      )
+                      .withOpacity(.10)
+                  : Colors.transparent,
+              borderRadius: BorderRadius.circular(6),
+            ),
+            child: Text(
+              text.toUpperCase(),
+              style: GoogleFonts.robotoMono().copyWith(
+                color: color != null
+                    ? Theme.of(context)
+                        .colorScheme
+                        .primary
+                        .harmonizeWith(color!)
+                    : null,
+              ),
+            ),
+          ),
+        );
+
+        return Builder(builder: (context) {
+          return Tooltip(
+            textStyle: GoogleFonts.robotoMono(
+              fontSize: 14,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.surfaceVariant,
+              borderRadius: BorderRadius.circular(8),
+            ),
+            message: message,
+            child: body,
+          );
+        });
+      },
+    );
   }
 }
 

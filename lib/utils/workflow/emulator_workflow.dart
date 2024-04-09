@@ -21,6 +21,7 @@ abstract class EmulatorWorkflow extends ChangeNotifier {
 
   /// Get the running clock hz of emulator
   int get clockHz => _clockHz;
+  int get maxClockHz => 1000;
 
   /// Set the running clock hz of emulator
   set clockHz(int hz) {
@@ -28,7 +29,8 @@ abstract class EmulatorWorkflow extends ChangeNotifier {
     notifyListeners();
   }
 
-  Terminal termianl = Terminal();
+  Terminal _terminal = Terminal();
+  Terminal get terminal => _terminal;
 
   /// run emulator a step each time.
   Future<void> eval();

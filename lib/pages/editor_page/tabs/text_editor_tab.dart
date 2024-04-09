@@ -27,7 +27,26 @@ class _TextEditorTabState extends State<TextEditorTab> {
   @override
   void initState() {
     super.initState();
+
+    // _loadString();
   }
+
+  @override
+  didChangeDependencies() {
+    super.didChangeDependencies();
+  }
+
+  // _loadString() async {
+  //   final editor = Provider.of<EditorWorkflow>(context, listen: false);
+
+  //   editor.contents.getFileString(widget.filename, fallbackString: "");
+
+  //   // if (codeController?.text !=
+  //   //     editor.contents.getFileString(widget.filename)) {
+  //   //   codeController?.text =
+  //   //       ;
+  //   // }
+  // }
 
   _setupCodeController() async {
     final colorScheme = Theme.of(context).colorScheme;
@@ -69,9 +88,11 @@ class _TextEditorTabState extends State<TextEditorTab> {
     }
 
     return Consumer<EditorWorkflow>(builder: (context, editor, _) {
-      if (codeController?.text != editor.contents[widget.filename]) {
-        codeController?.text = editor.contents[widget.filename] ?? "";
-      }
+      // if (codeController?.text !=
+      //     editor.contents.getFileString(widget.filename)) {
+      //   codeController?.text =
+      //       editor.contents.getFileString(widget.filename, fallbackString: "");
+      // }
 
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -91,7 +112,7 @@ class _TextEditorTabState extends State<TextEditorTab> {
                 ),
                 lineNumberBuilder: (p0, p1) {
                   return TextSpan(
-                    text: (p0 * 5).toString(),
+                    text: (p0).toRadixString(16).toUpperCase(),
                     style: GoogleFonts.robotoMono(
                       color: Theme.of(context)
                           .colorScheme

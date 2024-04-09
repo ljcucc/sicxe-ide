@@ -14,7 +14,6 @@ import 'package:sicxe/widgets/large_screen_navigation_rail.dart';
 import 'package:sicxe/widgets/side_panel/side_panel_controller.dart';
 import 'package:sicxe/widgets/side_panel/side_panel_widget.dart';
 import 'package:sicxe/widgets/top_segmented_buttons/navigation_page_top_segmented.dart';
-import 'package:sicxe/widgets/top_segmented_buttons/top_segmented_buttons.dart';
 
 class LargeLayout extends StatelessWidget {
   const LargeLayout({
@@ -112,6 +111,13 @@ class LargeLayout extends StatelessWidget {
                     backgroundColor: Colors.transparent,
                     appBar: AppBar(
                       leadingWidth: 80,
+                      leading: IconButton(
+                        tooltip: "Back to project page",
+                        onPressed: () => Navigator.of(context).pop(),
+                        padding: EdgeInsets.all(16),
+                        icon: Icon(Icons.arrow_back),
+                      ),
+                      backgroundColor: Colors.transparent,
                       toolbarHeight: 80,
                       surfaceTintColor: Colors.transparent,
                       title: Container(

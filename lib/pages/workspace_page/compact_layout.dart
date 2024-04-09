@@ -4,11 +4,13 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:sicxe/navigation_page_provider.dart';
 import 'package:sicxe/navigation_page_view.dart';
-import 'package:sicxe/pages/timeline_page/timing_control_bar_controller.dart';
+import 'package:sicxe/providers.dart';
 import 'package:sicxe/screen_size.dart';
+import 'package:sicxe/utils/workflow/editor_workflow.dart';
+import 'package:sicxe/utils/workflow/emulator_workflow.dart';
 import 'package:sicxe/widgets/custom_panel/custom_panel_controller.dart';
 import 'package:sicxe/widgets/custom_panel/custom_panel_widget.dart';
-import 'package:sicxe/widgets/logo_widget.dart';
+import 'package:sicxe/widgets/horizontal_scroll_view.dart';
 import 'package:sicxe/widgets/top_segmented_buttons/navigation_page_top_segmented.dart';
 
 class CompactLayout extends StatelessWidget {
@@ -17,6 +19,9 @@ class CompactLayout extends StatelessWidget {
   });
 
   _openSidePanel(String id, context) {
+    final emulator = Provider.of<EmulatorWorkflow>(context, listen: false);
+    final editor = Provider.of<EditorWorkflow>(context, listen: false);
+
     showModalBottomSheet(
       context: context,
       builder: (context) => BottomSheet(
@@ -32,11 +37,13 @@ class CompactLayout extends StatelessWidget {
                 Provider<ScreenSize>.value(
                   value: ScreenSize.Compact,
                 ),
-                ChangeNotifierProvider(
-                  create: (_) => CustomPanelController(pageId: id),
-                ),
               ],
-              child: const CustomPanelWidget(),
+              child: Providers(
+                emulator: emulator,
+                editor: editor,
+                customPanelController: CustomPanelController(pageId: id),
+                child: const CustomPanelWidget(),
+              ),
             ),
           );
         },
@@ -44,21 +51,21 @@ class CompactLayout extends StatelessWidget {
     );
   }
 
-  Widget menuBar() => SingleChildScrollView(
-        padding: EdgeInsets.symmetric(horizontal: 16),
-        scrollDirection: Axis.horizontal,
-        child: Container(
-          clipBehavior: Clip.antiAlias,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(14),
-          ),
-          child: Consumer<NavigationPageProvider>(
-            builder: (context, npp, _) => NavigationPageTopSegmentedButtonGroup(
-              pageId: npp.id,
-            ),
-          ),
-        ),
-      );
+  // Widget menuBar() => SingleChildScrollView(
+  //       padding: EdgeInsets.symmetric(horizontal: 16),
+  //       scrollDirection: Axis.horizontal,
+  //       child: Container(
+  //         clipBehavior: Clip.antiAlias,
+  //         decoration: BoxDecoration(
+  //           borderRadius: BorderRadius.circular(14),
+  //         ),
+  //         child: Consumer<NavigationPageProvider>(
+  //           builder: (context, npp, _) => NavigationPageTopSegmentedButtonGroup(
+  //             pageId: npp.id,
+  //           ),
+  //         ),
+  //       ),
+  //     );
 
   @override
   Widget build(BuildContext context) {
@@ -75,14 +82,22 @@ class CompactLayout extends StatelessWidget {
       return Scaffold(
         backgroundColor: Colors.transparent,
         appBar: AppBar(
-          toolbarHeight: 65,
+          toolbarHeight: 80,
           surfaceTintColor: Colors.transparent,
-          // leading: IconButton(
-          //   onPressed: () {},
-          //   icon: Icon(Icons.menu),
-          // ),
-          title: LogoWidget(
-            compact: true,
+          backgroundColor: Colors.transparent,
+          leading: BackButton(
+            onPressed: () => Navigator.of(context).pop(),
+          ),
+          title: Container(
+            clipBehavior: Clip.antiAlias,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(14),
+            ),
+            child: HorizontalScrollView(
+              child: NavigationPageTopSegmentedButtonGroup(
+                pageId: pageId,
+              ),
+            ),
           ),
           centerTitle: true,
           actions: [
@@ -133,7 +148,7 @@ class CompactLayout extends StatelessWidget {
                 Expanded(
                   child: NavigationPageView(),
                 ),
-                menuBar(),
+                // menuBar(),
               ],
             ),
           ),
@@ -144,8 +159,6 @@ class CompactLayout extends StatelessWidget {
           selectedIndex: max(pageIndexMap.indexOf(pageId), 0),
           onDestinationSelected: (index) {
             navPageProvider.id = pageIndexMap[index];
-            Provider.of<TimingControlBarController>(context, listen: false)
-                .enable = navPageProvider.id == NavigationPageId.Timeline;
           },
           destinations: const [
             NavigationDestination(

@@ -14,8 +14,8 @@ class CustomPanelWidget extends StatelessWidget {
       builder: (context, controller, _) {
         return switch (controller.pageId) {
           "inspector" => const InspectorPage(
-              padding: EdgeInsets.zero,
-            ),
+              // padding: EdgeInsets.zero,
+              ),
           "memory" => const MemoryInspector(),
           String() => const DocumentDisplayWidget(),
         };

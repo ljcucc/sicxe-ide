@@ -13,6 +13,7 @@ class EditorFormatButton extends StatelessWidget {
         return InkWell(
           onTap: () {
             editor.format(etc.tabId);
+            etc.update();
           },
           child: Padding(
             padding: EdgeInsets.all(14),

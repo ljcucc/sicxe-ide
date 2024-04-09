@@ -18,7 +18,7 @@ class _TerminalPageState extends State<TerminalPage> {
   Widget build(BuildContext context) {
     return Consumer<EmulatorWorkflow>(
       builder: (context, emulator, _) {
-        final terminal = emulator.termianl;
+        final terminal = emulator.terminal;
         final colorScheme = Theme.of(context).colorScheme;
 
         return Padding(
@@ -39,6 +39,7 @@ class _TerminalPageState extends State<TerminalPage> {
             padding: const EdgeInsets.all(16.0),
             child: TerminalView(
               terminal,
+              textScaler: TextScaler.linear(1.1),
               theme: TerminalTheme(
                 cursor: colorScheme.primary,
                 selection: colorScheme.primary,

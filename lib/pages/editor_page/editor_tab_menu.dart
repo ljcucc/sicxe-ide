@@ -13,7 +13,6 @@ class EditorTabMenu extends StatelessWidget {
         Provider.of<EditorTabController>(context, listen: false).tabId;
 
     etc.closeTab(filename);
-    editor.contents.remove(filename);
   }
 
   _newFile(context) async {
@@ -58,7 +57,7 @@ class EditorTabMenu extends StatelessWidget {
     if (filename.trim().isEmpty) return;
 
     final editor = Provider.of<EditorWorkflow>(context, listen: false);
-    if (editor.contents.containsKey(filename)) {
+    if (await editor.contents.isFileExists(filename)) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           behavior: SnackBarBehavior.floating,
@@ -72,7 +71,7 @@ class EditorTabMenu extends StatelessWidget {
       return;
     }
 
-    editor.contents[filename] = ". enter your code here";
+    editor.contents.setFileString(filename, ". enter your code here");
 
     final etc = Provider.of<EditorTabController>(context, listen: false);
     etc.openTab(filename);
@@ -81,7 +80,7 @@ class EditorTabMenu extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return PopupMenuButton(
-      icon: Icon(Icons.arrow_drop_down_rounded),
+      icon: Icon(Icons.arrow_drop_down),
       itemBuilder: (_) => <PopupMenuEntry>[
         PopupMenuItem(
           onTap: () async => await _newFile(context),

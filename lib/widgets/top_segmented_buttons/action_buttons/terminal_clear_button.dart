@@ -11,8 +11,8 @@ class TerminalClearButton extends StatelessWidget {
       builder: (context, emulator, child) {
         return InkWell(
           onTap: () {
-            emulator.termianl.buffer.clear();
-            emulator.termianl.setCursor(0, 0);
+            emulator.terminal.buffer.clear();
+            emulator.terminal.setCursor(0, 0);
             emulator.notifyListeners();
           },
           child: Padding(

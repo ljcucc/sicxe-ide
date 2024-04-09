@@ -131,15 +131,19 @@ class EndRecord extends ObjectProgramRecord {
 class ModificationRecord extends ObjectProgramRecord {
   final String startingLocation;
   final String digitLength;
+  final String modiFlag;
+  final String externalSymbol;
 
   ModificationRecord({
     required this.startingLocation,
     required this.digitLength,
+    this.modiFlag = "",
+    this.externalSymbol = "",
   });
 
   @override
   String getRecord() {
-    return "M$startingLocation$digitLength\n";
+    return "M$startingLocation$digitLength$modiFlag$externalSymbol\n";
   }
 
   @override
@@ -157,6 +161,90 @@ class ModificationRecord extends ObjectProgramRecord {
         "tooltip": "Length of modification in digits (half-bytes)",
         "text": digitLength,
       },
+
+      // compatible with p.89(csect) and p.65(f2.8)
+      if (modiFlag.isNotEmpty)
+        {
+          "tooltip": "Modification flag (+ or -)",
+          "text": modiFlag,
+        },
+      if (externalSymbol.isNotEmpty)
+        {
+          "tooltip": "External symbol to calculate",
+          "text": externalSymbol,
+        },
+    ];
+  }
+}
+
+class DefineRecord extends ObjectProgramRecord {
+  late Map<String, String> definedSymbols;
+
+  DefineRecord({
+    Map<String, String>? definedSymbols,
+  }) {
+    this.definedSymbols = definedSymbols ?? {};
+  }
+
+  @override
+  String getRecord() {
+    return toMapList().map((e) => e['text'] ?? "").join();
+  }
+
+  @override
+  List<Map<String, String>> toMapList() {
+    return [
+      {
+        "text": "D",
+        "tooltip": "Heading char, for DefineRecord is [D]",
+      },
+      for (String key in definedSymbols.keys) ...[
+        {
+          "text": key,
+          "tooltip": "Name of external symbol defined in this control section",
+        },
+        {
+          "text": definedSymbols[key] ?? "",
+          "tooltip": "Relative address of symbol within this control section",
+        },
+      ]
+    ];
+  }
+}
+
+class ReferRecord extends ObjectProgramRecord {
+  final String externalName;
+  late List<String> externalSymbols;
+
+  ReferRecord({
+    this.externalName = "",
+    List<String>? externalSymbols,
+  }) {
+    this.externalSymbols = externalSymbols ?? [];
+  }
+
+  @override
+  String getRecord() {
+    return toMapList().map((e) => e['text'] ?? "").join();
+  }
+
+  @override
+  List<Map<String, String>> toMapList() {
+    return [
+      {
+        "text": "R",
+        "tooltip": "Heading char, for ReferRecord is [R]",
+      },
+      {
+        "text": externalName,
+        "tooltip":
+            "Name of external symbol referred to in this control section",
+      },
+      for (final name in externalSymbols)
+        {
+          "text": name,
+          "tooltip": "Name of external reference symbol: $name",
+        },
     ];
   }
 }

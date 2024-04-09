@@ -8,11 +8,11 @@ import 'package:sicxe/pages/editor_page/tabs/vobj_viewer_tab/vobj_block_widget.d
 import 'package:sicxe/utils/workflow/editor_workflow.dart';
 
 class VobjViewerTab extends StatefulWidget {
-  final String filename;
+  final String sourceString;
 
   const VobjViewerTab({
     super.key,
-    required this.filename,
+    required this.sourceString,
   });
 
   @override
@@ -20,31 +20,43 @@ class VobjViewerTab extends StatefulWidget {
 }
 
 class _VobjViewerTabState extends State<VobjViewerTab> {
-  ObjectCodeIsVisualized visualized = ObjectCodeIsVisualized();
+  late ObjectCodeIsVisualized _isVisualized;
+
+  @override
+  initState() {
+    super.initState();
+
+    _isVisualized = ObjectCodeIsVisualized();
+  }
 
   _objectCodeToString(List<List<Map<String, String>>> objectCode) {
     return objectCode.map((e) => e.map((e) => e['text'] ?? ""));
   }
 
+  _stringToObjectCode(String jsonSource) {
+    List<List<Map<String, String>>> objectCodes =
+        (jsonDecode(jsonSource) as List).map((e) {
+      return (e as List).map<Map<String, String>>((originalMap) {
+        Map<String, String> result = {};
+        for (final key in originalMap.keys) {
+          result[key] = originalMap[key] as String;
+        }
+        return result;
+      }).toList();
+    }).toList();
+
+    return objectCodes;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Consumer<EditorWorkflow>(builder: (context, editor, _) {
-      final jsonSource = editor.contents[widget.filename] ?? "[]";
-      List<List<Map<String, String>>> objectCodes =
-          (jsonDecode(jsonSource) as List).map((e) {
-        return (e as List).map<Map<String, String>>((originalMap) {
-          Map<String, String> result = {};
-          for (final key in originalMap.keys) {
-            result[key] = originalMap[key] as String;
-          }
-          return result;
-        }).toList();
-      }).toList();
+      final objectCodes = _stringToObjectCode(widget.sourceString);
 
-      return SafeArea(
-        minimum: const EdgeInsets.all(16.0),
-        child: ChangeNotifierProvider<ObjectCodeIsVisualized>(
-          create: (_) => visualized,
+      return ChangeNotifierProvider.value(
+        value: _isVisualized,
+        child: SafeArea(
+          minimum: const EdgeInsets.all(16.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -58,7 +70,9 @@ class _VobjViewerTabState extends State<VobjViewerTab> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           for (final record in objectCodes)
-                            VobjBlockWdiget(objectProgramRecord: record)
+                            VobjBlockWdiget(
+                              objectProgramRecord: record,
+                            )
                         ],
                       ),
                     ),
@@ -75,7 +89,7 @@ class _VobjViewerTabState extends State<VobjViewerTab> {
                         title: Text("Toggle blockly view"),
                       ),
                       onTap: () {
-                        visualized.visualized = !visualized.visualized;
+                        _isVisualized.visualized = !_isVisualized.visualized;
                       },
                     ),
                     PopupMenuItem(

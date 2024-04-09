@@ -1,8 +1,14 @@
 import 'package:flutter/material.dart';
 
 class EditorTabController extends ChangeNotifier {
-  String _tabId = "main.asm";
-  List<String> openedTabs = ["main.asm", "output.asm"];
+  int changed = 0;
+  String _tabId = "";
+  List<String> openedTabs = [];
+
+  update() {
+    changed++;
+    notifyListeners();
+  }
 
   set tabId(String id) {
     _tabId = id;
@@ -27,7 +33,11 @@ class EditorTabController extends ChangeNotifier {
     if (!openedTabs.contains(id)) return false;
 
     openedTabs.remove(id);
-    _tabId = openedTabs.last;
+    if (openedTabs.length >= 1) {
+      _tabId = openedTabs.last;
+    } else {
+      _tabId = "";
+    }
 
     notifyListeners();
 

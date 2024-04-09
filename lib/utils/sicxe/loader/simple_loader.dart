@@ -1,22 +1,20 @@
 import 'package:sicxe/utils/sicxe/assembler/assembler.dart';
 import 'package:sicxe/utils/sicxe/assembler/object_program_record.dart';
 import 'package:sicxe/utils/sicxe/emulator/vm.dart';
+import 'package:sicxe/utils/sicxe/loader/loader.dart';
 
 /// Called "Simple Bootstrap Loader" in textbook
-
-class SimpleLoader {
-  final SICXE vm;
-  final LlbAssembler assembler;
-
+class SimpleLoader extends Loader {
   SimpleLoader({
-    required this.vm,
-    required this.assembler,
+    required super.vm,
+    required super.assembler,
   });
 
   Future<void> load() async {
-    final records = assembler.records;
+    final records = assembler.context.records;
     for (final (index, record) in records.indexed) {
       if (record is HeaderRecord) continue;
+      if (record is ModificationRecord) continue;
       if (record is EndRecord) break;
 
       TextRecord tr = record as TextRecord;
